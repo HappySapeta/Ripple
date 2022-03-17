@@ -1,0 +1,2 @@
+D:\Work\MyWork\Unreal\Projects\UnrealDevLab\Plugins\Ripple\Intermediate\Build\Win64\UE4Editor\Development\Ripple\Definitions.Ripple.h
+D:\Work\MyWork\Unreal\Projects\UnrealDevLab\Plugins\Ripple\Source\Ripple\Public\Ripple.h
