@@ -10,7 +10,7 @@ public class EditorExtensions: ModuleRules
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-				"EditorExtensions/Public"
+				
 				// ... add public include paths required here ...
 			}
 			);
@@ -18,7 +18,6 @@ public class EditorExtensions: ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"EditorExtensions/Private"
 				// ... add other private include paths required here ...
 			}
 			);
@@ -28,7 +27,8 @@ public class EditorExtensions: ModuleRules
 			new string[]
 			{
 				"Core",
-				"Slate"
+				"Slate",
+				"Ripple"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -40,7 +40,10 @@ public class EditorExtensions: ModuleRules
 				"CoreUObject",
 				"Engine",
 				"SlateCore",
-				"UnrealEd"
+				"UnrealEd", 
+				"MainFrame",
+				"EditorStyle",
+				"ToolMenus"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -23,7 +23,11 @@
 		{
 			"Name": "EditorExtensions",
 			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit"
+			"LoadingPhase": "PostEngineInit",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject"
+			]
 		}
 	]
 }
