@@ -3,3 +3,6 @@ Binaries/*
 
 # Compiled source files for the engine to use
 Intermediate/*
+
+# Tests folder - Special folder for containing test scripts
+Source/**/Tests/*
