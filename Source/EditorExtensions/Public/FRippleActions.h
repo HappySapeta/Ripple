@@ -25,9 +25,6 @@ public:
 
 	// Command to launch the module creation menu.
 	TSharedPtr<FUICommandInfo> CreateModule;
-
-	// Command to launch the module deletion menu.
-	TSharedPtr<FUICommandInfo> DeleteModule;
 };
 
 
@@ -36,7 +33,4 @@ class FRippleActionCallbacks
 public :
 	
 	static void CreateModule();
-
-	static void DeleteModule();
-	
 };
