@@ -5,6 +5,7 @@
 
 #define LOCTEXT_NAMESPACE "ModuleMaker"
 
+BEGIN_FUNCTION_BUILD_OPTIMIZATION
 void SModuleMakerWidget::Construct(const FArguments& InArgs)
 {	
 	ChildSlot
@@ -84,7 +85,8 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 					+ SVerticalBox::Slot()
-					.FillHeight(0.25f)
+					.Padding(5, 2)
+					.AutoHeight()
 					[
 						SNew(SHorizontalBox)
 						+SHorizontalBox::Slot()
@@ -95,8 +97,8 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("ModuleNameLabel", "Name"))
 						]
 
-						+SHorizontalBox::Slot()
-						.FillWidth(0.5f)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						[
 							SAssignNew( ClassNameEditBox, SEditableTextBox)
 							.Text( this, &SModuleMakerWidget::OnGetModuleNameText )
@@ -104,17 +106,134 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							.OnTextCommitted( this, &SModuleMakerWidget::OnModuleNameTextCommitted )
 						]
 					]
+
+					+ SVerticalBox::Slot()
+					.Padding(5, 2)
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+						+SHorizontalBox::Slot()
+						.FillWidth(0.2f)
+						[
+							SNew(STextBlock)
+							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
+							.Text(LOCTEXT("ModulePathLabel", "Path"))
+						]
+
+						// Path edit box
+						+SHorizontalBox::Slot()
+						.Padding(0.0f, 3.0f)
+						.VAlign(VAlign_Center)
+						[
+							SNew(SVerticalBox)
+							// Native C++ path
+							+ SVerticalBox::Slot()
+							.Padding(0)
+							.AutoHeight()
+							[
+								SNew(SBox)
+								.Visibility(EVisibility::Visible)
+								.HeightOverride(26.0f)
+								[
+									SNew(SHorizontalBox)
+									+SHorizontalBox::Slot()
+									.FillWidth(1.0f)
+									[
+										SNew(SEditableTextBox)
+										.Text(this, &SModuleMakerWidget::OnGetModulePathText)
+										.OnTextChanged(this, &SModuleMakerWidget::OnModulePathTextChanged)
+									]
+									
+									+SHorizontalBox::Slot()
+									.AutoWidth()
+									.Padding(6.0f, 1.0f, 0.0f, 0.0f)
+									[
+										SNew(SButton)
+										.VAlign(VAlign_Center)
+										.OnClicked(this, &SModuleMakerWidget::HandleChooseFolderButtonClicked)
+										.Text( LOCTEXT( "BrowseButtonText", "Choose Folder" ) )
+									]
+								]
+							]
+						]
+					]
+
+					+ SVerticalBox::Slot()
+					.Padding(5, 2)
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+						+SHorizontalBox::Slot()
+						.FillWidth(0.25f)
+						[
+							SNew(STextBlock)
+							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
+							.Text(LOCTEXT("ModuleHeaderLabel", "Header File"))
+						]
+
+						+SHorizontalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoWidth()
+						[
+							SNew(STextBlock)
+							.Text( LOCTEXT("ModuleHeaderFilePath","D:/Work/MyWork/Unreal/Projects/UnrealDevLab/Source/UnrealDevLab/Module/Public/Module.h") )
+						]
+					]
+
+					+ SVerticalBox::Slot()
+					.Padding(5, 2)
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+						+SHorizontalBox::Slot()
+						.FillWidth(0.25f)
+						[
+							SNew(STextBlock)
+							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
+							.Text(LOCTEXT("ModuleSourceLabel", "Source File"))
+						]
+
+						+SHorizontalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoWidth()
+						[
+							SNew(STextBlock)
+							.Text( LOCTEXT("ModuleSourceFilePath","D:/Work/MyWork/Unreal/Projects/UnrealDevLab/Source/UnrealDevLab/Module/Private/Module.cpp") )
+						]
+					]
+
+					+ SVerticalBox::Slot()
+					.Padding(5, 2)
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+						+SHorizontalBox::Slot()
+						.FillWidth(0.25f)
+						[
+							SNew(STextBlock)
+							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
+							.Text(LOCTEXT("ModuleConfigLabel", "Configuration File"))
+						]
+
+						+SHorizontalBox::Slot()
+						.AutoWidth()
+						.HAlign(HAlign_Left)
+						[
+							SNew(STextBlock)
+							.Text( LOCTEXT("ModuleConfigFilePath","D:/Work/MyWork/Unreal/Projects/UnrealDevLab/Source/UnrealDevLab/Module/Module.build.cs") )
+						]
+					]
 				]
 			]
 		]
 	];
 }
-
+END_FUNCTION_BUILD_OPTIMIZATION
 
 
 EVisibility SModuleMakerWidget::GetNameErrorLabelVisibility() const
 {
-	return EVisibility::Visible;
+	return EVisibility::Hidden;
 }
 
 void SModuleMakerWidget::OnModuleNameTextChanged(const FText& Text) const
@@ -127,12 +246,26 @@ void SModuleMakerWidget::OnModuleNameTextCommitted(const FText& Text, ETextCommi
 
 FText SModuleMakerWidget::OnGetModuleNameText() const
 {
-	return LOCTEXT("SomeKey", "SomeName");
+	return LOCTEXT("ModuleNameText", "SomeName");
 }
 
 FText SModuleMakerWidget::GetNameErrorLabelText() const
 {
 	return LOCTEXT("ModuleNameError", "Invalid Name");
+}
+
+FText SModuleMakerWidget::OnGetModulePathText() const
+{
+	return LOCTEXT("ModulePathText", "SomePath");
+}
+
+void SModuleMakerWidget::OnModulePathTextChanged(const FText& Text) const
+{
+}
+
+FReply SModuleMakerWidget::HandleChooseFolderButtonClicked() const
+{
+	return FReply::Handled();
 }
 
 #undef LOCTEXT_NAMESPACE

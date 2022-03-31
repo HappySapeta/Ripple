@@ -28,6 +28,12 @@ private:
 	
 	FText GetNameErrorLabelText() const;
 
+	FText OnGetModulePathText() const;
+
+	void OnModulePathTextChanged(const FText& Text) const;
+
+	FReply HandleChooseFolderButtonClicked() const;
+
 private:
 
 	/** The editable text box to enter the current name */
