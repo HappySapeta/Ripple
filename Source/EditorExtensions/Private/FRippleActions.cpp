@@ -39,5 +39,5 @@ void FRippleActions::FillMenu(FMenuBuilder& MenuBuilder)
 void FRippleActionCallbacks::CreateModule()
 {
 	CLOG(Log, "Create module requested.")
-	//FModuleMaker::LaunchModuleCreationDialog();
+	FModuleMaker::LaunchModuleCreationDialog();
 }

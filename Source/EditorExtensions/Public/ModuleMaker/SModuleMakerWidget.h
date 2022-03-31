@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/HUD.h"
 
 /**
  * 
@@ -13,16 +12,25 @@ class EDITOREXTENSIONS_API SModuleMakerWidget : public SCompoundWidget
 public:
 
 	SLATE_BEGIN_ARGS( SModuleMakerWidget ) {}
-	
-	// A reference to the parent window
-	SLATE_ARGUMENT(TWeakObjectPtr<AHUD>, OwningHUD)
-
 	SLATE_END_ARGS()
 	
 	void Construct(const FArguments& InArgs);
+	
+private:
 
-	virtual bool SupportsKeyboardFocus() const override { return true; }
-		
-	// The slate window that created this widget.
-	TSharedPtr<SWindow> ParentWindow;
+	EVisibility GetNameErrorLabelVisibility() const;
+
+	void OnModuleNameTextChanged(const FText& Text) const;
+	
+	void OnModuleNameTextCommitted(const FText& Text, ETextCommit::Type Arg) const;
+	
+	FText OnGetModuleNameText() const;
+	
+	FText GetNameErrorLabelText() const;
+
+private:
+
+	/** The editable text box to enter the current name */
+	TSharedPtr<SEditableTextBox> ClassNameEditBox;
+	
 };

@@ -5,13 +5,16 @@
 #include "Interfaces/IMainFrameModule.h"
 #include "ModuleMaker/SModuleMakerWidget.h"
 
+#define MODULE_MAKER_WINDOW_SIZE 940, 500
+
 void FModuleMaker::LaunchModuleCreationDialog()
 {
-	TSharedRef<SWindow> ModuleCreationWindow =
+	const TSharedRef<SWindow> ModuleCreationWindow =
 		SNew(SWindow)
 		.Title(FText::FromString("Module Maker"))
-		.ClientSize(FVector2D(800, 600))
-		.SizingRule( ESizingRule::UserSized )
+		.ClientSize(FVector2D(MODULE_MAKER_WINDOW_SIZE))
+		.SizingRule( ESizingRule::FixedSize )
+		.AutoCenter(EAutoCenter::PrimaryWorkArea)
 		.SupportsMinimize(false)
 		.SupportsMaximize(false);
 
