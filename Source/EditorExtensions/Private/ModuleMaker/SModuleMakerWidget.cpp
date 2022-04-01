@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ModuleMaker/SModuleMakerWidget.h"
+
+#include "Widgets/Layout/SGridPanel.h"
 #include "Widgets/Layout/SSeparator.h"
 
 #define LOCTEXT_NAMESPACE "ModuleMaker"
@@ -14,25 +16,28 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 		.Padding(18)
 		.BorderImage( FEditorStyle::GetBrush("Docking.Tab.ContentAreaBrush") )
 		[
-			// Title 
 			SNew(SVerticalBox)
+#pragma region Title
+			// Title 
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(0)
 			[
 				SNew(STextBlock)
 				.TextStyle( FEditorStyle::Get(), "NewClassDialog.PageTitle" )
-				.Text( LOCTEXT("ModuleTitle", "Name Your New Module") )
+				.Text( LOCTEXT("ModuleMakerTitle", "Name Your New Module") )
 			]
 
 			// Title spacer
 			+SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(0, 2, 0, 8)
+			.Padding(0, 3, 0, 8)
 			[
 				SNew(SSeparator)
 			]
+#pragma endregion 
 
+#pragma region Description
 			// Description
 			+SVerticalBox::Slot()
 			.AutoHeight()
@@ -44,7 +49,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 				.Padding(0, 0, 0, 5)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("ModuleNameCriteria", "Enter a name for your new module. Module names may only contain alphanumeric characters, and may not contain a space."))
+					.Text(LOCTEXT("ModuleNameCriterion", "Enter a name for your new module. Module names may only contain alphanumeric characters, and may not contain a space."))
 				]
 
 				+SVerticalBox::Slot()
@@ -55,7 +60,9 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("ModuleCreationNotice", "When you click the \"Create\" button below, a header (.h) file, a source (.cpp) and a build configuration (.cs) file will be made using this name."))
 				]
 			]
+#pragma endregion
 
+#pragma region Error Text
 			// Name Error label
 			+SVerticalBox::Slot()
 			.AutoHeight()
@@ -74,157 +81,91 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					]
 				]
 			]
+#pragma endregion
 
+#pragma region User input box
 			+SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(0, 5)
 			[
 				SNew(SBorder)
 				.BorderImage(FEditorStyle::GetBrush("DetailsView.CategoryTop"))
 				.BorderBackgroundColor(FLinearColor(0.6f, 0.6f, 0.6f, 1.0f ))
+				.Padding(FMargin(6.0f, 4.0f, 7.0f, 4.0f))
 				[
 					SNew(SVerticalBox)
-					+ SVerticalBox::Slot()
-					.Padding(5, 2)
+#pragma region Module Name Input
+					+SVerticalBox::Slot()
 					.AutoHeight()
+					.Padding(0)
 					[
-						SNew(SHorizontalBox)
-						+SHorizontalBox::Slot()
-						.FillWidth(0.125f)
-						[
-							SNew(STextBlock)
-							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
-							.Text(LOCTEXT("ModuleNameLabel", "Name"))
-						]
+						SNew(SGridPanel)
+						.FillColumn(1, 1.0f)
 
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew( ClassNameEditBox, SEditableTextBox)
-							.Text( this, &SModuleMakerWidget::OnGetModuleNameText )
-							.OnTextChanged( this, &SModuleMakerWidget::OnModuleNameTextChanged )
-							.OnTextCommitted( this, &SModuleMakerWidget::OnModuleNameTextCommitted )
-						]
-					]
-
-					+ SVerticalBox::Slot()
-					.Padding(5, 2)
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-						+SHorizontalBox::Slot()
-						.FillWidth(0.2f)
-						[
-							SNew(STextBlock)
-							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
-							.Text(LOCTEXT("ModulePathLabel", "Path"))
-						]
-
-						// Path edit box
-						+SHorizontalBox::Slot()
-						.Padding(0.0f, 3.0f)
+						// Name Label
+						+ SGridPanel::Slot(0, 0)
 						.VAlign(VAlign_Center)
+						.Padding(0, 0, 120, 0)
 						[
-							SNew(SVerticalBox)
-							// Native C++ path
-							+ SVerticalBox::Slot()
-							.Padding(0)
-							.AutoHeight()
+							SNew(STextBlock)
+							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
+							.Text( LOCTEXT( "ModuleNameLabel", "Name" ) )
+						]
+
+						// Name input text box
+						+ SGridPanel::Slot(1, 0)
+						.VAlign(VAlign_Center)
+						.Padding(0.0f, 3.0f)
+						[
+							SNew(SBox)
+							.HeightOverride(26.0f)
 							[
-								SNew(SBox)
-								.Visibility(EVisibility::Visible)
-								.HeightOverride(26.0f)
-								[
-									SNew(SHorizontalBox)
-									+SHorizontalBox::Slot()
-									.FillWidth(1.0f)
-									[
-										SNew(SEditableTextBox)
-										.Text(this, &SModuleMakerWidget::OnGetModulePathText)
-										.OnTextChanged(this, &SModuleMakerWidget::OnModulePathTextChanged)
-									]
-									
-									+SHorizontalBox::Slot()
-									.AutoWidth()
-									.Padding(6.0f, 1.0f, 0.0f, 0.0f)
-									[
-										SNew(SButton)
-										.VAlign(VAlign_Center)
-										.OnClicked(this, &SModuleMakerWidget::HandleChooseFolderButtonClicked)
-										.Text( LOCTEXT( "BrowseButtonText", "Choose Folder" ) )
-									]
-								]
+								SAssignNew(ClassNameEditBox, SEditableTextBox)
+								.Text(this, &SModuleMakerWidget::GetModuleNameText)
+								.OnTextChanged(this, &SModuleMakerWidget::OnModuleNameChanged)
+								.OnTextCommitted(this, &SModuleMakerWidget::OnModuleNameCommitted)
 							]
 						]
 					]
+#pragma endregion
 
-					+ SVerticalBox::Slot()
-					.Padding(5, 2)
+#pragma region Module Path Input
+					+SVerticalBox::Slot()
 					.AutoHeight()
+					.Padding(0)
 					[
-						SNew(SHorizontalBox)
-						+SHorizontalBox::Slot()
-						.FillWidth(0.25f)
+						SNew(SGridPanel)
+						.FillColumn(1, 1.0f)
+
+						// Path Label
+						+ SGridPanel::Slot(0, 0)
+						.VAlign(VAlign_Center)
+						.Padding(0, 0, 120, 0)
 						[
 							SNew(STextBlock)
 							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
-							.Text(LOCTEXT("ModuleHeaderLabel", "Header File"))
+							.Text( LOCTEXT( "ModulePathLabel", "Path" ) )
 						]
 
-						+SHorizontalBox::Slot()
-						.HAlign(HAlign_Left)
-						.AutoWidth()
+						// Path input text box
+						+ SGridPanel::Slot(1, 0)
+						.VAlign(VAlign_Center)
+						.Padding(0.0f, 3.0f)
 						[
-							SNew(STextBlock)
-							.Text( LOCTEXT("ModuleHeaderFilePath","D:/Work/MyWork/Unreal/Projects/UnrealDevLab/Source/UnrealDevLab/Module/Public/Module.h") )
+							SNew(SBox)
+							.HeightOverride(26.0f)
+							[
+								SAssignNew(ClassNameEditBox, SEditableTextBox)
+								.Text(this, &SModuleMakerWidget::GetModuleNameText)
+								.OnTextChanged(this, &SModuleMakerWidget::OnModuleNameChanged)
+								.OnTextCommitted(this, &SModuleMakerWidget::OnModuleNameCommitted)
+							]
 						]
 					]
+#pragma endregion
 
-					+ SVerticalBox::Slot()
-					.Padding(5, 2)
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-						+SHorizontalBox::Slot()
-						.FillWidth(0.25f)
-						[
-							SNew(STextBlock)
-							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
-							.Text(LOCTEXT("ModuleSourceLabel", "Source File"))
-						]
-
-						+SHorizontalBox::Slot()
-						.HAlign(HAlign_Left)
-						.AutoWidth()
-						[
-							SNew(STextBlock)
-							.Text( LOCTEXT("ModuleSourceFilePath","D:/Work/MyWork/Unreal/Projects/UnrealDevLab/Source/UnrealDevLab/Module/Private/Module.cpp") )
-						]
-					]
-
-					+ SVerticalBox::Slot()
-					.Padding(5, 2)
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-						+SHorizontalBox::Slot()
-						.FillWidth(0.25f)
-						[
-							SNew(STextBlock)
-							.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
-							.Text(LOCTEXT("ModuleConfigLabel", "Configuration File"))
-						]
-
-						+SHorizontalBox::Slot()
-						.AutoWidth()
-						.HAlign(HAlign_Left)
-						[
-							SNew(STextBlock)
-							.Text( LOCTEXT("ModuleConfigFilePath","D:/Work/MyWork/Unreal/Projects/UnrealDevLab/Source/UnrealDevLab/Module/Module.build.cs") )
-						]
-					]
 				]
 			]
+#pragma endregion 
 		]
 	];
 }
@@ -233,39 +174,35 @@ END_FUNCTION_BUILD_OPTIMIZATION
 
 EVisibility SModuleMakerWidget::GetNameErrorLabelVisibility() const
 {
-	return EVisibility::Hidden;
-}
-
-void SModuleMakerWidget::OnModuleNameTextChanged(const FText& Text) const
-{
-}
-
-void SModuleMakerWidget::OnModuleNameTextCommitted(const FText& Text, ETextCommit::Type Arg) const
-{
-}
-
-FText SModuleMakerWidget::OnGetModuleNameText() const
-{
-	return LOCTEXT("ModuleNameText", "SomeName");
+	return NameErrorType == ENameErrorType::None ? EVisibility::Hidden : EVisibility::Visible;
 }
 
 FText SModuleMakerWidget::GetNameErrorLabelText() const
 {
-	return LOCTEXT("ModuleNameError", "Invalid Name");
+	switch(NameErrorType)
+	{
+	case Duplicate :
+		return LOCTEXT("DuplicateNameErrorText", "A module with this name already exitsts in the choosen folder.");
+	case IllegalCharacters:
+		return LOCTEXT("IllegalCharactersNameErrorText", "Module name contains illegal characters");
+	default:
+		return FText::FromString("");
+	}
 }
 
-FText SModuleMakerWidget::OnGetModulePathText() const
+FText SModuleMakerWidget::GetModuleNameText() const
 {
-	return LOCTEXT("ModulePathText", "SomePath");
+	return FText::FromString(NewModuleName);
 }
 
-void SModuleMakerWidget::OnModulePathTextChanged(const FText& Text) const
+void SModuleMakerWidget::OnModuleNameChanged(const FText& InputText)
 {
+	
 }
 
-FReply SModuleMakerWidget::HandleChooseFolderButtonClicked() const
+void SModuleMakerWidget::OnModuleNameCommitted(const FText&, ETextCommit::Type)
 {
-	return FReply::Handled();
+	
 }
 
 #undef LOCTEXT_NAMESPACE

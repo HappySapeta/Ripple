@@ -4,6 +4,13 @@
 
 #include "CoreMinimal.h"
 
+enum ENameErrorType : uint8
+{
+	None,
+	Duplicate,
+	IllegalCharacters
+};
+
 /**
  * 
  */
@@ -19,23 +26,23 @@ public:
 private:
 
 	EVisibility GetNameErrorLabelVisibility() const;
-
-	void OnModuleNameTextChanged(const FText& Text) const;
-	
-	void OnModuleNameTextCommitted(const FText& Text, ETextCommit::Type Arg) const;
-	
-	FText OnGetModuleNameText() const;
 	
 	FText GetNameErrorLabelText() const;
+	
+	FText GetModuleNameText() const;
 
-	FText OnGetModulePathText() const;
+	void OnModuleNameChanged(const FText& InputText);
 
-	void OnModulePathTextChanged(const FText& Text) const;
-
-	FReply HandleChooseFolderButtonClicked() const;
+	void OnModuleNameCommitted(const FText&, ETextCommit::Type);
 
 private:
 
+	FString NewModuleName = "NewModule";
+	
+	bool bIsModulePathValid = false;
+
+	ENameErrorType NameErrorType = None;
+	
 	/** The editable text box to enter the current name */
 	TSharedPtr<SEditableTextBox> ClassNameEditBox;
 	
