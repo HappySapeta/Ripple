@@ -43,7 +43,8 @@ public class EditorExtensions: ModuleRules
 				"UnrealEd", 
 				"MainFrame",
 				"EditorStyle",
-				"ToolMenus"
+				"ToolMenus",
+				"GameProjectGeneration"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

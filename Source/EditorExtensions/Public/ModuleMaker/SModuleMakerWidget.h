@@ -4,46 +4,56 @@
 
 #include "CoreMinimal.h"
 
-enum ENameErrorType : uint8
-{
-	None,
-	Duplicate,
-	IllegalCharacters
-};
-
 /**
  * 
  */
 class EDITOREXTENSIONS_API SModuleMakerWidget : public SCompoundWidget
 {
 public:
-
+	
 	SLATE_BEGIN_ARGS( SModuleMakerWidget ) {}
+
+	SLATE_ARGUMENT(FVector2D, WindowSize)
+	
 	SLATE_END_ARGS()
 	
 	void Construct(const FArguments& InArgs);
 	
 private:
 
-	EVisibility GetNameErrorLabelVisibility() const;
-	
-	FText GetNameErrorLabelText() const;
-	
+	EVisibility GetErrorLabelVisibility() const;
+
+	FText GetErrorLabelText() const;
+
 	FText GetModuleNameText() const;
+	
+	FText GetModulePathText() const;
+
+	// Check if the Module name is valid. 
+	bool IsModuleNameValid(const FString& InputString, FString& OutFailReason) const;
+
+	// Check with the OS if this path exists.
+	bool IsModulePathValid(const FString& InputText, FString& OutFailReason) const;
 
 	void OnModuleNameChanged(const FText& InputText);
 
-	void OnModuleNameCommitted(const FText&, ETextCommit::Type);
+	void OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType);
+
+	FReply HandleChooseFolderButtonClicked();
+	
+	FReply HandleCreateButtonClicked();
+
+	FReply HandleCancelButtonClicked();
+
+	void UpdateNameValidity();
 
 private:
+	
+	FText NewModuleName;
 
-	FString NewModuleName = "NewModule";
-	
-	bool bIsModulePathValid = false;
+	FText NewModulePath;
 
-	ENameErrorType NameErrorType = None;
+	TSharedPtr<SEditableTextBox> NameEditBox;
 	
-	/** The editable text box to enter the current name */
-	TSharedPtr<SEditableTextBox> ClassNameEditBox;
-	
+	FString ErrorString;
 };
