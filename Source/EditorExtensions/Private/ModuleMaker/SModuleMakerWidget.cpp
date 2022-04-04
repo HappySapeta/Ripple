@@ -5,8 +5,7 @@
 #include "Widgets/Layout/SGridPanel.h"
 #include "Widgets/Layout/SSeparator.h"
 
-#include "GameProjectUtils.h"
-#include "LoggingMacros.h"
+#include "ModuleMaker/FModuleMaker.h"
 
 #define MAX_MODULE_NAME_LENGTH 32
 
@@ -281,6 +280,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 		]
 	];
 }
+END_FUNCTION_BUILD_OPTIMIZATION
 
 EVisibility SModuleMakerWidget::GetErrorLabelVisibility() const
 {
@@ -302,65 +302,21 @@ FText SModuleMakerWidget::GetModulePathText() const
 	return NewModulePath;
 }
 
-bool SModuleMakerWidget::IsModuleNameValid(const FString& InputString, FString& OutFailReason) const
-{
-	OutFailReason.Empty();
-	
-	if(InputString.IsEmpty())
-	{
-		OutFailReason = "You must specify a module name.";
-		return false;
-	}
-
-	if(InputString.Contains(" "))
-	{
-		OutFailReason = "Your module name may not contain a space.";
-		return false;
-	}
-
-	if(!FChar::IsAlpha(InputString[0]))
-	{
-		OutFailReason = "Your module name must begin with an alphabetic character.";
-		return false;
-	}
-
-	if(InputString.Len() > MAX_MODULE_NAME_LENGTH)
-	{
-		TArray <FStringFormatArg> Args;
-		Args.Add(MAX_MODULE_NAME_LENGTH);
-		
-		OutFailReason = FString::Format(TEXT("The module name must be no longer than {0} characters."), Args);
-
-		return false;
-	}
-
-	FString IllegalNameCharacters;
-	if ( !GameProjectUtils::NameContainsOnlyLegalCharacters(InputString, IllegalNameCharacters) )
-	{
-		TArray<FStringFormatArg> Args;
-		Args.Add(IllegalNameCharacters);
-
-		OutFailReason = FString::Format(TEXT("The class name may not contain the following characters: '{IllegalNameCharacters}'"), Args);
-
-		return false;
-	}
-	
-	return true;
-}
-
-bool SModuleMakerWidget::IsModulePathValid(const FString& InputText, FString& OutFailReason) const
-{
-	OutFailReason.Empty();
-	return true;
-}
-
 void SModuleMakerWidget::OnModuleNameChanged(const FText& InputText)
 {
-	UpdateNameValidity();
+	bLastNameValidityCheckPassed = FModuleMaker::IsModuleNameValid(InputText.ToString(), ErrorString);
+	if(bLastNameValidityCheckPassed)
+	{
+		NewModuleName = InputText;
+	}
 }
 
-void SModuleMakerWidget::OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType)
+void SModuleMakerWidget::OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType) const
 {
+	if(CommitType == ETextCommit::OnEnter || CommitType == ETextCommit::OnUserMovedFocus)
+	{
+		NameEditBox->SetText(InputText);
+	}
 }
 
 FReply SModuleMakerWidget::HandleChooseFolderButtonClicked()
@@ -375,19 +331,13 @@ FReply SModuleMakerWidget::HandleCreateButtonClicked()
 
 FReply SModuleMakerWidget::HandleCancelButtonClicked()
 {
-	return FReply::Handled();
-}
+	const TSharedPtr<SWindow> ContainingWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
 
-void SModuleMakerWidget::UpdateNameValidity()
-{
-	if(!NameEditBox.IsValid())
+	if(ContainingWindow.IsValid())
 	{
-		CLOGV(Error, "NameEditBox has expired.");
+		ContainingWindow->DestroyWindowImmediately();
+		return FReply::Handled();
 	}
-	
-	FString FailReason;
-	bool bIsNameValid = IsModuleNameValid(NameEditBox->GetText().ToString(), FailReason); 
+
+	return FReply::Unhandled();
 }
-
-END_FUNCTION_BUILD_OPTIMIZATION
-

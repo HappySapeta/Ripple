@@ -29,15 +29,9 @@ private:
 	
 	FText GetModulePathText() const;
 
-	// Check if the Module name is valid. 
-	bool IsModuleNameValid(const FString& InputString, FString& OutFailReason) const;
-
-	// Check with the OS if this path exists.
-	bool IsModulePathValid(const FString& InputText, FString& OutFailReason) const;
-
 	void OnModuleNameChanged(const FText& InputText);
 
-	void OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType);
+	void OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType) const;
 
 	FReply HandleChooseFolderButtonClicked();
 	
@@ -45,14 +39,14 @@ private:
 
 	FReply HandleCancelButtonClicked();
 
-	void UpdateNameValidity();
-
 private:
 	
 	FText NewModuleName;
 
 	FText NewModulePath;
 
+	bool bLastNameValidityCheckPassed = false;
+	
 	TSharedPtr<SEditableTextBox> NameEditBox;
 	
 	FString ErrorString;
