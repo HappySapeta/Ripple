@@ -2,12 +2,13 @@
 
 #include "ModuleMaker/SModuleMakerWidget.h"
 
-#include "DesktopPlatformModule.h"
-#include "IDesktopPlatform.h"
-#include "Misc/FileHelper.h"
-#include "Widgets/Layout/SGridPanel.h"
 #include "Widgets/Layout/SSeparator.h"
+#include "Widgets/Layout/SGridPanel.h"
 
+#include "IDesktopPlatform.h"
+#include "DesktopPlatformModule.h"
+
+#include "Misc/FileHelper.h"
 #include "ModuleMaker/FModuleMaker.h"
 
 #define MAX_MODULE_NAME_LENGTH 32
@@ -33,7 +34,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 			[
 				SNew(STextBlock)
 				.TextStyle(FEditorStyle::Get(), "NewClassDialog.PageTitle")
-				.Text(FText::FromString("Name Your New Module"))
+				.Text(INVTEXT("Name Your New Module"))
 			]
 
 			// Title spacer
@@ -57,7 +58,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 				.Padding(0, 0, 0, 5)
 				[
 					SNew(STextBlock)
-					.Text(FText::FromString("Enter a name for your new module. Module names may only contain alphanumeric characters, and may not contain a space."))
+					.Text(INVTEXT("Enter a name for your new module. Module names may only contain alphanumeric characters, and may not contain a space."))
 				]
 
 				+SVerticalBox::Slot()
@@ -65,7 +66,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 				.Padding(0, 0, 0, 5)
 				[
 					SNew(STextBlock)
-					.Text(FText::FromString("When you click the \"Create\" button below, a header (.h) file, a source (.cpp) and a build configuration (.cs) file will be made using this name."))
+					.Text(INVTEXT("When you click the \"Create\" button below, a header (.h) file, a source (.cpp) and a build configuration (.cs) file will be made using this name."))
 				]
 			]
 #pragma endregion
@@ -112,7 +113,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle(FEditorStyle::Get(),"NewClassDialog.SelectedParentClassLabel")
-						.Text(FText::FromString("Name"))
+						.Text(INVTEXT("Name"))
 					]
 
 					// Name Input Text Box
@@ -124,7 +125,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(NameEditBox, SEditableTextBox)
 							.Text(this, &SModuleMakerWidget::GetModuleName)
-							.HintText(FText::FromString("Name of your module"))
+							.HintText(INVTEXT("Name of your module"))
 							.OnTextChanged(this, &SModuleMakerWidget::OnModuleNameChanged)
 							.OnTextCommitted(this, &SModuleMakerWidget::OnModuleNameCommitted)
 						]
@@ -137,7 +138,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle(FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel")
-						.Text(FText::FromString("Path"))
+						.Text(INVTEXT("Path"))
 					]
 					
 					// Path input text box
@@ -153,7 +154,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							[
 								SNew(SEditableTextBox)
 								.Text(this, &SModuleMakerWidget::GetModulePath)
-								.HintText(FText::FromString("Location of your module"))
+								.HintText(INVTEXT("Location of your module"))
 								.IsReadOnly(true)
 							]
 						]
@@ -168,7 +169,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							.HAlign(HAlign_Center)
 							.Visibility(this, &SModuleMakerWidget::GetChooseFolderVisibility)
 							.OnClicked(this, &SModuleMakerWidget::HandleChooseFolderButtonClicked)
-							.Text(FText::FromString("Choose Folder"))
+							.Text(INVTEXT("Choose Folder"))
 						]
 					]
 
@@ -179,7 +180,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle(FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel")
-						.Text(FText::FromString("Header File"))
+						.Text(INVTEXT("Header File"))
 					]
 
 					// Header File Path
@@ -203,7 +204,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
-						.Text(FText::FromString("Source File"))
+						.Text(INVTEXT("Source File"))
 					]
 
 					// Source File Path
@@ -227,7 +228,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
-						.Text(FText::FromString("Build Config File"))
+						.Text(INVTEXT("Build Config File"))
 					]
 
 					// Build Configuration File Path
@@ -260,12 +261,12 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 				[
 					SNew(SButton)
 					.HAlign(HAlign_Center)
-					.Visibility(this, &SModuleMakerWidget::GetCreateButtonStatus)
+					.Visibility(this, &SModuleMakerWidget::GetCreateButtonVisibility)
 					.ContentPadding(FMargin(25.0f, 5.0f))
 					.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
 					.TextStyle(FEditorStyle::Get(), "LargeText")
 					.ForegroundColor(FEditorStyle::Get().GetSlateColor("WhiteBrush"))
-					.Text(FText::FromString("Create Module"))
+					.Text(INVTEXT("Create Module"))
 					.OnClicked(this, &SModuleMakerWidget::HandleCreateButtonClicked)
 				]
 
@@ -279,7 +280,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					.ButtonStyle(FEditorStyle::Get(), "FlatButton.Default")
 					.TextStyle(FEditorStyle::Get(), "LargeText")
 					.ForegroundColor(FEditorStyle::Get().GetSlateColor("WhiteBrush"))
-					.Text(FText::FromString("Cancel"))
+					.Text(INVTEXT("Cancel"))
 					.OnClicked(this, &SModuleMakerWidget::HandleCancelButtonClicked)
 				]
 			]
@@ -296,7 +297,7 @@ EVisibility SModuleMakerWidget::GetErrorLabelVisibility() const
 
 FText SModuleMakerWidget::GetErrorLabelText() const
 {
-	return FText::FromString(ErrorString);
+	return FText::AsCultureInvariant(ErrorString);
 }
 
 EVisibility SModuleMakerWidget::GetChooseFolderVisibility() const
@@ -304,47 +305,49 @@ EVisibility SModuleMakerWidget::GetChooseFolderVisibility() const
 	return bLastNameValidityCheckPassed ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
-EVisibility SModuleMakerWidget::GetCreateButtonStatus() const
+EVisibility SModuleMakerWidget::GetCreateButtonVisibility() const
 {
 	return bLastNameValidityCheckPassed && bLastPathValidityCheckPassed ? EVisibility::Visible : EVisibility::Hidden ;
 }
 
 FText SModuleMakerWidget::GetModuleName() const
 {
-	return FText::FromString(NewModuleName);
+	return FText::AsCultureInvariant(NewModuleName);
 }
 
 FText SModuleMakerWidget::GetModulePath() const
 {
-	return FText::FromString(NewModulePath);
+	return FText::AsCultureInvariant(NewModulePath);
 }
 
 FText SModuleMakerWidget::GetHeaderFilePath() const
 {
-	return FText::FromString(HeaderFile);
+	return FText::AsCultureInvariant(HeaderFile);
 }
 
 FText SModuleMakerWidget::GetSourceFilePath() const
 {
-	return FText::FromString(SourceFile);
+	return FText::AsCultureInvariant(SourceFile);
 }
 
 FText SModuleMakerWidget::GetConfigFilePath() const
 {
-	return FText::FromString(ConfigFile);
+	return FText::AsCultureInvariant(ConfigFile);
 }
 
-void SModuleMakerWidget::UpdateSourceFilePaths(bool ClearPaths = false)
+void SModuleMakerWidget::UpdateSourceFilePaths(bool ClearPaths)
 {
 	if(ClearPaths)
 	{
 		HeaderFile = SourceFile = ConfigFile = "";
 		return;
 	}
+
+	const FString& ModuleDirectory = NewModulePath / NewModuleName;
 	
-	HeaderFile = NewModulePath / NewModuleName / "public" / NewModuleName + ".h";
-	SourceFile = NewModulePath / NewModuleName / "private" / NewModuleName + ".cpp";
-	ConfigFile = NewModulePath / NewModuleName / NewModuleName + ".build.cs";
+	HeaderFile = ModuleDirectory / "public" / NewModuleName + ".h";
+	SourceFile = ModuleDirectory / "private" / NewModuleName + ".cpp";
+	ConfigFile = ModuleDirectory / NewModuleName + ".build.cs";
 }
 
 void SModuleMakerWidget::UpdateValidityChecks()
@@ -353,12 +356,13 @@ void SModuleMakerWidget::UpdateValidityChecks()
 	bLastPathValidityCheckPassed = FModuleMaker::IsModuleSourcePathValid(NewModulePath, NewModuleName, ErrorString);
 }
 
-void SModuleMakerWidget::OnModuleNameChanged(const FText& InputText)
+void SModuleMakerWidget::OnModuleNameChanged(const FText& ModuleNameInput)
 {
-	bLastNameValidityCheckPassed = FModuleMaker::IsModuleNameValid(InputText.ToString(), ErrorString);
+	const FString& ModuleNameInputString = ModuleNameInput.ToString();
+	bLastNameValidityCheckPassed = FModuleMaker::IsModuleNameValid(ModuleNameInputString, ErrorString);
 	if(bLastNameValidityCheckPassed)
 	{
-		NewModuleName = InputText.ToString();
+		NewModuleName = ModuleNameInputString;
 		if(bLastPathValidityCheckPassed)
 		{
 			UpdateSourceFilePaths();
@@ -370,19 +374,19 @@ void SModuleMakerWidget::OnModuleNameChanged(const FText& InputText)
 	}
 }
 
-void SModuleMakerWidget::OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType)
+void SModuleMakerWidget::OnModuleNameCommitted(const FText& ModuleNameInput, ETextCommit::Type CommitType)
 {
-	if(CommitType == ETextCommit::OnEnter || CommitType == ETextCommit::OnUserMovedFocus)
+	if(CommitType == ETextCommit::Default)
 	{
 		if(NameEditBox.IsValid())
 		{
 			if(bLastNameValidityCheckPassed)
 			{
-				NameEditBox->SetText(InputText);
+				NameEditBox->SetText(ModuleNameInput);
 			}
 			else
 			{
-				NameEditBox->SetText(FText::FromString(""));
+				NameEditBox->SetText(INVTEXT(""));
 				ErrorString = "You must specify a module name.";
 			}
 		}
@@ -408,33 +412,26 @@ void SModuleMakerWidget::HandleFolderChosen(FString& FolderName)
 
 FReply SModuleMakerWidget::HandleChooseFolderButtonClicked()
 {
-	if(!bLastNameValidityCheckPassed) return FReply::Unhandled();
-	
-	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
-	if(DesktopPlatform != nullptr)
+	if(bLastNameValidityCheckPassed)
 	{
-		const TSharedPtr<SWindow> ParentWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-		const void* ParentWindowHandle = (ParentWindow.IsValid()) ? ParentWindow->GetNativeWindow()->GetOSWindowHandle() : nullptr;
-
-		FString FolderName;
-		const FString& Title = "Choose a source location";
-
-		const bool bFolderSelected = DesktopPlatform->OpenDirectoryDialog
-		(
-			ParentWindowHandle,
-			Title,
-			FPaths::ProjectDir(),
-			FolderName
-		);
-
-		if(bFolderSelected)
+		IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+		if(DesktopPlatform != nullptr)
 		{
-			HandleFolderChosen(FolderName);
+			const TSharedPtr<SWindow> ParentWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
+			const void* ParentWindowHandle = (ParentWindow.IsValid()) ? ParentWindow->GetNativeWindow()->GetOSWindowHandle() : nullptr;
+
+			FString FolderName;
+			const FString& Title = "Choose a source location";
+			const bool bFolderSelected = DesktopPlatform->OpenDirectoryDialog(ParentWindowHandle, Title, FPaths::ProjectDir(), FolderName);
+
+			if(bFolderSelected)
+			{
+				HandleFolderChosen(FolderName);
+			}
 		}
-		return FReply::Handled();
 	}
 	
-	return FReply::Unhandled();
+	return FReply::Handled();
 }
 
 FReply SModuleMakerWidget::HandleCreateButtonClicked()
@@ -449,18 +446,19 @@ FReply SModuleMakerWidget::HandleCreateButtonClicked()
 		{
 			if(!OutFailReason.IsEmpty())
 			{
-				Args.Add(FText::FromString(OutFailReason));
+				Args.Add(FText::AsCultureInvariant(OutFailReason));
 			
-				const FText& FailureMessage = FText::Format(FText::FromString("Failed to create module. {0}"), Args);
+				const FText& FailureMessage = FText::Format(INVTEXT("Failed to create module. {0}"), Args);
 				FMessageDialog::Open(EAppMsgType::Ok, FailureMessage);	
 			}
-			return FReply::Unhandled();
+			return FReply::Handled();
 		}
 
-		Args.Add(FText::FromString(NewModuleName));
-		Args.Add(FText::FromString(NewModulePath));
+		Args.Empty();
+		Args.Add(FText::AsCultureInvariant(NewModuleName));
+		Args.Add(FText::AsCultureInvariant(NewModulePath));
 			
-		const FText& SuccessMessage = FText::Format(FText::FromString("Module {0} was created in {1} successfully!"), Args);
+		const FText& SuccessMessage = FText::Format(INVTEXT("Module {0} was created in {1} successfully!"), Args);
 		FMessageDialog::Open(EAppMsgType::Ok, SuccessMessage);
 	}
 	

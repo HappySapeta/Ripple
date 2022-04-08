@@ -1,30 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ModuleMaker/FModuleMaker.h"
-
-#include "GameProjectUtils.h"
-#include "Interfaces/IMainFrameModule.h"
-#include "Interfaces/IPluginManager.h"
-#include "Misc/FileHelper.h"
 #include "ModuleMaker/SModuleMakerWidget.h"
+
+#include "Misc/FileHelper.h"
+#include "GameProjectUtils.h"
+
+#include "Interfaces/IPluginManager.h"
+#include "Interfaces/IMainFrameModule.h"
 
 #define MAX_MODULE_NAME_LENGTH 32
 
 void FModuleMaker::LaunchModuleCreationDialog()
 {
 	const IMainFrameModule& MainFrameModule = FModuleManager::GetModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
-	const FVector2D& ModuleMakerWindowSize = MainFrameModule.GetParentWindow()->GetSizeInScreen() * 0.5f;
+	const FVector2D ModuleMakerWindowSize(960, 540);
 	
 	const TSharedRef<SWindow> ModuleCreationWindow =
 		SNew(SWindow)
-		.Title(FText::FromString("Add Module"))
+		.Title(INVTEXT("Add Module"))
 		.ClientSize(ModuleMakerWindowSize)
 		.SizingRule(ESizingRule::FixedSize)
 		.AutoCenter(EAutoCenter::PrimaryWorkArea)
 		.SupportsMinimize(false)
 		.SupportsMaximize(false);
 
-	ModuleCreationWindow->SetContent(SNew(SModuleMakerWidget).WindowSize(ModuleMakerWindowSize));
+	ModuleCreationWindow->SetContent(SNew(SModuleMakerWidget));
 	
 	if (MainFrameModule.GetParentWindow().IsValid())
 	{
@@ -36,25 +37,25 @@ void FModuleMaker::LaunchModuleCreationDialog()
 	}
 }
 
-bool FModuleMaker::IsModuleNameValid(const FString& NameString, FString& OutFailReason) 
+bool FModuleMaker::IsModuleNameValid(const FString& NameString, FString& RejectReason) 
 {
-	OutFailReason.Empty();
+	RejectReason.Empty();
 	
 	if(NameString.IsEmpty())
 	{
-		OutFailReason.Append("You must specify a module name.");
+		RejectReason.Append("You must specify a module name.");
 		return false;
 	}
 
 	if(NameString.Contains(" "))
 	{
-		OutFailReason.Append("Your module name may not contain a space.");
+		RejectReason.Append("Your module name may not contain a space.");
 		return false;
 	}
 
 	if(!FChar::IsAlpha(NameString[0]))
 	{
-		OutFailReason.Append("Your module name must begin with an alphabetic character.");
+		RejectReason.Append("Your module name must begin with an alphabetic character.");
 		return false;
 	}
 
@@ -63,7 +64,7 @@ bool FModuleMaker::IsModuleNameValid(const FString& NameString, FString& OutFail
 		TArray <FStringFormatArg> Args;
 		Args.Add(MAX_MODULE_NAME_LENGTH);
 		
-		OutFailReason.Append(FString::Format(TEXT("The module name must be no longer than {0} characters."), Args));
+		RejectReason.Append(FString::Format(TEXT("The module name must be no longer than {0} characters."), Args));
 
 		return false;
 	}
@@ -74,21 +75,20 @@ bool FModuleMaker::IsModuleNameValid(const FString& NameString, FString& OutFail
 		TArray<FStringFormatArg> Args;
 		Args.Add(IllegalNameCharacters);
 
-		OutFailReason.Append(FString::Format(TEXT("The class name may not contain the following characters: '{0}'"), Args));
+		RejectReason.Append(FString::Format(TEXT("The class name may not contain the following characters: '{0}'"), Args));
 
 		return false;
 	}
-	
 	return true;
 }
 
-bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FString& ModuleName, FString& OutFailReason)
+bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FString& ModuleName, FString& RejectReason)
 {
-	OutFailReason.Empty();
+	RejectReason.Empty();
 
 	if(ModuleName.IsEmpty())
 	{
-		OutFailReason.Append("Unable to create a module without a name.");
+		RejectReason.Append("Unable to create a module without a name.");
 		return false;
 	}
 	
@@ -103,7 +103,7 @@ bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FStr
 
 	if(bSourceFilesAlreadyExist)
 	{
-		OutFailReason.Append("Module source files already exist in the chosen folder.");
+		RejectReason.Append("Module source files already exist in the chosen folder.");
 		return false;
 	}
 
@@ -126,27 +126,27 @@ bool FModuleMaker::CreateNewModule(const FString& ModuleName, const FString& Mod
 	const FString& SourcePath = ModulePath / ModuleName / "Private" / ModuleName + ".cpp";
 	const bool SourceSuccess = CreateModuleSourceFile(ModuleName, "Module.cpp.template", SourcePath, OutFailReason);
 	
-	const FString& ConfigPath = ModulePath / ModuleName / ModuleName + "build.cs";
+	const FString& ConfigPath = ModulePath / ModuleName / ModuleName + ".build.cs";
 	const bool ConfigSuccess = CreateModuleSourceFile(ModuleName, "Module.build.cs.template", ConfigPath, OutFailReason);
 	
 	return HeaderSuccess && SourceSuccess && ConfigSuccess;
 }
 
-bool FModuleMaker::CreateModuleSourceFile(const FString& ModuleName, const FString& Template, const FString& TargetFile, FString& OutFailReason)
+bool FModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FString& TemplateFile, const FString& TargetFile, FString& OutFailReason)
 {
 	const FString& PluginContentDir = IPluginManager::Get().FindPlugin(TEXT("Ripple"))->GetContentDir();
 	const FString& TemplateDir = PluginContentDir / "Editor" / "Templates" / ""; 
 	
 	FString Content;
-	const bool bReadTemplateFileSuccess = FFileHelper::LoadFileToString(Content, *(TemplateDir / Template));
+	const bool bReadTemplateFileSuccess = FFileHelper::LoadFileToString(Content, *(TemplateDir / TemplateFile));
 
 	if(!bReadTemplateFileSuccess)
 	{
-		OutFailReason.Append("Failed to read template : " + Template);
+		OutFailReason.Append("Failed to read template : " + TemplateFile);
 		return false;
 	}
 	
-	Content = Content.Replace(TEXT("[MODULENAME]"), *ModuleName);
+	Content = Content.Replace(TEXT("[MODULENAME]"), *TemplateValue);
 	const bool bWriteFileSuccess = FFileHelper::SaveStringToFile(Content, *TargetFile);
 
 	if(!bReadTemplateFileSuccess)
