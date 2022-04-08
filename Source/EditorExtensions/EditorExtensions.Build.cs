@@ -44,7 +44,8 @@ public class EditorExtensions: ModuleRules
 				"MainFrame",
 				"EditorStyle",
 				"ToolMenus",
-				"GameProjectGeneration"
+				"GameProjectGeneration",
+				"DesktopPlatform"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

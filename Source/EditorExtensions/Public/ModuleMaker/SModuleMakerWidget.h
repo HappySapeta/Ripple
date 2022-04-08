@@ -25,13 +25,27 @@ private:
 
 	FText GetErrorLabelText() const;
 
-	FText GetModuleNameText() const;
-	
-	FText GetModulePathText() const;
+	EVisibility GetChooseFolderVisibility() const;
+
+	EVisibility GetCreateButtonStatus() const;
+
+	FText GetModuleName() const;
+
+	FText GetModulePath() const;
+
+	FText GetHeaderFilePath() const;
+
+	FText GetSourceFilePath() const;
+
+	FText GetConfigFilePath() const;
+
+	void UpdateSourceFilePaths();
 
 	void OnModuleNameChanged(const FText& InputText);
 
-	void OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType) const;
+	void OnModuleNameCommitted(const FText& InputText, ETextCommit::Type CommitType);
+
+	void HandleFolderChosen(FString& FolderName);
 
 	FReply HandleChooseFolderButtonClicked();
 	
@@ -41,11 +55,19 @@ private:
 
 private:
 	
-	FText NewModuleName;
+	FString NewModuleName;
 
-	FText NewModulePath;
+	FString NewModulePath;
 
+	FString HeaderFile;
+
+	FString SourceFile;
+
+	FString ConfigFile;
+	
 	bool bLastNameValidityCheckPassed = false;
+
+	bool bLastPathValidityCheckPassed = false;
 	
 	TSharedPtr<SEditableTextBox> NameEditBox;
 	

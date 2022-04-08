@@ -14,7 +14,7 @@ public:
 
 	static bool IsModuleNameValid(const FString& NameString, FString& OutFailReason);
 
-	static bool IsSourcePathValid(const FString& PathString, const FString& ModuleName, FString& OutFailReason);
+	static bool IsModuleSourcePathValid(const FString& PathString, const FString& ModuleName, FString& OutFailReason);
 	
 private:
 	// Creates module files with custom build configuration.

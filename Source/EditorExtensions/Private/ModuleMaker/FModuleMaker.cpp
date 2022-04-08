@@ -81,32 +81,30 @@ bool FModuleMaker::IsModuleNameValid(const FString& NameString, FString& OutFail
 	return true;
 }
 
-bool FModuleMaker::IsSourcePathValid(const FString& PathString, const FString& ModuleName, FString& OutFailReason)
+bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FString& ModuleName, FString& OutFailReason)
 {
 	OutFailReason.Empty();
-	const FString& AbsolutePath = FPaths::ConvertRelativePathToFull(PathString) / "";
-	
-	CLOGV(Warning, "Absolute Path = %s", *AbsolutePath);
 
-	FText* OutReason = nullptr;
-	if(!FPaths::ValidatePath(AbsolutePath, OutReason))
+	if(ModuleName.IsEmpty())
 	{
-		TArray<FStringFormatArg> Args;
-
-		if(OutReason != nullptr)
-		{
-			Args.Add((*OutReason).ToString());
-		}
-		
-		OutFailReason = FString::Format(TEXT("The chosen path contains invalid characters. {OutReason}"), Args);
+		OutFailReason = "Unable to create a module without a name.";
 		return false;
 	}
-
+	
+	const FString& AbsolutePath = FPaths::ConvertRelativePathToFull(PathString) / "";
 	const FString& ModulePath = AbsolutePath + ModuleName / "";
-	CLOGV(Warning, "Module Path = %s", *ModulePath);
-	if(FPaths::DirectoryExists(ModulePath) && !FPaths::IsDrive(ModulePath))
+
+	const FString& HeaderPath = ModulePath / "public" / ModuleName + ".h";
+	const FString& SourcePath = ModulePath / "private" / ModuleName + ".cpp";
+	const FString& ConfigPath = ModulePath / ModuleName + ".build.cs";
+
+	CLOG(Warning, "%s \n %s \n %s", *HeaderPath, *SourcePath, *ConfigPath);
+		
+	const bool bSourceFilesAlreadyExist = FPaths::FileExists(HeaderPath) || FPaths::FileExists(SourcePath) || FPaths::FileExists(ConfigPath);
+
+	if(bSourceFilesAlreadyExist)
 	{
-		OutFailReason = "The chosen module directory is not empty.";
+		OutFailReason = "The chosen folder already contains module files.";
 		return false;
 	}
 
