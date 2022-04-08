@@ -334,11 +334,23 @@ FText SModuleMakerWidget::GetConfigFilePath() const
 	return FText::FromString(ConfigFile);
 }
 
-void SModuleMakerWidget::UpdateSourceFilePaths()
+void SModuleMakerWidget::UpdateSourceFilePaths(bool ClearPaths = false)
 {
+	if(ClearPaths)
+	{
+		HeaderFile = SourceFile = ConfigFile = "";
+		return;
+	}
+	
 	HeaderFile = NewModulePath / NewModuleName / "public" / NewModuleName + ".h";
 	SourceFile = NewModulePath / NewModuleName / "private" / NewModuleName + ".cpp";
 	ConfigFile = NewModulePath / NewModuleName / NewModuleName + ".build.cs";
+}
+
+void SModuleMakerWidget::UpdateValidityChecks()
+{
+	bLastNameValidityCheckPassed = FModuleMaker::IsModuleNameValid(NewModuleName, ErrorString);
+	bLastPathValidityCheckPassed = FModuleMaker::IsModuleSourcePathValid(NewModulePath, NewModuleName, ErrorString);
 }
 
 void SModuleMakerWidget::OnModuleNameChanged(const FText& InputText)
@@ -347,13 +359,14 @@ void SModuleMakerWidget::OnModuleNameChanged(const FText& InputText)
 	if(bLastNameValidityCheckPassed)
 	{
 		NewModuleName = InputText.ToString();
-		UpdateSourceFilePaths();
+		if(bLastPathValidityCheckPassed)
+		{
+			UpdateSourceFilePaths();
+		}
 	}
 	else
 	{
-		HeaderFile = "";
-		SourceFile = "";
-		ConfigFile = "";
+		UpdateSourceFilePaths(true);
 	}
 }
 
@@ -379,9 +392,9 @@ void SModuleMakerWidget::OnModuleNameCommitted(const FText& InputText, ETextComm
 void SModuleMakerWidget::HandleFolderChosen(FString& FolderName)
 {
 	if(!FolderName.EndsWith(TEXT("/"))) { FolderName += TEXT("/"); }
-			
-	FString FailReason;
-	bLastPathValidityCheckPassed = FModuleMaker::IsModuleSourcePathValid(FolderName, NewModuleName, FailReason);
+
+	ErrorString.Empty();
+	bLastPathValidityCheckPassed = FModuleMaker::IsModuleSourcePathValid(FolderName, NewModuleName, ErrorString);
 	if(bLastPathValidityCheckPassed)
 	{
 		NewModulePath = FolderName;
@@ -389,8 +402,7 @@ void SModuleMakerWidget::HandleFolderChosen(FString& FolderName)
 	}
 	else
 	{
-		if(!ErrorString.IsEmpty()) { ErrorString = " " + FailReason; }
-		else { ErrorString = FailReason; }
+		UpdateSourceFilePaths(true);
 	}
 }
 
@@ -427,16 +439,30 @@ FReply SModuleMakerWidget::HandleChooseFolderButtonClicked()
 
 FReply SModuleMakerWidget::HandleCreateButtonClicked()
 {
-	FString HeaderTemplateContent;
-	FFileHelper::LoadFileToString(HeaderTemplateContent, *HeaderFile);
+	UpdateValidityChecks();
+	if(bLastNameValidityCheckPassed && bLastPathValidityCheckPassed)
+	{
+		FString OutFailReason;
+		FFormatOrderedArguments Args;
+		
+		if(!FModuleMaker::CreateNewModule(NewModuleName, NewModulePath, OutFailReason))
+		{
+			if(!OutFailReason.IsEmpty())
+			{
+				Args.Add(FText::FromString(OutFailReason));
+			
+				const FText& FailureMessage = FText::Format(FText::FromString("Failed to create module. {0}"), Args);
+				FMessageDialog::Open(EAppMsgType::Ok, FailureMessage);	
+			}
+			return FReply::Unhandled();
+		}
 
-	HeaderTemplateContent = HeaderTemplateContent.Replace(TEXT("[MODULENAME]"), *NewModuleName);
-
-	FString SourceTemplateContent;
-	FFileHelper::LoadFileToString(SourceTemplateContent, *SourceFile);
-
-	FString ConfigTemplateContent;
-	FFileHelper::LoadFileToString(ConfigTemplateContent, *ConfigFile);
+		Args.Add(FText::FromString(NewModuleName));
+		Args.Add(FText::FromString(NewModulePath));
+			
+		const FText& SuccessMessage = FText::Format(FText::FromString("Module {0} was created in {1} successfully!"), Args);
+		FMessageDialog::Open(EAppMsgType::Ok, SuccessMessage);
+	}
 	
 	return FReply::Handled();
 }

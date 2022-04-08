@@ -2,15 +2,14 @@
 
 using UnrealBuildTool;
 
-public class EditorExtensions: ModuleRules
+public class [MODULENAME]: ModuleRules
 {
-	public EditorExtensions(ReadOnlyTargetRules Target) : base(Target)
+	public [MODULENAME](ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-				
 				// ... add public include paths required here ...
 			}
 			);
@@ -27,8 +26,6 @@ public class EditorExtensions: ModuleRules
 			new string[]
 			{
 				"Core",
-				"Slate",
-				"Ripple"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -39,14 +36,8 @@ public class EditorExtensions: ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
+				"Slate",
 				"SlateCore",
-				"UnrealEd", 
-				"MainFrame",
-				"EditorStyle",
-				"ToolMenus",
-				"GameProjectGeneration",
-				"DesktopPlatform",
-				"Projects"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

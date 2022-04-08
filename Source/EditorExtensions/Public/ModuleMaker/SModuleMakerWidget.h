@@ -39,7 +39,9 @@ private:
 
 	FText GetConfigFilePath() const;
 
-	void UpdateSourceFilePaths();
+	void UpdateSourceFilePaths(bool ClearPaths);
+
+	void UpdateValidityChecks();
 
 	void OnModuleNameChanged(const FText& InputText);
 
