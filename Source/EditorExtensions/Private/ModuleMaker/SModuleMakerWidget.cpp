@@ -376,7 +376,7 @@ void SModuleMakerWidget::OnModuleNameChanged(const FText& ModuleNameInput)
 
 void SModuleMakerWidget::OnModuleNameCommitted(const FText& ModuleNameInput, ETextCommit::Type CommitType)
 {
-	if(CommitType == ETextCommit::Default)
+	if(CommitType == ETextCommit::OnEnter || CommitType == ETextCommit::OnUserMovedFocus)
 	{
 		if(NameEditBox.IsValid())
 		{
