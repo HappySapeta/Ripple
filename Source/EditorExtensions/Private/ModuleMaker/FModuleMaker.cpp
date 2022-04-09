@@ -94,9 +94,9 @@ bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FStr
 	}
 
 	// Directory check
-	if(!FPaths::DirectoryExists(PathString) || !FPaths::ValidatePath(PathString))
+	if(PathString.IsEmpty() || !FPaths::DirectoryExists(PathString) || !FPaths::ValidatePath(PathString))
 	{
-		RejectReason.Append("Chosen directory is not valid.");
+		RejectReason.Append("Module directory path is not valid.");
 		return false;
 	}
 

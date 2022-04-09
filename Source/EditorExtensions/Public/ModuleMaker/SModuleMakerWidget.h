@@ -32,7 +32,7 @@ private:
 	EVisibility GetChooseFolderVisibility() const;
 
 	// Returns the visibility of the 'Create Module' button.
-	EVisibility GetCreateButtonVisibility() const;
+	bool GetCreateButtonAbility() const;
 
 	// Returns the module's chosen name.
 	FText GetModuleName() const;

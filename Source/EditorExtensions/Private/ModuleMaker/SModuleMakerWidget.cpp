@@ -261,7 +261,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 				[
 					SNew(SButton)
 					.HAlign(HAlign_Center)
-					.Visibility(this, &SModuleMakerWidget::GetCreateButtonVisibility)
+					.IsEnabled(this, &SModuleMakerWidget::GetCreateButtonAbility)
 					.ContentPadding(FMargin(25.0f, 5.0f))
 					.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
 					.TextStyle(FEditorStyle::Get(), "LargeText")
@@ -305,9 +305,9 @@ EVisibility SModuleMakerWidget::GetChooseFolderVisibility() const
 	return bLastNameValidityCheckPassed ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
-EVisibility SModuleMakerWidget::GetCreateButtonVisibility() const
+bool SModuleMakerWidget::GetCreateButtonAbility() const
 {
-	return bLastNameValidityCheckPassed && bLastPathValidityCheckPassed ? EVisibility::Visible : EVisibility::Hidden ;
+	return bLastNameValidityCheckPassed && bLastPathValidityCheckPassed;
 }
 
 FText SModuleMakerWidget::GetModuleName() const
