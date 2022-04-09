@@ -86,26 +86,38 @@ bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FStr
 {
 	RejectReason.Empty();
 
+	// Module Name check
 	if(ModuleName.IsEmpty())
 	{
 		RejectReason.Append("Unable to create a module without a name.");
 		return false;
 	}
-	
-	const FString& AbsolutePath = FPaths::ConvertRelativePathToFull(PathString) / "";
-	const FString& ModulePath = AbsolutePath + ModuleName / "";
 
-	const FString& HeaderPath = ModulePath / "public" / ModuleName + ".h";
-	const FString& SourcePath = ModulePath / "private" / ModuleName + ".cpp";
-	const FString& ConfigPath = ModulePath / ModuleName + ".build.cs";
-	
-	const bool bSourceFilesAlreadyExist = FPaths::FileExists(HeaderPath) || FPaths::FileExists(SourcePath) || FPaths::FileExists(ConfigPath);
-
-	if(bSourceFilesAlreadyExist)
+	// Directory check
+	if(!FPaths::DirectoryExists(PathString) || !FPaths::ValidatePath(PathString))
 	{
-		RejectReason.Append("Module source files already exist in the chosen folder.");
+		RejectReason.Append("Chosen directory is not valid.");
 		return false;
 	}
+
+	// Existing source files check
+	{
+		const FString& AbsolutePath = FPaths::ConvertRelativePathToFull(PathString) / "";
+		const FString& ModulePath = AbsolutePath + ModuleName / "";
+
+		const FString& HeaderPath = ModulePath / "public" / ModuleName + ".h";
+		const FString& SourcePath = ModulePath / "private" / ModuleName + ".cpp";
+		const FString& ConfigPath = ModulePath / ModuleName + ".build.cs";
+	
+		const bool bSourceFilesAlreadyExist = FPaths::FileExists(HeaderPath) || FPaths::FileExists(SourcePath) || FPaths::FileExists(ConfigPath);
+
+		if(bSourceFilesAlreadyExist)
+		{
+			RejectReason.Append("Module source files already exist in the chosen folder.");
+			return false;
+		}
+	}
+	
 
 	return true;
 }
