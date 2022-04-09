@@ -131,17 +131,25 @@ bool FModuleMaker::CreateNewModule(const FString& ModuleName, const FString& Mod
 		OutFailReason.Append("Module path does not exist.");
 		return false;
 	}
+
+	const FString& ModuleDirectory = ModulePath / ModuleName;
 	
-	const FString& HeaderPath = ModulePath / ModuleName / "Public" / ModuleName + ".h";
+	const FString& HeaderPath = ModuleDirectory / "Public" / ModuleName + ".h";
 	const bool HeaderSuccess = CreateModuleSourceFile(ModuleName, "Module.h.template", HeaderPath, OutFailReason);
 	
-	const FString& SourcePath = ModulePath / ModuleName / "Private" / ModuleName + ".cpp";
+	const FString& SourcePath = ModuleDirectory / "Private" / ModuleName + ".cpp";
 	const bool SourceSuccess = CreateModuleSourceFile(ModuleName, "Module.cpp.template", SourcePath, OutFailReason);
 	
-	const FString& ConfigPath = ModulePath / ModuleName / ModuleName + ".build.cs";
+	const FString& ConfigPath = ModuleDirectory / ModuleName + ".build.cs";
 	const bool ConfigSuccess = CreateModuleSourceFile(ModuleName, "Module.build.cs.template", ConfigPath, OutFailReason);
 	
-	return HeaderSuccess && SourceSuccess && ConfigSuccess;
+	if(!HeaderSuccess || !SourceSuccess || !ConfigSuccess)
+	{
+		OutFailReason.Append("Failed to add some source files.");
+		return false;
+	}
+
+	return true;
 }
 
 bool FModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FString& TemplateFile, const FString& TargetFile, FString& OutFailReason)

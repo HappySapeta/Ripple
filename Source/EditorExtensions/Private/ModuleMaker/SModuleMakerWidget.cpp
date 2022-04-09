@@ -448,7 +448,7 @@ FReply SModuleMakerWidget::HandleCreateButtonClicked()
 			{
 				Args.Add(FText::AsCultureInvariant(OutFailReason));
 			
-				const FText& FailureMessage = FText::Format(INVTEXT("Failed to create module. {0}"), Args);
+				const FText& FailureMessage = FText::Format(INVTEXT("Operation unsuccessful. {0}"), Args);
 				FMessageDialog::Open(EAppMsgType::Ok, FailureMessage);	
 			}
 			return FReply::Handled();
@@ -458,7 +458,7 @@ FReply SModuleMakerWidget::HandleCreateButtonClicked()
 		Args.Add(FText::AsCultureInvariant(NewModuleName));
 		Args.Add(FText::AsCultureInvariant(NewModulePath));
 			
-		const FText& SuccessMessage = FText::Format(INVTEXT("Module {0} was created in {1} successfully!"), Args);
+		const FText& SuccessMessage = FText::Format(INVTEXT("Module {0} was created under {1} successfully!"), Args);
 		FMessageDialog::Open(EAppMsgType::Ok, SuccessMessage);
 	}
 	
