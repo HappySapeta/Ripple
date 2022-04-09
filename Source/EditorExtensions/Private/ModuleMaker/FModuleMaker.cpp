@@ -159,18 +159,14 @@ bool FModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FS
 	const FString& TemplateDir = PluginContentDir / "Editor" / "Templates" / ""; 
 	
 	FString Content;
-	const bool bReadTemplateFileSuccess = FFileHelper::LoadFileToString(Content, *(TemplateDir / TemplateFile));
-
-	if(!bReadTemplateFileSuccess)
+	if(!FFileHelper::LoadFileToString(Content, *(TemplateDir / TemplateFile)))
 	{
 		OutFailReason.Append("Failed to read template : " + TemplateFile + ". ");
 		return false;
 	}
 	
 	Content = Content.Replace(TEXT("[MODULENAME]"), *TemplateValue);
-	const bool bWriteFileSuccess = FFileHelper::SaveStringToFile(Content, *TargetFile);
-
-	if(!bReadTemplateFileSuccess)
+	if(!FFileHelper::SaveStringToFile(Content, *TargetFile))
 	{
 		OutFailReason.Append("Failed to add source : " + TargetFile + ". ");
 		return false;
