@@ -31,7 +31,7 @@ private:
 	// Returns the visibility of the 'Choose Folder' button.
 	EVisibility GetChooseFolderVisibility() const;
 
-	// Returns the visibility of the 'Create Module' button.
+	// Returns the ability of the 'Create Module' button.
 	bool GetCreateButtonAbility() const;
 
 	// Returns the module's chosen name.

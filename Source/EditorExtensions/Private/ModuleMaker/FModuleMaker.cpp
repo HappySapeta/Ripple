@@ -18,7 +18,7 @@ void FModuleMaker::LaunchModuleCreationDialog()
 	
 	const TSharedRef<SWindow> ModuleCreationWindow =
 		SNew(SWindow)
-		.Title(INVTEXT("Add Module"))
+		.Title(INVTEXT("Create Module"))
 		.ClientSize(ModuleMakerWindowSize)
 		.SizingRule(ESizingRule::FixedSize)
 		.AutoCenter(EAutoCenter::PrimaryWorkArea)
@@ -154,6 +154,7 @@ bool FModuleMaker::CreateNewModule(const FString& ModuleName, const FString& Mod
 
 bool FModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FString& TemplateFile, const FString& TargetFile, FString& OutFailReason)
 {
+	// TODO : I may need to add a dedicated class to provide me with plugin directories specific to a Ripple.
 	const FString& PluginContentDir = IPluginManager::Get().FindPlugin(TEXT("Ripple"))->GetContentDir();
 	const FString& TemplateDir = PluginContentDir / "Editor" / "Templates" / ""; 
 	
@@ -162,7 +163,7 @@ bool FModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FS
 
 	if(!bReadTemplateFileSuccess)
 	{
-		OutFailReason.Append("Failed to read template : " + TemplateFile);
+		OutFailReason.Append("Failed to read template : " + TemplateFile + ". ");
 		return false;
 	}
 	
@@ -171,7 +172,7 @@ bool FModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FS
 
 	if(!bReadTemplateFileSuccess)
 	{
-		OutFailReason.Append("Failed to add source : " + TargetFile);
+		OutFailReason.Append("Failed to add source : " + TargetFile + ". ");
 		return false;
 	}
 	

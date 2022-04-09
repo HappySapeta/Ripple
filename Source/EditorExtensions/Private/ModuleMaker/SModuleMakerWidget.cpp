@@ -454,7 +454,6 @@ FReply SModuleMakerWidget::HandleCreateButtonClicked()
 			return FReply::Handled();
 		}
 
-		Args.Empty();
 		Args.Add(FText::AsCultureInvariant(NewModuleName));
 		Args.Add(FText::AsCultureInvariant(NewModulePath));
 			
