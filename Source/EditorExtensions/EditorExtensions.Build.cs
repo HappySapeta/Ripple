@@ -10,7 +10,6 @@ public class EditorExtensions: ModuleRules
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-				
 				// ... add public include paths required here ...
 			}
 			);
@@ -46,7 +45,8 @@ public class EditorExtensions: ModuleRules
 				"ToolMenus",
 				"GameProjectGeneration",
 				"DesktopPlatform",
-				"Projects"
+				"Projects",
+				"ToolWidgets"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

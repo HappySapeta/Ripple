@@ -10,6 +10,7 @@
 
 #include "Misc/FileHelper.h"
 #include "ModuleMaker/FModuleMaker.h"
+#include "SWarningOrErrorBox.h"
 
 #define MAX_MODULE_NAME_LENGTH 32
 
@@ -22,27 +23,17 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 	[
 		SNew(SBorder)
 		.Padding(18)
-		.BorderImage(FEditorStyle::GetBrush("Docking.Tab.ContentAreaBrush"))
+		.BorderImage( FEditorStyle::GetBrush("Docking.Tab.ContentAreaBrush") )
 		[
 			SNew(SVerticalBox)
-
-
 #pragma region Title
 			// Title 
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.TextStyle(FEditorStyle::Get(), "NewClassDialog.PageTitle")
-				.Text(INVTEXT("Name Your New Module"))
-			]
-
-			// Title spacer
-			+SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(0, 3, 0, 8)
-			[
-				SNew(SSeparator)
+				.Font(FAppStyle::Get().GetFontStyle("HeadingExtraSmall"))
+				.Text(INVTEXT("NAME YOUR NEW MODULE"))
 			]
 #pragma endregion 
 
@@ -77,19 +68,10 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 			.Padding(0, 0, 0, 5)
 			.AutoHeight()
 			[
-				// Constant height, whether the label is visible or not
-				SNew(SBox).HeightOverride(20)
-				[
-					SNew(SBorder)
-					.Visibility( this, &SModuleMakerWidget::GetErrorLabelVisibility)
-					.BorderImage(FEditorStyle::GetBrush("NewClassDialog.ErrorLabelBorder"))
-					.Content()
-					[
-						SNew(STextBlock)
-						.Text(this, &SModuleMakerWidget::GetErrorLabelText)
-						.TextStyle(FEditorStyle::Get(), "NewClassDialog.ErrorLabelFont")
-					]
-				]
+				SNew(SWarningOrErrorBox)
+				.MessageStyle(EMessageStyle::Error)
+				.Visibility(this, &SModuleMakerWidget::GetErrorLabelVisibility)
+				.Message(this, &SModuleMakerWidget::GetErrorLabelText)
 			]
 #pragma endregion
 
@@ -105,17 +87,16 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					SNew(SGridPanel)
 					.FillColumn(0, 0.15f)
 					.FillColumn(1, 0.85f)
-
+					
 					// Name Label
 					+ SGridPanel::Slot(0, 0)
 					.Padding(0, 3, 0, 0)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.TextStyle(FEditorStyle::Get(),"NewClassDialog.SelectedParentClassLabel")
 						.Text(INVTEXT("Name"))
 					]
-
+					
 					// Name Input Text Box
 					+SGridPanel::Slot(1, 0)
 					.Padding(0, 3, 0, 0)
@@ -137,7 +118,6 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					.Padding(0, 3, 0, 0)
 					[
 						SNew(STextBlock)
-						.TextStyle(FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel")
 						.Text(INVTEXT("Path"))
 					]
 					
@@ -166,23 +146,27 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 						[
 							SNew(SButton)
 							.VAlign(VAlign_Center)
-							.HAlign(HAlign_Center)
+							.ButtonStyle(FAppStyle::Get(), "SimpleButton")
 							.Visibility(this, &SModuleMakerWidget::GetChooseFolderVisibility)
 							.OnClicked(this, &SModuleMakerWidget::HandleChooseFolderButtonClicked)
 							.Text(INVTEXT("Choose Folder"))
+							[
+								SNew(SImage)
+								.Image(FAppStyle::Get().GetBrush("Icons.FolderClosed"))
+								.ColorAndOpacity(FSlateColor::UseForeground())
+							]
 						]
 					]
-
+					
 					// Header File Label
 					+SGridPanel::Slot(0, 2)
 					.VAlign(VAlign_Center)
 					.Padding(0, 3, 0, 0)
 					[
 						SNew(STextBlock)
-						.TextStyle(FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel")
 						.Text(INVTEXT("Header File"))
 					]
-
+					
 					// Header File Path
 					+SGridPanel::Slot(1, 2)
 					.Padding(5, 3, 0, 0)
@@ -196,17 +180,15 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							.Text(this, &SModuleMakerWidget::GetHeaderFilePath)
 						]
 					]
-
+					
 					// Source File Label
 					+SGridPanel::Slot(0, 3)
 					.VAlign(VAlign_Center)
 					.Padding(0, 3, 0, 0)
 					[
 						SNew(STextBlock)
-						.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
 						.Text(INVTEXT("Source File"))
 					]
-
 					// Source File Path
 					+SGridPanel::Slot(1, 3)
 					.Padding(5, 3, 0, 0)
@@ -220,17 +202,16 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							.Text(this, &SModuleMakerWidget::GetSourceFilePath)
 						]
 					]
-
+					
 					// Build Configuration File Label
 					+SGridPanel::Slot(0, 4)
 					.VAlign(VAlign_Center)
 					.Padding(0, 3, 0, 0)
 					[
 						SNew(STextBlock)
-						.TextStyle( FEditorStyle::Get(), "NewClassDialog.SelectedParentClassLabel" )
 						.Text(INVTEXT("Build Config File"))
 					]
-
+					
 					// Build Configuration File Path
 					+SGridPanel::Slot(1, 4)
 					.Padding(5, 3, 0, 0)
@@ -263,7 +244,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Center)
 					.IsEnabled(this, &SModuleMakerWidget::GetCreateButtonAbility)
 					.ContentPadding(FMargin(25.0f, 5.0f))
-					.ButtonStyle(FEditorStyle::Get(), "FlatButton.Success")
+					.ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("PrimaryButton"))
 					.TextStyle(FEditorStyle::Get(), "LargeText")
 					.ForegroundColor(FEditorStyle::Get().GetSlateColor("WhiteBrush"))
 					.Text(INVTEXT("Create Module"))
@@ -277,7 +258,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					SNew(SButton)
 					.HAlign(HAlign_Center)
 					.ContentPadding(FMargin(25.0f, 5.0f))
-					.ButtonStyle(FEditorStyle::Get(), "FlatButton.Default")
+					.ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("Button"))
 					.TextStyle(FEditorStyle::Get(), "LargeText")
 					.ForegroundColor(FEditorStyle::Get().GetSlateColor("WhiteBrush"))
 					.Text(INVTEXT("Cancel"))
