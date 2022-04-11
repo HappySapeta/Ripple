@@ -35,7 +35,7 @@
 #define CLOGV(Verbosity, FormattedString, ...) UE_LOG(LogTemp, Verbosity, TEXT("%s %s"), *CALL_LOCATION_FULL, *FString::Printf(TEXT(FormattedString), ##__VA_ARGS__))
 
 /**
- * @brief Logs an unformatted message on the screen.
+ * @brief Logs a formatted message on the screen.
  * @param FormattedString A simple string without any parameters.
  * @param Duration The duration of time this message will stay on the screen.
  * @param Color The color of the text.
@@ -43,7 +43,7 @@
 #define SLOG(FormattedString, Duration, Color, ...) GEngine->AddOnScreenDebugMessage(-1, Duration, Color, *FString::Printf(TEXT(FormattedString), ##__VA_ARGS__))
 
 /**
-* @brief Logs a unformatted message on the screen with the location (Class Name, Function Name) of the call in the code.
+* @brief Logs a formatted message on the screen with the location (Class Name, Function Name) of the call in the code.
 * @param FormattedString A simple string without any parameters.
 * @param Duration The duration of time this message will stay on the screen.
 * @param Color The color of the text.
