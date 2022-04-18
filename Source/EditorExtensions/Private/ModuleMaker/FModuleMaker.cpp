@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
 
 #include "ModuleMaker/FModuleMaker.h"
 #include "ModuleMaker/SModuleMakerWidget.h"
