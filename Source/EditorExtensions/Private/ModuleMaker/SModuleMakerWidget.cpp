@@ -326,8 +326,8 @@ void SModuleMakerWidget::UpdateSourceFilePaths(bool ClearPaths)
 
 	const FString& ModuleDirectory = NewModulePath / NewModuleName;
 	
-	HeaderFile = ModuleDirectory / "public" / NewModuleName + ".h";
-	SourceFile = ModuleDirectory / "private" / NewModuleName + ".cpp";
+	HeaderFile = ModuleDirectory / "public" / NewModuleName + "Module.h";
+	SourceFile = ModuleDirectory / "private" / NewModuleName + "Module.cpp";
 	ConfigFile = ModuleDirectory / NewModuleName + ".build.cs";
 }
 

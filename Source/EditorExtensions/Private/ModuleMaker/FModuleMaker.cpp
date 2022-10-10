@@ -125,7 +125,7 @@ bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FStr
 bool FModuleMaker::CreateNewModule(const FString& ModuleName, const FString& ModulePath, FString& OutFailReason)
 {
 	OutFailReason.Empty();
-
+	
 	if(!FPaths::DirectoryExists(ModulePath))
 	{
 		OutFailReason.Append("Module path does not exist.");
@@ -134,10 +134,10 @@ bool FModuleMaker::CreateNewModule(const FString& ModuleName, const FString& Mod
 
 	const FString& ModuleDirectory = ModulePath / ModuleName;
 	
-	const FString& HeaderPath = ModuleDirectory / "Public" / ModuleName + ".h";
+	const FString& HeaderPath = ModuleDirectory / "Public" / ModuleName + "Module.h";
 	const bool HeaderSuccess = CreateModuleSourceFile(ModuleName, "Module.h.template", HeaderPath, OutFailReason);
 	
-	const FString& SourcePath = ModuleDirectory / "Private" / ModuleName + ".cpp";
+	const FString& SourcePath = ModuleDirectory / "Private" / ModuleName + "Module.cpp";
 	const bool SourceSuccess = CreateModuleSourceFile(ModuleName, "Module.cpp.template", SourcePath, OutFailReason);
 	
 	const FString& ConfigPath = ModuleDirectory / ModuleName + ".build.cs";

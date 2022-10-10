@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "[MODULENAME].h"
+#include "[MODULENAME]Module.h"
 
 #define LOCTEXT_NAMESPACE "F[MODULENAME]Module"
 
