@@ -11,11 +11,11 @@ class URPStateContext;
 
 /**
  * Ripple Simple State Machine.
- * UStaticState describes a static state of a state machine.
- * All data is received from the StateContext object.
+ * UState represents a state of a state machine.
+ * All data is received from a StateContext object.
  * Derived classes provide their own implementation for
- * 3 functions that represent 3 primary stages of a state :
- * Enter(), Execute(), and Exit().
+ * 2 functions that represent 2 primary stages of a state :
+ * Enter() and Execute()
  */
 UCLASS(Blueprintable)
 class URPState : public UObject
@@ -23,9 +23,6 @@ class URPState : public UObject
 	GENERATED_BODY()
 
 public:
-	// Initializes the StateContext reference.
-	URPState();
-
 	// Set the state context object for this state.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void SetContext(URPStateContext* Context);
@@ -38,10 +35,6 @@ protected:
 	// Contains the primary logic of this state.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
-
-	// Called after execution.
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Exit();
 
 protected:
 	// The state context object of this state that contains all the information that it needs.

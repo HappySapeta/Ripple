@@ -5,11 +5,6 @@
 #include "Ripple/Public/LoggingMacros.h"
 #include "StateMachine/RPStateContext.h"
 
-URPState::URPState()
-{
-	StateContext = CreateDefaultSubobject<URPStateContext>(FName("DefaultStateContext"));
-}
-
 void URPState::SetContext_Implementation(URPStateContext* Context)
 {
 	if(StateContext != Context)
@@ -20,15 +15,10 @@ void URPState::SetContext_Implementation(URPStateContext* Context)
 
 void URPState::Enter_Implementation()
 {
-	CLOG(Warning, "Using default implementation for Enter().");
+	CLOGV(Warning, "Enter() has not been implemented.");
 }
 
 void URPState::Execute_Implementation()
 {
-	CLOG(Warning, "Using default implementation for Execute().");
-}
-
-void URPState::Exit_Implementation()
-{
-	CLOG(Warning, "Using default implementation for Exit().");
+	CLOGV(Warning, "Execute() has not been implemented.");
 }
