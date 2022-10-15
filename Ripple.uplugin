@@ -1,33 +1,38 @@
 {
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0",
-	"FriendlyName": "Ripple",
-	"Description": "Ripple is a library containing tools, features, and utilities to aid in developing games with the Unreal Engine.",
-	"Category": "Other",
-	"CreatedBy": "AnupamSahu",
-	"CreatedByURL": "",
-	"DocsURL": "",
-	"MarketplaceURL": "",
-	"SupportURL": "",
-	"CanContainContent": true,
-	"IsBetaVersion": false,
-	"IsExperimentalVersion": false,
-	"Installed": false,
-	"Modules": [
-		{
-			"Name": "Ripple",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
-			"Name": "EditorExtensions",
-			"Type": "Editor",
-			"LoadingPhase": "PostEngineInit",
-			"AdditionalDependencies": [
-				"Engine",
-				"CoreUObject"
-			]
-		}
-	]
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "Ripple",
+  "Description": "Ripple is a library containing tools, features, and utilities to aid in developing games with the Unreal Engine.",
+  "Category": "Other",
+  "CreatedBy": "AnupamSahu",
+  "CreatedByURL": "",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "SupportURL": "",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "Ripple",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "EditorExtensions",
+      "Type": "Editor",
+      "LoadingPhase": "PostEngineInit",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject"
+      ]
+    },
+    {
+      "Name": "RippleLibrary",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
 }
