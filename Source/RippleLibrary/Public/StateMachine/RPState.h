@@ -36,8 +36,23 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
 
-protected:
+	// Return StateContext as a subtype of URPStateContext. (Blueprint use only)
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
+	URPStateContext* GetContext(TSubclassOf<URPStateContext> ContextSubClass) const
+	{
+		return StateContext;
+	}
+
+	// Return StateContext as a subtype of URPStateContext.
+	template<class ContextSubClass>
+	FORCEINLINE ContextSubClass* GetContext() const
+	{
+		static_assert(std::is_base_of_v<URPStateContext, ContextSubClass>, "ContextSubClass is not derived from URPStateContext.");
+		return Cast<ContextSubClass>(StateContext);
+	}
+	
+private:
 	// The state context object of this state that contains all the information that it needs.
-	UPROPERTY(Transient, BlueprintReadWrite)
+	UPROPERTY(Transient)
 	TObjectPtr<URPStateContext> StateContext;
 };
