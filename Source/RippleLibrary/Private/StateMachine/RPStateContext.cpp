@@ -4,13 +4,13 @@
 #include "Ripple/Public/LoggingMacros.h"
 #include "StateMachine/RPState.h"
 
-void URPStateContext::GoToState_Implementation(TSubclassOf<URPState> TargetState)
+void URPStateContext::GoToState(TSubclassOf<URPState> TargetState)
 {
 	if (TargetState)
 	{
 		CurrentState = TargetState.GetDefaultObject();
 		CurrentState->SetContext(this);
-		CurrentState->Enter();
+		CurrentState->Execute();
 	}
 	else
 	{

@@ -22,13 +22,13 @@ class URPStateContext : public UObject
 
 public:
 	// Transitions the state machine to TargetState.
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void GoToState(TSubclassOf<URPState> TargetState);
+	UFUNCTION(BlueprintCallable)
+	virtual void GoToState(TSubclassOf<URPState> TargetState);
 
 	// Starts the state machine by activating StartingState.
 	UFUNCTION(BlueprintCallable)
 	void StartStateMachine(TSubclassOf<URPState> StartingState);
-	
+
 protected:
 	// A reference to the current state of the state machine.
 	UPROPERTY(Transient, BlueprintReadWrite)
