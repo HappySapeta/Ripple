@@ -7,7 +7,8 @@
 #include "RPState.generated.h"
 
 // Forward declarations
-class URPStateContext;
+class IRPStateContext;
+class URPStateContextBase;
 
 /**
  * Ripple Simple State Machine.
@@ -19,18 +20,21 @@ class URPStateContext;
 UCLASS(Blueprintable)
 class URPState : public UObject
 {
+	
 	GENERATED_BODY()
 
 public:
+	
 	// Set the state context object for this state.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void SetContext(URPStateContext* Context);
-
+	void SetContext(const TScriptInterface<IRPStateContext>& Context);
+	
 	// Puts the state into action.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute();
 
 protected:
+	
 	// Initialize references, and reset state variables. 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Initialize();
@@ -39,21 +43,22 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Execute_Internal();
 
-	// Return StateContext as a subtype of URPStateContext. (Blueprint use only)
+	// Return StateContext as a subtype of IRPStateContext.
+	// For use in blueprints only.
 	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
-	URPStateContext* GetContext(TSubclassOf<URPStateContext> ContextSubClass) const;
-
-	// Return StateContext as a subtype of URPStateContext.
+	URPStateContextBase* GetContext(TSubclassOf<URPStateContextBase> ContextSubClass) const;
+	
+	// Return StateContext as a subtype of IRPStateContext.
+	// For use in Native code only. 
 	template <class ContextSubClass>
 	FORCEINLINE ContextSubClass* GetContext() const
 	{
-		static_assert(std::is_base_of_v<URPStateContext, ContextSubClass>,
-			"ContextSubClass is not derived from URPStateContext.");
-		return Cast<ContextSubClass>(StateContext);
+		static_assert(std::is_base_of_v<IRPStateContext, ContextSubClass>, "ContextSubClass is not derived from URPStateContext.");
+		return Cast<ContextSubClass>(StateContext.GetInterface());
 	}
 
 private:
 	// The state context object of this state that contains all the information that it needs.
 	UPROPERTY(Transient)
-	TObjectPtr<URPStateContext> StateContext;
+	TScriptInterface<IRPStateContext> StateContext;
 };
