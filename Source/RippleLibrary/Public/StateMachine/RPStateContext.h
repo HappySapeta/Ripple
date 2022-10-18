@@ -21,7 +21,7 @@ class URPStateContext : public UInterface
  *  that is coupled with RPState and together they
  *  can be used to create a very simple state machine.
  */
-class IRPStateContext
+class RIPPLELIBRARY_API IRPStateContext
 {
 	GENERATED_BODY()
 
@@ -54,7 +54,7 @@ protected:
  * It also provides a field to store the current state of the State Machine.
  */
 UCLASS(Blueprintable, BlueprintType)
-class URPStateContextBase : public UObject, public IRPStateContext
+class RIPPLELIBRARY_API URPStateContextBase : public UObject, public IRPStateContext
 {
 	GENERATED_BODY()
 	

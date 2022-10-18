@@ -18,7 +18,7 @@ class URPStateContextBase;
  * for state Initialization and Execution.
  */
 UCLASS(Blueprintable)
-class URPState : public UObject
+class RIPPLELIBRARY_API URPState : public UObject
 {
 	
 	GENERATED_BODY()
@@ -31,17 +31,9 @@ public:
 	
 	// Puts the state into action.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Execute();
-
-protected:
+	void Activate();
 	
-	// Initialize references, and reset state variables. 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Initialize();
-
-	// Execute core logic.
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Execute_Internal();
+protected:
 
 	// Return StateContext as a subtype of IRPStateContext.
 	// For use in blueprints only.

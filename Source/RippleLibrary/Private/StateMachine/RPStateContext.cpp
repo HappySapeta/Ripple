@@ -25,7 +25,7 @@ void IRPStateContext::GoToState_Implementation(TSubclassOf<URPState> TargetState
 	TempInterface.SetInterface(this);
 
 	TargetStateObject->SetContext(TempInterface);
-	TargetStateObject->Execute();
+	TargetStateObject->Activate();
 }
 
 void IRPStateContext::StartStateMachine_Implementation(TSubclassOf<URPState> StartingState)
