@@ -8,7 +8,7 @@
 TSharedRef<FUICommandList> FRippleActions::ActionList(new FUICommandList());
 
 FRippleActions::FRippleActions()
-	: TCommands<FRippleActions>(FName(TEXT("RPL_MainMenu")), FText::FromString("Ripple Main Menu Commands"), NAME_None, FEditorStyle::GetStyleSetName())
+	: TCommands<FRippleActions>(FName(TEXT("RPL_MainMenu")), FText::FromString("Ripple Main Menu Commands"), NAME_None, FAppStyle::GetAppStyleSetName())
 {
 }
 
