@@ -3,7 +3,11 @@
 #include "EditorExtensions.h"
 #include "FRippleActions.h"
 #include "LevelEditor.h"
+#include "RpGraphVisualizer.h"
+#include "RpSpatialGraphComponent.h"
 #include "ToolMenus.h"
+#include "UnrealEdGlobals.h"
+#include "Editor/UnrealEdEngine.h"
 
 #define LOCTEXT_NAMESPACE "FEditorExtensionsModule"
 
@@ -16,6 +20,17 @@ void FEditorExtensionsModule::StartupModule()
 
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MainMenuExtender);
+
+	if(GUnrealEd)
+	{
+		TSharedPtr<FRpGraphVisualizer> Visualizer = MakeShareable(new FRpGraphVisualizer());
+
+		if(Visualizer.IsValid())
+		{
+			GUnrealEd->RegisterComponentVisualizer(URpSpatialGraphComponent::StaticClass()->GetFName(), Visualizer);
+			Visualizer->OnRegister();
+		}
+	}
 }
 
 void FEditorExtensionsModule::ShutdownModule()
@@ -23,6 +38,11 @@ void FEditorExtensionsModule::ShutdownModule()
 	MainMenuExtender->RemoveExtension(Extension.ToSharedRef());
 	Extension.Reset();
 	MainMenuExtender.Reset();
+
+	if(GUnrealEd)
+	{
+		GUnrealEd->UnregisterComponentVisualizer(URpSpatialGraphComponent::StaticClass()->GetFName());
+	}
 }
 
 void FEditorExtensionsModule::AddMenuExtension(FMenuBarBuilder& MenuBuilder)
