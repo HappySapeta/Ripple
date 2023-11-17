@@ -4,7 +4,7 @@
 
 URpSpatialGraphComponent::URpSpatialGraphComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 	AddNode(FVector::Zero());
 }
 
