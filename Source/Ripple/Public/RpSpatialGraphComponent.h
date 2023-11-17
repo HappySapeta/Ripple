@@ -6,8 +6,12 @@
 #include "Components/SceneComponent.h"
 #include "RpSpatialGraphComponent.generated.h"
 
+USTRUCT()
 struct RIPPLE_API FRpSpatialGraphNode
 {
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere)
 	FVector Location = FVector::ZeroVector;
 
 	TSet<FRpSpatialGraphNode*> Connections;
@@ -27,18 +31,19 @@ public:
 
 	void DeleteNode(const int32 Index);
 
-	void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex) const;
+	void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
-	void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex) const;
+	void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
 	UFUNCTION(BlueprintCallable)
 	FVector GetNodeLocation(const int32 Index) const;
 
-	void SetNodeLocation(const int32 Index, const FVector& NewLocation) const;
+	void SetNodeLocation(const int32 Index, const FVector& NewLocation);
 	
 	int32 GetNumNodes() const;
 
 private:
-	
-	TArray<TUniquePtr<FRpSpatialGraphNode>> Nodes;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FRpSpatialGraphNode> Nodes;
 };

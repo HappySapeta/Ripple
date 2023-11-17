@@ -5,43 +5,37 @@
 URpSpatialGraphComponent::URpSpatialGraphComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	AddNode(FVector::Zero());
+	AddNode(FVector(0, 0, 100));
 }
 
 int32 URpSpatialGraphComponent::AddNode(const FVector& Location)
 {
-	const int32 NewNodeIndex = Nodes.Add(MakeUnique<FRpSpatialGraphNode>());
-	Nodes.Last()->Location = Location;
+	const int32 NewNodeIndex = Nodes.Add(FRpSpatialGraphNode());
+	SetNodeLocation(NewNodeIndex, Location);
 	return NewNodeIndex;
 }
 
 void URpSpatialGraphComponent::DeleteNode(const int32 Index)
 {
-	const FRpSpatialGraphNode* NodeToBeRemoved = Nodes[Index].Get();
-	for(FRpSpatialGraphNode* Connection : NodeToBeRemoved->Connections)
+	const FRpSpatialGraphNode& NodeToBeRemoved = Nodes[Index];
+	for(FRpSpatialGraphNode* Connection : NodeToBeRemoved.Connections)
 	{
-		Connection->Connections.Remove(NodeToBeRemoved);
+		Connection->Connections.Remove(&NodeToBeRemoved);
 	}
 
 	Nodes.RemoveAt(Index);
 }
 
-void URpSpatialGraphComponent::ConnectNodes(const int32 FirstIndex, const int32 SecondIndex) const
+void URpSpatialGraphComponent::ConnectNodes(const int32 FirstIndex, const int32 SecondIndex)
 {
-	FRpSpatialGraphNode* FirstNode = Nodes[FirstIndex].Get();
-	FRpSpatialGraphNode* SecondNode = Nodes[SecondIndex].Get();
-
-	FirstNode->Connections.Add(SecondNode);
-	SecondNode->Connections.Add(FirstNode);
+	Nodes[FirstIndex].Connections.Add(&Nodes[SecondIndex]);
+	Nodes[SecondIndex].Connections.Add(&Nodes[FirstIndex]);
 }
 
-void URpSpatialGraphComponent::DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex) const
+void URpSpatialGraphComponent::DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex)
 {
-	FRpSpatialGraphNode* FirstNode = Nodes[FirstIndex].Get();
-	FRpSpatialGraphNode* SecondNode = Nodes[SecondIndex].Get();
-
-	FirstNode->Connections.Remove(SecondNode);
-	SecondNode->Connections.Remove(FirstNode);
+	Nodes[FirstIndex].Connections.Remove(&Nodes[SecondIndex]);
+	Nodes[SecondIndex].Connections.Remove(&Nodes[FirstIndex]);
 }
 
 int32 URpSpatialGraphComponent::GetNumNodes() const
@@ -51,10 +45,10 @@ int32 URpSpatialGraphComponent::GetNumNodes() const
 
 FVector URpSpatialGraphComponent::GetNodeLocation(const int32 Index) const
 {
-	return Nodes[Index]->Location;
+	return Nodes[Index].Location;
 }
 
-void URpSpatialGraphComponent::SetNodeLocation(const int32 Index, const FVector& NewLocation) const
+void URpSpatialGraphComponent::SetNodeLocation(const int32 Index, const FVector& NewLocation)
 {
-	Nodes[Index]->Location = NewLocation;
+	Nodes[Index].Location = NewLocation;
 }

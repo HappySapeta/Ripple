@@ -17,16 +17,16 @@ FRpGraphVisualizer::FRpGraphVisualizer()
 
 void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)
 {
-	const URpSpatialGraphComponent* GraphComponent = Cast<URpSpatialGraphComponent>(Component);
-	if(!GraphComponent)
+	SpatialGraphComponent = Cast<URpSpatialGraphComponent>(Component);
+	if(!SpatialGraphComponent)
 	{
 		return;
 	}
-
-	const int32 NumNodes = GraphComponent->GetNumNodes();
+	
+	const int32 NumNodes = SpatialGraphComponent->GetNumNodes();
 	for(int Index = 0; Index < NumNodes; ++Index)
 	{
-		const FVector& NodeLocation = GraphComponent->GetNodeLocation(Index);
+		const FVector& NodeLocation = SpatialGraphComponent->GetNodeLocation(Index);
 			
 		FLinearColor Color = (Index == SelectedNodeIndex) ? FLinearColor::White : FLinearColor::Gray;
 		PDI->SetHitProxy(new HNodeVisProxy(Component, Index));
@@ -35,7 +35,7 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 
 		if(Index < NumNodes - 1)
 		{
-			const FVector& NextNodeLocation = GraphComponent->GetNodeLocation(Index + 1);
+			const FVector& NextNodeLocation = SpatialGraphComponent->GetNodeLocation(Index + 1);
 			PDI->DrawLine(NodeLocation, NextNodeLocation, FLinearColor::Blue, SDPG_Foreground, 1.0f);
 		}
 	}
@@ -48,7 +48,6 @@ bool FRpGraphVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportCl
 	if(VisProxy && VisProxy->Component.IsValid())
 	{
 		bEditing = true;
-		SpatialGraphComponent = static_cast<const URpSpatialGraphComponent*>(VisProxy->Component.Get());
 		if(VisProxy->IsA(HNodeVisProxy::StaticGetType()))
 		{
 			HNodeVisProxy* Proxy = static_cast<HNodeVisProxy*>(VisProxy);
@@ -81,7 +80,7 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	if(IsValid(SpatialGraphComponent) && SelectedNodeIndex != INDEX_NONE)
 	{
 		const FVector& NewLocation = SpatialGraphComponent->GetNodeLocation(SelectedNodeIndex) + DeltaTranslate;
-		SpatialGraphComponent->SetNodeLocation(SelectedNodeIndex, NewLocation);
+		const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->SetNodeLocation(SelectedNodeIndex, NewLocation);
 		bHandled = true;
 	}
 	
