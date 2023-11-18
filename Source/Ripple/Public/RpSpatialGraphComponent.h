@@ -35,7 +35,6 @@ public:
 
 	void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
-	UFUNCTION(BlueprintCallable)
 	FVector GetNodeLocation(const int32 Index) const;
 
 	void SetNodeLocation(const int32 Index, const FVector& NewLocation);

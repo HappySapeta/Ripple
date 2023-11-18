@@ -87,12 +87,6 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	return bHandled;
 }
 
-void FRpGraphVisualizer::TrackingStarted(FEditorViewportClient* InViewportClient)
-{
-	// 1. Capture current location
-	// 2. start capturing mouse delta
-}
-
 bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, FViewport* Viewport, FKey Key, EInputEvent Event)
 {
 	bool bHandled = false;
@@ -108,11 +102,3 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 
 	return bHandled;
 }
-
-void FRpGraphVisualizer::TrackingStopped(FEditorViewportClient* InViewportClient, bool bInDidMove)
-{
-	// 1. stop capturing mouse delta
-	// 2. newindex = SpatialGraphComponent->AddNode(CapturedLocation + Mouse Delta)
-	// 3. SpatialGraphComponent->JoinNodes(previous index, new index)
-}
-
