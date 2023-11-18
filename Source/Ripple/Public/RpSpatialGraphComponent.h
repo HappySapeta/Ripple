@@ -14,9 +14,9 @@ struct RIPPLE_API FRpSpatialGraphNode
 	UPROPERTY(EditAnywhere)
 	FVector Location = FVector::ZeroVector;
 
-	TSet<FRpSpatialGraphNode*> Connections;
+	UPROPERTY(VisibleAnywhere)
+	TSet<uint32> Connections;
 };
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), DisplayName = "SpatialGraphComponent", meta = (DisplayName = "SpatialGraphComponent"))
 class RIPPLE_API URpSpatialGraphComponent : public USceneComponent
 {
@@ -40,6 +40,8 @@ public:
 	void SetNodeLocation(const int32 Index, const FVector& NewLocation);
 	
 	int32 GetNumNodes() const;
+
+	TSet<uint32> GetConnections(const int32 Index) const;
 
 private:
 
