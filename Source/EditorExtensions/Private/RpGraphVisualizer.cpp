@@ -28,7 +28,7 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 	{
 		const FVector& NodeLocation = SpatialGraphComponent->GetNodeLocation(Index);
 			
-		FLinearColor Color = (Index == SelectedNodeIndex) ? FLinearColor::White : FLinearColor::Gray;
+		FLinearColor Color = (Index == SelectedNodeIndex) ? FLinearColor::White : FLinearColor::Yellow;
 		PDI->SetHitProxy(new HNodeVisProxy(Component, Index));
 		PDI->DrawPoint(NodeLocation, Color, 20.0f, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
@@ -85,5 +85,34 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	}
 	
 	return bHandled;
+}
+
+void FRpGraphVisualizer::TrackingStarted(FEditorViewportClient* InViewportClient)
+{
+	// 1. Capture current location
+	// 2. start capturing mouse delta
+}
+
+bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, FViewport* Viewport, FKey Key, EInputEvent Event)
+{
+	bool bHandled = false;
+	if(Key == EKeys::Delete)
+	{
+		if(IsValid(SpatialGraphComponent) && SelectedNodeIndex != INDEX_NONE)
+		{
+			const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->DeleteNode(SelectedNodeIndex);
+			SelectedNodeIndex = INDEX_NONE;
+			bHandled = true;
+		}
+	}
+
+	return bHandled;
+}
+
+void FRpGraphVisualizer::TrackingStopped(FEditorViewportClient* InViewportClient, bool bInDidMove)
+{
+	// 1. stop capturing mouse delta
+	// 2. newindex = SpatialGraphComponent->AddNode(CapturedLocation + Mouse Delta)
+	// 3. SpatialGraphComponent->JoinNodes(previous index, new index)
 }
 

@@ -40,7 +40,8 @@ public class EditorExtensions: ModuleRules
 				"DesktopPlatform",
 				"Projects",
 				"ToolWidgets",
-				"ComponentVisualizers"
+				"ComponentVisualizers",
+				"InputCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

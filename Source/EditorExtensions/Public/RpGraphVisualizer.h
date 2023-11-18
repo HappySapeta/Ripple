@@ -40,6 +40,12 @@ public:
 	virtual bool GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const override;
 	
 	virtual bool HandleInputDelta(FEditorViewportClient* ViewportClient, FViewport* Viewport, FVector& DeltaTranslate, FRotator& DeltaRotate, FVector& DeltaScale) override;
+	
+	virtual void TrackingStarted(FEditorViewportClient* InViewportClient) override;
+
+	virtual bool HandleInputKey(FEditorViewportClient* ViewportClient, FViewport* Viewport, FKey Key,EInputEvent Event) override;
+
+	virtual void TrackingStopped(FEditorViewportClient* InViewportClient, bool bInDidMove) override;
 
 private:
 
