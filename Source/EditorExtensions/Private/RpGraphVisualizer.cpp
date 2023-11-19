@@ -12,7 +12,7 @@ IMPLEMENT_HIT_PROXY(HNodeVisProxy, HGraphVisProxy)
 
 FRpGraphVisualizer::FRpGraphVisualizer()
 {
-	SelectedNodeIndex = INDEX_NONE;
+	FirstSelectedIndex = INDEX_NONE;
 }
 
 void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)
@@ -28,7 +28,7 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 	{
 		const FVector& NodeLocation = SpatialGraphComponent->GetNodeLocation(Index);
 			
-		FLinearColor Color = (Index == SelectedNodeIndex) ? FLinearColor::White : FLinearColor::Yellow;
+		FLinearColor Color = (Index == FirstSelectedIndex || Index == SecondSelectedIndex) ? FLinearColor::White : FLinearColor::Gray;
 		PDI->SetHitProxy(new HNodeVisProxy(Component, Index));
 		PDI->DrawPoint(NodeLocation, Color, 20.0f, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
@@ -51,13 +51,20 @@ bool FRpGraphVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportCl
 		if(VisProxy->IsA(HNodeVisProxy::StaticGetType()))
 		{
 			HNodeVisProxy* Proxy = static_cast<HNodeVisProxy*>(VisProxy);
-			SelectedNodeIndex = Proxy->SelectedIndex;
-			UE_LOG(LogTemp, Warning, TEXT("Selected node index %d."), SelectedNodeIndex);
+			if(InViewportClient->IsCtrlPressed() && FirstSelectedIndex != INDEX_NONE)
+			{
+				SecondSelectedIndex = Proxy->SelectedIndex;
+			}
+			else
+			{
+				FirstSelectedIndex = Proxy->SelectedIndex;
+			}
 		}
 	}
 	else
 	{
-		SelectedNodeIndex = INDEX_NONE;
+		SecondSelectedIndex = INDEX_NONE;
+		FirstSelectedIndex = INDEX_NONE;
 	}
 
 	return bEditing;
@@ -65,9 +72,9 @@ bool FRpGraphVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportCl
 
 bool FRpGraphVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const
 {
-	if(IsValid(SpatialGraphComponent) && SelectedNodeIndex != INDEX_NONE)
+	if(IsValid(SpatialGraphComponent) && FirstSelectedIndex != INDEX_NONE)
 	{
-		OutLocation = SpatialGraphComponent->GetNodeLocation(SelectedNodeIndex);
+		OutLocation = SpatialGraphComponent->GetNodeLocation(FirstSelectedIndex);
 		return true;
 	}
 
@@ -81,17 +88,17 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	if(ViewportClient->IsAltPressed() && bAllowDuplication)
 	{
 		bAllowDuplication = false;
-		const FVector& NewLocation = SpatialGraphComponent->GetNodeLocation(SelectedNodeIndex) + DeltaTranslate;
+		const FVector& NewLocation = SpatialGraphComponent->GetNodeLocation(FirstSelectedIndex) + DeltaTranslate;
 
-		const int32 PreviouslySelectedIndex = SelectedNodeIndex;
-		SelectedNodeIndex = const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->AddNode(NewLocation);
-		const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->ConnectNodes(SelectedNodeIndex, PreviouslySelectedIndex);
+		const int32 PreviouslySelectedIndex = FirstSelectedIndex;
+		FirstSelectedIndex = const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->AddNode(NewLocation);
+		const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->ConnectNodes(FirstSelectedIndex, PreviouslySelectedIndex);
 	}
 	
-	if(IsValid(SpatialGraphComponent) && SelectedNodeIndex != INDEX_NONE)
+	if(IsValid(SpatialGraphComponent) && FirstSelectedIndex != INDEX_NONE)
 	{
-		const FVector& NewLocation = SpatialGraphComponent->GetNodeLocation(SelectedNodeIndex) + DeltaTranslate;
-		const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->SetNodeLocation(SelectedNodeIndex, NewLocation);
+		const FVector& NewLocation = SpatialGraphComponent->GetNodeLocation(FirstSelectedIndex) + DeltaTranslate;
+		const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->SetNodeLocation(FirstSelectedIndex, NewLocation);
 		bHandled = true;
 	}
 	
@@ -101,17 +108,35 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, FViewport* Viewport, FKey Key, EInputEvent Event)
 {
 	bool bHandled = false;
-	if(Key == EKeys::X && Event == IE_Released)
+
+	if(ViewportClient->IsCtrlPressed() && Key == EKeys::X && Event == IE_Released)
 	{
-		if(IsValid(SpatialGraphComponent) && SelectedNodeIndex != INDEX_NONE && SpatialGraphComponent->GetNumNodes() != 0)
+		if(IsValid(SpatialGraphComponent) && FirstSelectedIndex != INDEX_NONE && SecondSelectedIndex != INDEX_NONE)
 		{
-			const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->DeleteNode(SelectedNodeIndex);
-			SelectedNodeIndex = SpatialGraphComponent->GetNumNodes() != 0 ? SpatialGraphComponent->GetNumNodes() - 1 : INDEX_NONE;
+			const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->DisconnectNodes(FirstSelectedIndex, SecondSelectedIndex);
+			SecondSelectedIndex = INDEX_NONE;
 			bHandled = true;
 		}
 	}
-
-	if(Key == EKeys::LeftMouseButton && Event == IE_Released)
+	else if(Key == EKeys::X && Event == IE_Released)
+	{
+		if(IsValid(SpatialGraphComponent) && FirstSelectedIndex != INDEX_NONE && SpatialGraphComponent->GetNumNodes() > 1)
+		{
+			const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->DeleteNode(FirstSelectedIndex);
+			FirstSelectedIndex = SpatialGraphComponent->GetNumNodes() != 0 ? SpatialGraphComponent->GetNumNodes() - 1 : INDEX_NONE;
+			bHandled = true;
+		}
+	}
+	else if(ViewportClient->IsCtrlPressed() && Key == EKeys::F && Event == IE_Released)
+	{
+		if(IsValid(SpatialGraphComponent) && FirstSelectedIndex != INDEX_NONE && SecondSelectedIndex != INDEX_NONE)
+		{
+			const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->ConnectNodes(FirstSelectedIndex, SecondSelectedIndex);
+			SecondSelectedIndex = INDEX_NONE;
+			bHandled = true;
+		}
+	}
+	else if(Key == EKeys::LeftMouseButton && Event == IE_Released)
 	{
 		bAllowDuplication = true;
 	}

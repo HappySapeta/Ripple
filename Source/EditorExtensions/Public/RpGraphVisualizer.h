@@ -48,7 +48,8 @@ private:
 	const class URpSpatialGraphComponent* SpatialGraphComponent = nullptr;
 	
 	// Index of target in selected component
-	int32 SelectedNodeIndex = INDEX_NONE;
+	int32 FirstSelectedIndex = INDEX_NONE;
+	int32 SecondSelectedIndex = INDEX_NONE;
 	
 	bool bAllowDuplication = false;
 };
