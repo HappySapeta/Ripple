@@ -3,10 +3,6 @@
 #include "RpGraphVisualizer.h"
 #include "RpSpatialGraphComponent.h"
 
-#if WITH_EDITOR
-#define LOCTEXT_NAMESPACE "RippleEditorExtensions"
-#endif
-
 IMPLEMENT_HIT_PROXY(HGraphVisProxy, HComponentVisProxy);
 IMPLEMENT_HIT_PROXY(HNodeVisProxy, HGraphVisProxy)
 
@@ -23,20 +19,20 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 	{
 		const FVector& NodeLocation = GraphComponent->GetNodeLocation(Index);
 			
-		FLinearColor Color = (Index == FirstSelectedIndex || Index == SecondSelectedIndex) ? FLinearColor::White : FLinearColor::Black;
+		FLinearColor Color = (Index == FirstSelectedIndex || Index == SecondSelectedIndex) ? GraphComponent->DebugSelectedNodeColor : GraphComponent->DebugUnselectedNodeColor;
 		PDI->SetHitProxy(new HNodeVisProxy(Component, Index));
-		PDI->DrawPoint(NodeLocation, Color, 20.0f, SDPG_Foreground);
+		PDI->DrawPoint(NodeLocation, Color, GraphComponent->DebugNodeRadius, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
 
 		TSet<uint32> Connections = GraphComponent->GetConnections(Index);
 		for(const uint32 Connection : Connections)
 		{
-			// Note deletion and DrawLine might be called asynchronously causing an exception where supplied index is invalid.
+			// Sometimes when Node deletion and visualization are performed concurrently an invalid index exception might be encountered.
 			if(!GraphComponent->IsValidIndex(Connection))
 			{
 				continue;
 			}
-			PDI->DrawLine(NodeLocation, GraphComponent->GetNodeLocation(Connection), FLinearColor::White, SDPG_Foreground, 2.0f);
+			PDI->DrawLine(NodeLocation, GraphComponent->GetNodeLocation(Connection), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
 		}
 	}
 }

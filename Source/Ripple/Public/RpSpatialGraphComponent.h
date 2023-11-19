@@ -17,6 +17,7 @@ struct RIPPLE_API FRpSpatialGraphNode
 	UPROPERTY(VisibleAnywhere)
 	TSet<uint32> Connections;
 };
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), DisplayName = "SpatialGraphComponent", meta = (DisplayName = "SpatialGraphComponent"))
 class RIPPLE_API URpSpatialGraphComponent : public USceneComponent
 {
@@ -27,25 +28,46 @@ public:
 	// Sets default values for this component's properties
 	URpSpatialGraphComponent();
 
-	int32 AddNode(const FVector& Location);
-
-	void DeleteNode(const int32 Index);
-
-	void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex);
-
-	void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
+	int32 GetNumNodes() const;
 
 	FVector GetNodeLocation(const int32 Index) const;
 
-	void SetNodeLocation(const int32 Index, const FVector& NewLocation);
-	
-	int32 GetNumNodes() const;
-
 	TSet<uint32> GetConnections(const int32 Index) const;
 
-	bool IsValidIndex(const int32 Index) const;
+	virtual void SetNodeLocation(const int32 Index, const FVector& NewLocation);
 
-private:
+	virtual bool IsValidIndex(const int32 Index) const;
+
+	virtual int32 AddNode(const FVector& Location);
+
+	virtual void DeleteNode(const int32 Index);
+
+	virtual void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex);
+
+	virtual void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
+
+public:
+
+#if WITH_EDITORONLY_DATA
+
+	UPROPERTY(EditAnywhere)
+	FLinearColor DebugEdgeColor = FLinearColor::White;
+
+	UPROPERTY(EditAnywhere)
+	FLinearColor DebugUnselectedNodeColor = FLinearColor::Black;
+	
+	UPROPERTY(EditAnywhere)
+	FLinearColor DebugSelectedNodeColor = FLinearColor::White;
+
+	UPROPERTY(EditAnywhere)
+	float DebugNodeRadius = 10.0f;
+
+	UPROPERTY(EditAnywhere)
+	float DebugEdgeThickness = 3.0f;
+
+#endif
+
+protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<FRpSpatialGraphNode> Nodes;

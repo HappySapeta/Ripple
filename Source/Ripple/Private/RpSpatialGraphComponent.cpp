@@ -5,7 +5,7 @@
 URpSpatialGraphComponent::URpSpatialGraphComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	AddNode(FVector(0, 0, 100));
+	URpSpatialGraphComponent::AddNode(FVector(0, 0, 100));
 }
 
 int32 URpSpatialGraphComponent::AddNode(const FVector& Location)
