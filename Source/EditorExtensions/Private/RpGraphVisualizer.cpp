@@ -101,9 +101,9 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, FViewport* Viewport, FKey Key, EInputEvent Event)
 {
 	bool bHandled = false;
-	if(Key == EKeys::Delete && Event == IE_Released)
+	if(Key == EKeys::X && Event == IE_Released)
 	{
-		if(IsValid(SpatialGraphComponent) && SelectedNodeIndex != INDEX_NONE)
+		if(IsValid(SpatialGraphComponent) && SelectedNodeIndex != INDEX_NONE && SpatialGraphComponent->GetNumNodes() != 0)
 		{
 			const_cast<URpSpatialGraphComponent*>(SpatialGraphComponent)->DeleteNode(SelectedNodeIndex);
 			SelectedNodeIndex = SpatialGraphComponent->GetNumNodes() != 0 ? SpatialGraphComponent->GetNumNodes() - 1 : INDEX_NONE;
