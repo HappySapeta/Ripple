@@ -36,6 +36,11 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		TSet<uint32> Connections = SpatialGraphComponent->GetConnections(Index);
 		for(const uint32 Connection : Connections)
 		{
+			// Note deletion and DrawLine might be called asynchronously causing an exception where supplied index is invalid.
+			if(!SpatialGraphComponent->IsValidIndex(Connection))
+			{
+				continue;
+			}
 			PDI->DrawLine(NodeLocation, SpatialGraphComponent->GetNodeLocation(Connection), FLinearColor::Blue, SDPG_Foreground, 1.0f);
 		}
 	}
@@ -109,7 +114,7 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 {
 	bool bHandled = false;
 
-	if(ViewportClient->IsCtrlPressed() && Key == EKeys::X && Event == IE_Released)
+	if(ViewportClient->IsAltPressed() && Key == EKeys::X && Event == IE_Released)
 	{
 		if(IsValid(SpatialGraphComponent) && FirstSelectedIndex != INDEX_NONE && SecondSelectedIndex != INDEX_NONE)
 		{
@@ -127,7 +132,8 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 			bHandled = true;
 		}
 	}
-	else if(ViewportClient->IsCtrlPressed() && Key == EKeys::F && Event == IE_Released)
+
+	if(ViewportClient->IsCtrlPressed() && Key == EKeys::F && Event == IE_Released)
 	{
 		if(IsValid(SpatialGraphComponent) && FirstSelectedIndex != INDEX_NONE && SecondSelectedIndex != INDEX_NONE)
 		{
@@ -136,7 +142,8 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 			bHandled = true;
 		}
 	}
-	else if(Key == EKeys::LeftMouseButton && Event == IE_Released)
+
+	if(Key == EKeys::LeftMouseButton && Event == IE_Released)
 	{
 		bAllowDuplication = true;
 	}

@@ -43,6 +43,8 @@ public:
 
 	TSet<uint32> GetConnections(const int32 Index) const;
 
+	bool IsValidIndex(const int32 Index) const;
+
 private:
 
 	UPROPERTY(VisibleAnywhere)
