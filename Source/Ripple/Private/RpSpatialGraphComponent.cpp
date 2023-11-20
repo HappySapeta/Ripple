@@ -5,6 +5,8 @@
 URpSpatialGraphComponent::URpSpatialGraphComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	// Create at least one node to make the graph editable
 	URpSpatialGraphComponent::AddNode(FVector(0, 0, 100));
 }
 
@@ -17,22 +19,34 @@ int32 URpSpatialGraphComponent::AddNode(const FVector& Location)
 
 void URpSpatialGraphComponent::DeleteNode(const int32 Index)
 {
+	// Sever all connections
 	for(uint32 Connection : Nodes[Index].Connections)
 	{
 		Nodes[Connection].Connections.Remove(Index);
 	}
 
+	// Delete node
 	Nodes.RemoveAtSwap(Index);
 }
 
 void URpSpatialGraphComponent::ConnectNodes(const int32 FirstIndex, const int32 SecondIndex)
 {
+	if(FirstIndex == SecondIndex)
+	{
+		return;
+	}
+	
 	Nodes[FirstIndex].Connections.Add(SecondIndex);
 	Nodes[SecondIndex].Connections.Add(FirstIndex);
 }
 
 void URpSpatialGraphComponent::DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex)
 {
+	if(FirstIndex == SecondIndex)
+	{
+		return;
+	}
+	
 	Nodes[FirstIndex].Connections.Remove(SecondIndex);
 	Nodes[SecondIndex].Connections.Remove(FirstIndex);
 }

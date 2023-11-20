@@ -6,18 +6,27 @@
 #include "Components/SceneComponent.h"
 #include "RpSpatialGraphComponent.generated.h"
 
+// A node has a location and a set of indices for each connected node.
 USTRUCT()
 struct RIPPLE_API FRpSpatialGraphNode
 {
 	GENERATED_BODY()
-	
+
+	// World space location of the node
 	UPROPERTY(EditAnywhere)
 	FVector Location = FVector::ZeroVector;
 
+	// Indices of nodes connected to this node
 	UPROPERTY(VisibleAnywhere)
 	TSet<uint32> Connections;
 };
 
+/**
+ * The Spatial Graph Component is designed for constructing spatial graphs within a scene. 
+ * Each graph created is bi-directional, meaning that connections between nodes allow travel in both directions.
+ * Graphs may be cyclic, allowing for the creation of loops within the graph structure.
+ * Additionally, the graphs can be disconnected, supporting the creation of multiple, independent graph segments within the same scene.
+ */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), DisplayName = "SpatialGraphComponent", meta = (DisplayName = "SpatialGraphComponent"))
 class RIPPLE_API URpSpatialGraphComponent : public USceneComponent
 {
@@ -28,40 +37,54 @@ public:
 	// Sets default values for this component's properties
 	URpSpatialGraphComponent();
 
+	// Returns the number of nodes in the graph
 	int32 GetNumNodes() const;
 
+	// Returns the location of node
 	FVector GetNodeLocation(const int32 Index) const;
 
+	// Returns a set of indices of nodes connected to a node
 	TSet<uint32> GetConnections(const int32 Index) const;
 
+	// Set the location of a node.
 	virtual void SetNodeLocation(const int32 Index, const FVector& NewLocation);
 
+	// Checks if an integer is a valid node index
 	virtual bool IsValidIndex(const int32 Index) const;
 
+	// Adds a new node to the graph at the specified location and returns its index
 	virtual int32 AddNode(const FVector& Location);
 
+	// Severs a nodes connections and then deletes it
 	virtual void DeleteNode(const int32 Index);
 
+	// Connects two differnet nodes
 	virtual void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
+	// Disconnects two different nodes
 	virtual void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
 public:
 
 #if WITH_EDITORONLY_DATA
 
+	// Color of lines representing edges in the graph
 	UPROPERTY(EditAnywhere)
 	FLinearColor DebugEdgeColor = FLinearColor::White;
 
+	// Color of unselected graph node / key
 	UPROPERTY(EditAnywhere)
 	FLinearColor DebugUnselectedNodeColor = FLinearColor::Black;
-	
+
+	// Color of selected graph node / key
 	UPROPERTY(EditAnywhere)
 	FLinearColor DebugSelectedNodeColor = FLinearColor::White;
 
+	// Size of points that represent nodes
 	UPROPERTY(EditAnywhere)
 	float DebugNodeRadius = 10.0f;
 
+	// Thickness of lines representing edges in the graph
 	UPROPERTY(EditAnywhere)
 	float DebugEdgeThickness = 3.0f;
 
@@ -69,6 +92,8 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
+	// Array of all nodes in the graph
+	UPROPERTY(EditFixedSize)
 	TArray<FRpSpatialGraphNode> Nodes;
+	
 };
