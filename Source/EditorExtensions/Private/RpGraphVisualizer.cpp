@@ -24,15 +24,11 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		PDI->DrawPoint(NodeLocation, Color, GraphComponent->DebugNodeRadius, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
 
-		TSet<uint32> Connections = GraphComponent->GetConnections(Index);
-		for(const uint32 Connection : Connections)
+		const TSet<URpSpatialGraphNode*> Connections = GraphComponent->GetConnections(Index);
+		for(URpSpatialGraphNode* Connection : Connections)
 		{
 			// Sometimes when Node deletion and visualization are performed concurrently an invalid index exception might be encountered.
-			if(!GraphComponent->IsValidIndex(Connection))
-			{
-				continue;
-			}
-			PDI->DrawLine(NodeLocation, GraphComponent->GetNodeLocation(Connection), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
+			PDI->DrawLine(NodeLocation, Connection->Location, GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
 		}
 	}
 }
@@ -61,7 +57,7 @@ bool FRpGraphVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportCl
 
 bool FRpGraphVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const
 {
-	if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE)
+	if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && GraphComponent->IsValidIndex(FirstSelectedIndex))
 	{
 		OutLocation = GraphComponent->GetNodeLocation(FirstSelectedIndex);
 		return true;
