@@ -19,9 +19,12 @@ class EDITOREXTENSIONS_API SGraphViewport : public SCompoundWidget
 
 inline EVisibility SGraphViewport::GetInfoBoxVisibility() const
 {
-	for (FSelectionIterator It(GEditor->GetSelectedComponentIterator()); It; ++It)
+	for (FSelectionIterator It(GEditor->GetSelectedActorIterator()); It; ++It)
 	{
-		if(static_cast<URpSpatialGraphComponent*>(*It))
+		AActor* Actor = static_cast<AActor*>(*It);
+		checkSlow(Actor->IsA(AActor::StaticClass()));
+
+		if(Actor->GetComponentByClass<URpSpatialGraphComponent>())
 		{
 			return EVisibility::HitTestInvisible;
 		}

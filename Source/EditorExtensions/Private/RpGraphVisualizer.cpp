@@ -29,14 +29,6 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		{
 			// Sometimes when Node deletion and visualization are performed concurrently an invalid index exception might be encountered.
 			PDI->DrawLine(NodeLocation, Connection->Location, GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
-			
-			if(GraphComponent->bDrawAdditionalEdges)
-			{
-				const float Width = GraphComponent->DebugAdditionalEdgeWidth;
-				const FVector& EdgeRightVector = (Connection->Location - NodeLocation).GetSafeNormal().Cross(FVector::UpVector);
-				PDI->DrawLine(NodeLocation + EdgeRightVector * Width, Connection->Location + EdgeRightVector * Width, GraphComponent->DebugAdditionalEdgeColor, SDPG_Foreground, GraphComponent->DebugAdditionalEdgeThickness);
-				PDI->DrawLine(NodeLocation - EdgeRightVector * Width, Connection->Location - EdgeRightVector * Width, GraphComponent->DebugAdditionalEdgeColor, SDPG_Foreground, GraphComponent->DebugAdditionalEdgeThickness);	
-			}
 		}
 	}
 }

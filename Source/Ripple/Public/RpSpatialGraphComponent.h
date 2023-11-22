@@ -77,39 +77,24 @@ public:
 #if WITH_EDITORONLY_DATA
 
 	// Color of lines representing edges in the graph
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Debug)
 	FLinearColor DebugEdgeColor = FLinearColor::White;
 
 	// Color of unselected graph node / key
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Debug)
 	FLinearColor DebugUnselectedNodeColor = FLinearColor::Black;
 
 	// Color of selected graph node / key
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Debug)
 	FLinearColor DebugSelectedNodeColor = FLinearColor::White;
 
 	// Size of points that represent nodes
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Debug)
 	float DebugNodeRadius = 10.0f;
 
 	// Thickness of lines representing edges in the graph
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Debug)
 	float DebugEdgeThickness = 3.0f;
-
-	UPROPERTY(EditAnywhere)
-	bool bDrawAdditionalEdges = false;
-
-	// Size of points that represent nodes
-	UPROPERTY(EditAnywhere, meta = (EditConditionHides = true, EditCondition = "bDrawAdditionalEdges"))
-	float DebugAdditionalEdgeWidth = 50.0f;
-
-	// Size of points that represent nodes
-	UPROPERTY(EditAnywhere, meta = (EditConditionHides = true, EditCondition = "bDrawAdditionalEdges"))
-	FLinearColor DebugAdditionalEdgeColor = FLinearColor::Yellow;
-
-	// Size of points that represent nodes
-	UPROPERTY(EditAnywhere, meta = (EditConditionHides = true, EditCondition = "bDrawAdditionalEdges"))
-	float DebugAdditionalEdgeThickness = 1.0f;
 
 #endif
 
