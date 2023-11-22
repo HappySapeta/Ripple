@@ -20,7 +20,7 @@ public class EditorExtensions: ModuleRules
 			{
 				"Core",
 				"Slate",
-				"Ripple"
+				"Ripple", "LevelEditor"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

@@ -5,6 +5,8 @@
 #include "LevelEditor.h"
 #include "RpGraphVisualizer.h"
 #include "RpSpatialGraphComponent.h"
+#include "SGraphViewport.h"
+#include "SLevelViewport.h"
 #include "ToolMenus.h"
 #include "UnrealEdGlobals.h"
 #include "Editor/UnrealEdEngine.h"
@@ -20,7 +22,14 @@ void FEditorExtensionsModule::StartupModule()
 
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MainMenuExtender);
-
+	LevelEditorModule.OnLevelEditorCreated().AddLambda
+	(
+		[](TSharedPtr<ILevelEditor> LevelEditor)
+		{
+			LevelEditor->GetActiveViewportInterface()->AddOverlayWidget(SNew(SGraphViewport));
+		}
+	);
+	
 	if(GUnrealEd)
 	{
 		TSharedPtr<FRpGraphVisualizer> Visualizer = MakeShareable(new FRpGraphVisualizer());

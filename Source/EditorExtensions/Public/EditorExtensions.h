@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interfaces/IMainFrameModule.h"
 
 class FEditorExtensionsModule : public IModuleInterface
 {
