@@ -15,11 +15,11 @@ class RIPPLE_API URpSpatialGraphNode : public UObject
 public:
 	
 	// World space location of the node
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	FVector Location = FVector::ZeroVector;
 
 	// Indices of nodes connected to this node
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TSet<URpSpatialGraphNode*> Connections;
 };
 
@@ -96,12 +96,27 @@ public:
 	UPROPERTY(EditAnywhere)
 	float DebugEdgeThickness = 3.0f;
 
+	UPROPERTY(EditAnywhere)
+	bool bDrawAdditionalEdges = false;
+
+	// Size of points that represent nodes
+	UPROPERTY(EditAnywhere, meta = (EditConditionHides = true, EditCondition = "bDrawAdditionalEdges"))
+	float DebugAdditionalEdgeWidth = 50.0f;
+
+	// Size of points that represent nodes
+	UPROPERTY(EditAnywhere, meta = (EditConditionHides = true, EditCondition = "bDrawAdditionalEdges"))
+	FLinearColor DebugAdditionalEdgeColor = FLinearColor::Yellow;
+
+	// Size of points that represent nodes
+	UPROPERTY(EditAnywhere, meta = (EditConditionHides = true, EditCondition = "bDrawAdditionalEdges"))
+	float DebugAdditionalEdgeThickness = 1.0f;
+
 #endif
 
 protected:
 
 	// Array of all nodes in the graph
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TArray<URpSpatialGraphNode*> Nodes;
 	
 };

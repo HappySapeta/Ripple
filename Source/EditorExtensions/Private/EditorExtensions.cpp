@@ -26,7 +26,9 @@ void FEditorExtensionsModule::StartupModule()
 	(
 		[](TSharedPtr<ILevelEditor> LevelEditor)
 		{
-			LevelEditor->GetActiveViewportInterface()->AddOverlayWidget(SNew(SGraphViewport));
+			TSharedRef<SGraphViewport> GraphViewport = SNew(SGraphViewport);
+			GraphViewport->SetVisibility(EVisibility::HitTestInvisible);
+			LevelEditor->GetActiveViewportInterface()->AddOverlayWidget(GraphViewport);
 		}
 	);
 	
