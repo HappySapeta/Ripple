@@ -7,7 +7,7 @@
 /**
  * 
  */
-class EDITOREXTENSIONS_API FRippleActions : public TCommands<FRippleActions>
+class RIPPLEEDITOR_API FRippleActions : public TCommands<FRippleActions>
 {
 public:
 

@@ -3,7 +3,7 @@
 #pragma once
 #include "Selection.h"
 
-class EDITOREXTENSIONS_API SGraphViewport : public SCompoundWidget
+class RIPPLEEDITOR_API SGraphViewport : public SCompoundWidget
 {
 	
 	SLATE_BEGIN_ARGS( SGraphViewport ) {}

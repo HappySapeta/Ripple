@@ -21,7 +21,7 @@
       "LoadingPhase": "Default"
     },
     {
-      "Name": "EditorExtensions",
+      "Name": "RippleEditor",
       "Type": "Editor",
       "LoadingPhase": "PostEngineInit",
       "AdditionalDependencies": [

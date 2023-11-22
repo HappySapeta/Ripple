@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class FEditorExtensionsModule : public IModuleInterface
+class FRippleEditorModule : public IModuleInterface
 {
 public:
 

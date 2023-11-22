@@ -9,7 +9,7 @@
  * It implements minimal behavior logic
  * to handle user input and invoke necessary actions to easily create new modules. 
  */
-class EDITOREXTENSIONS_API SModuleMakerWidget : public SCompoundWidget
+class RIPPLEEDITOR_API SModuleMakerWidget : public SCompoundWidget
 {
 public:
 	

@@ -1,6 +1,6 @@
 // Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
 
-#include "EditorExtensions.h"
+#include "..\Public\RippleEditor.h"
 #include "FRippleActions.h"
 #include "LevelEditor.h"
 #include "RpGraphVisualizer.h"
@@ -11,14 +11,14 @@
 #include "UnrealEdGlobals.h"
 #include "Editor/UnrealEdEngine.h"
 
-#define LOCTEXT_NAMESPACE "FEditorExtensionsModule"
+#define LOCTEXT_NAMESPACE "FRippleEditorModule"
 
-void FEditorExtensionsModule::StartupModule()
+void FRippleEditorModule::StartupModule()
 {
 	FRippleActions::Register();
 	
 	MainMenuExtender = MakeShareable(new FExtender());
-	Extension = MainMenuExtender->AddMenuBarExtension("Help", EExtensionHook::After, FRippleActions::Get().ActionList, FMenuBarExtensionDelegate::CreateStatic(&FEditorExtensionsModule::AddMenuExtension));
+	Extension = MainMenuExtender->AddMenuBarExtension("Help", EExtensionHook::After, FRippleActions::Get().ActionList, FMenuBarExtensionDelegate::CreateStatic(&FRippleEditorModule::AddMenuExtension));
 
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MainMenuExtender);
@@ -44,7 +44,7 @@ void FEditorExtensionsModule::StartupModule()
 	}
 }
 
-void FEditorExtensionsModule::ShutdownModule()
+void FRippleEditorModule::ShutdownModule()
 {
 	MainMenuExtender->RemoveExtension(Extension.ToSharedRef());
 	Extension.Reset();
@@ -56,11 +56,11 @@ void FEditorExtensionsModule::ShutdownModule()
 	}
 }
 
-void FEditorExtensionsModule::AddMenuExtension(FMenuBarBuilder& MenuBuilder)
+void FRippleEditorModule::AddMenuExtension(FMenuBarBuilder& MenuBuilder)
 {
 	MenuBuilder.AddPullDownMenu(FText::FromString("Ripple"), FText::FromString("Open the Ripple plugin menu"), FNewMenuDelegate::CreateStatic(&FRippleActions::FillMenu));
 }
 
 #undef LOCTEXT_NAMESPACE
 
-IMPLEMENT_MODULE(FEditorExtensionsModule, EditorExtensions)
+IMPLEMENT_MODULE(FRippleEditorModule, EditorExtensions)

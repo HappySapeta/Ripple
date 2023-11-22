@@ -7,7 +7,7 @@
  * The Module Maker class provides functionality
  * to validate file names, paths and create new module files.
  */
-class EDITOREXTENSIONS_API FModuleMaker
+class RIPPLEEDITOR_API FModuleMaker
 {
 public:
 	// Creates a new window and launches the Module Maker's UI.
