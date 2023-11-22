@@ -3,10 +3,10 @@
 #pragma once
 #include "Selection.h"
 
-class RIPPLEEDITOR_API SGraphViewport : public SCompoundWidget
+class RIPPLEEDITOR_API SRpGraphViewport : public SCompoundWidget
 {
 	
-	SLATE_BEGIN_ARGS( SGraphViewport ) {}
+	SLATE_BEGIN_ARGS( SRpGraphViewport ) {}
 	SLATE_END_ARGS()
 
 	// Constructs the Widget.
@@ -17,7 +17,7 @@ class RIPPLEEDITOR_API SGraphViewport : public SCompoundWidget
 	
 };
 
-inline EVisibility SGraphViewport::GetInfoBoxVisibility() const
+inline EVisibility SRpGraphViewport::GetInfoBoxVisibility() const
 {
 	for (FSelectionIterator It(GEditor->GetSelectedActorIterator()); It; ++It)
 	{
@@ -33,7 +33,7 @@ inline EVisibility SGraphViewport::GetInfoBoxVisibility() const
 	return EVisibility::Hidden;
 }
 
-inline void SGraphViewport::Construct(const FArguments& InArgs)
+inline void SRpGraphViewport::Construct(const FArguments& InArgs)
 {
 	constexpr FLinearColor TextColor = FLinearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -41,7 +41,7 @@ inline void SGraphViewport::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Bottom)
 	[
 		SNew(SVerticalBox)
-		.Visibility(this, &SGraphViewport::GetInfoBoxVisibility)
+		.Visibility(this, &SRpGraphViewport::GetInfoBoxVisibility)
 		+SVerticalBox::Slot()
 		
 		.HAlign(HAlign_Right)

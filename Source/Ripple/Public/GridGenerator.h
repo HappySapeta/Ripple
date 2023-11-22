@@ -3,7 +3,7 @@
 #include "GridGenerator.generated.h"
 
 UCLASS(NotBlueprintable)
-class RIPPLE_API URPGridGenerator : public UObject
+class RIPPLE_API URpGridGenerator : public UObject
 {
 	GENERATED_BODY()
 	

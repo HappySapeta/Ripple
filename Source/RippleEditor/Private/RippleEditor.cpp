@@ -1,11 +1,11 @@
 // Copyright Anupam Sahu. All Rights Reserved.
 
 #include "..\Public\RippleEditor.h"
-#include "FRippleActions.h"
+#include "FRpRippleActions.h"
 #include "LevelEditor.h"
 #include "RpGraphVisualizer.h"
 #include "RpSpatialGraphComponent.h"
-#include "SGraphViewport.h"
+#include "SRpGraphViewport.h"
 #include "SLevelViewport.h"
 #include "ToolMenus.h"
 #include "UnrealEdGlobals.h"
@@ -15,10 +15,10 @@
 
 void FRippleEditorModule::StartupModule()
 {
-	FRippleActions::Register();
+	FRpRippleActions::Register();
 	
 	MainMenuExtender = MakeShareable(new FExtender());
-	Extension = MainMenuExtender->AddMenuBarExtension("Help", EExtensionHook::After, FRippleActions::Get().ActionList, FMenuBarExtensionDelegate::CreateStatic(&FRippleEditorModule::AddMenuExtension));
+	Extension = MainMenuExtender->AddMenuBarExtension("Help", EExtensionHook::After, FRpRippleActions::Get().ActionList, FMenuBarExtensionDelegate::CreateStatic(&FRippleEditorModule::AddMenuExtension));
 
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 	LevelEditorModule.GetMenuExtensibilityManager()->AddExtender(MainMenuExtender);
@@ -26,7 +26,7 @@ void FRippleEditorModule::StartupModule()
 	(
 		[](TSharedPtr<ILevelEditor> LevelEditor)
 		{
-			TSharedRef<SGraphViewport> GraphViewport = SNew(SGraphViewport);
+			TSharedRef<SRpGraphViewport> GraphViewport = SNew(SRpGraphViewport);
 			GraphViewport->SetVisibility(EVisibility::HitTestInvisible);
 			LevelEditor->GetActiveViewportInterface()->AddOverlayWidget(GraphViewport);
 		}
@@ -58,7 +58,7 @@ void FRippleEditorModule::ShutdownModule()
 
 void FRippleEditorModule::AddMenuExtension(FMenuBarBuilder& MenuBuilder)
 {
-	MenuBuilder.AddPullDownMenu(FText::FromString("Ripple"), FText::FromString("Open the Ripple plugin menu"), FNewMenuDelegate::CreateStatic(&FRippleActions::FillMenu));
+	MenuBuilder.AddPullDownMenu(FText::FromString("Ripple"), FText::FromString("Open the Ripple plugin menu"), FNewMenuDelegate::CreateStatic(&FRpRippleActions::FillMenu));
 }
 
 #undef LOCTEXT_NAMESPACE

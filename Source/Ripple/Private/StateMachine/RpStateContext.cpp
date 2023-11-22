@@ -1,7 +1,7 @@
 ﻿// Copyright Anupam Sahu. All Rights Reserved.
 
 #include "StateMachine/RpStateContext.h"
-#include "Ripple/Public/LoggingMacros.h"
+#include "..\..\Public\RpLoggingMacros.h"
 #include "StateMachine/RpState.h"
 
 // Checks TargetState

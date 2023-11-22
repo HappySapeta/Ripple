@@ -1,7 +1,7 @@
 // Copyright Anupam Sahu. All Rights Reserved.
 
-#include "ModuleMaker/FModuleMaker.h"
-#include "ModuleMaker/SModuleMakerWidget.h"
+#include "ModuleMaker/FRpModuleMaker.h"
+#include "ModuleMaker/SRpModuleMakerWidget.h"
 
 #include "Misc/FileHelper.h"
 #include "GameProjectUtils.h"
@@ -11,7 +11,7 @@
 
 #define MAX_MODULE_NAME_LENGTH 32
 
-void FModuleMaker::LaunchModuleCreationDialog()
+void FRpModuleMaker::LaunchModuleCreationDialog()
 {
 	const IMainFrameModule& MainFrameModule = FModuleManager::GetModuleChecked<IMainFrameModule>(TEXT("MainFrame"));
 	const FVector2D ModuleMakerWindowSize(960, 540);
@@ -25,7 +25,7 @@ void FModuleMaker::LaunchModuleCreationDialog()
 		.SupportsMinimize(false)
 		.SupportsMaximize(false);
 
-	ModuleCreationWindow->SetContent(SNew(SModuleMakerWidget));
+	ModuleCreationWindow->SetContent(SNew(SRpModuleMakerWidget));
 	
 	if (MainFrameModule.GetParentWindow().IsValid())
 	{
@@ -37,7 +37,7 @@ void FModuleMaker::LaunchModuleCreationDialog()
 	}
 }
 
-bool FModuleMaker::IsModuleNameValid(const FString& NameString, FString& RejectReason) 
+bool FRpModuleMaker::IsModuleNameValid(const FString& NameString, FString& RejectReason) 
 {
 	RejectReason.Empty();
 	
@@ -82,7 +82,7 @@ bool FModuleMaker::IsModuleNameValid(const FString& NameString, FString& RejectR
 	return true;
 }
 
-bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FString& ModuleName, FString& RejectReason)
+bool FRpModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FString& ModuleName, FString& RejectReason)
 {
 	RejectReason.Empty();
 
@@ -122,7 +122,7 @@ bool FModuleMaker::IsModuleSourcePathValid(const FString& PathString, const FStr
 	return true;
 }
 
-bool FModuleMaker::CreateNewModule(const FString& ModuleName, const FString& ModulePath, FString& OutFailReason)
+bool FRpModuleMaker::CreateNewModule(const FString& ModuleName, const FString& ModulePath, FString& OutFailReason)
 {
 	OutFailReason.Empty();
 	
@@ -152,7 +152,7 @@ bool FModuleMaker::CreateNewModule(const FString& ModuleName, const FString& Mod
 	return true;
 }
 
-bool FModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FString& TemplateFile, const FString& TargetFile, FString& OutFailReason)
+bool FRpModuleMaker::CreateModuleSourceFile(const FString& TemplateValue, const FString& TemplateFile, const FString& TargetFile, FString& OutFailReason)
 {
 	// TODO : I may need to add a dedicated class to provide me with plugin directories specific to a Ripple.
 	const FString& PluginContentDir = IPluginManager::Get().FindPlugin(TEXT("Ripple"))->GetContentDir();
