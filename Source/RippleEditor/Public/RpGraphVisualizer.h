@@ -6,7 +6,7 @@
 #include "ComponentVisualizer.h"
 
 // Vis Proxies are used to detect clicks (or hits) on visualized elements.
-struct EDITOREXTENSIONS_API HGraphVisProxy : public HComponentVisProxy
+struct RIPPLEEDITOR_API HGraphVisProxy : public HComponentVisProxy
 {
 	DECLARE_HIT_PROXY();
 
@@ -15,7 +15,7 @@ struct EDITOREXTENSIONS_API HGraphVisProxy : public HComponentVisProxy
 	{}
 };
 
-struct EDITOREXTENSIONS_API HNodeVisProxy : public HGraphVisProxy
+struct RIPPLEEDITOR_API HNodeVisProxy : public HGraphVisProxy
 {
 	DECLARE_HIT_PROXY();
 	HNodeVisProxy(const UActorComponent* InActorComponent, int32 InSelectedIndex)
@@ -33,7 +33,7 @@ struct EDITOREXTENSIONS_API HNodeVisProxy : public HGraphVisProxy
  * It represents nodes as points and the connections between them as lines.
  * The visualizer offers common graph editing features like adding, removing, joining and disjoining nodes.
  */
-class EDITOREXTENSIONS_API FRpGraphVisualizer : public FComponentVisualizer
+class RIPPLEEDITOR_API FRpGraphVisualizer : public FComponentVisualizer
 {
 public:
 	

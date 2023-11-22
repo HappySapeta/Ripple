@@ -1,32 +1,27 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
 using UnrealBuildTool;
 
-public class EditorExtensions: ModuleRules
+public class RippleEditor: ModuleRules
 {
-	public EditorExtensions(ReadOnlyTargetRules Target) : base(Target)
+	public RippleEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PrivateIncludePaths.AddRange(
-			new string[] {
-				// ... add other private include paths required here ...
-			}
-			);
-			
-		
-		PublicDependencyModuleNames.AddRange(
+		PublicDependencyModuleNames.AddRange
+		(
 			new string[]
 			{
 				"Core",
 				"Slate",
-				"Ripple", "LevelEditor"
-				// ... add other public dependencies that you statically link with here ...
+				"Ripple", 
+				"LevelEditor"
 			}
-			);
+		);
 			
 		
-		PrivateDependencyModuleNames.AddRange(
+		PrivateDependencyModuleNames.AddRange
+		(
 			new string[]
 			{
 				"CoreUObject",
@@ -44,6 +39,6 @@ public class EditorExtensions: ModuleRules
 				"InputCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
-			);
+		);
 	}
 }

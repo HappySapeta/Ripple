@@ -1,10 +1,10 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 
-class FEditorExtensionsModule : public IModuleInterface
+class FRippleEditorModule : public IModuleInterface
 {
 public:
 

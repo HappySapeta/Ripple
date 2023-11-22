@@ -1,6 +1,6 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
-#include "ModuleMaker/SModuleMakerWidget.h"
+#include "ModuleMaker/SRpModuleMakerWidget.h"
 
 #include "Widgets/Layout/SSeparator.h"
 #include "Widgets/Layout/SGridPanel.h"
@@ -9,13 +9,13 @@
 #include "DesktopPlatformModule.h"
 
 #include "Misc/FileHelper.h"
-#include "ModuleMaker/FModuleMaker.h"
+#include "ModuleMaker/FRpModuleMaker.h"
 #include "SWarningOrErrorBox.h"
 
 #define MAX_MODULE_NAME_LENGTH 32
 
 BEGIN_FUNCTION_BUILD_OPTIMIZATION
-void SModuleMakerWidget::Construct(const FArguments& InArgs)
+void SRpModuleMakerWidget::Construct(const FArguments& InArgs)
 {
 	constexpr float TextBoxHeightOverride = 24.0f;
 	
@@ -70,8 +70,8 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 			[
 				SNew(SWarningOrErrorBox)
 				.MessageStyle(EMessageStyle::Error)
-				.Visibility(this, &SModuleMakerWidget::GetErrorLabelVisibility)
-				.Message(this, &SModuleMakerWidget::GetErrorLabelText)
+				.Visibility(this, &SRpModuleMakerWidget::GetErrorLabelVisibility)
+				.Message(this, &SRpModuleMakerWidget::GetErrorLabelText)
 			]
 #pragma endregion
 
@@ -105,10 +105,10 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 						.HeightOverride(TextBoxHeightOverride)
 						[
 							SAssignNew(NameEditBox, SEditableTextBox)
-							.Text(this, &SModuleMakerWidget::GetModuleName)
+							.Text(this, &SRpModuleMakerWidget::GetModuleName)
 							.HintText(INVTEXT("Name of your module"))
-							.OnTextChanged(this, &SModuleMakerWidget::OnModuleNameChanged)
-							.OnTextCommitted(this, &SModuleMakerWidget::OnModuleNameCommitted)
+							.OnTextChanged(this, &SRpModuleMakerWidget::OnModuleNameChanged)
+							.OnTextCommitted(this, &SRpModuleMakerWidget::OnModuleNameCommitted)
 						]
 					]
 					
@@ -133,7 +133,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							.HeightOverride(TextBoxHeightOverride)
 							[
 								SNew(SEditableTextBox)
-								.Text(this, &SModuleMakerWidget::GetModulePath)
+								.Text(this, &SRpModuleMakerWidget::GetModulePath)
 								.HintText(INVTEXT("Location of your module"))
 								.IsReadOnly(true)
 							]
@@ -147,8 +147,8 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 							SNew(SButton)
 							.VAlign(VAlign_Center)
 							.ButtonStyle(FAppStyle::Get(), "SimpleButton")
-							.Visibility(this, &SModuleMakerWidget::GetChooseFolderVisibility)
-							.OnClicked(this, &SModuleMakerWidget::HandleChooseFolderButtonClicked)
+							.Visibility(this, &SRpModuleMakerWidget::GetChooseFolderVisibility)
+							.OnClicked(this, &SRpModuleMakerWidget::HandleChooseFolderButtonClicked)
 							.Text(INVTEXT("Choose Folder"))
 							[
 								SNew(SImage)
@@ -177,7 +177,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 						.HeightOverride(TextBoxHeightOverride)
 						[
 							SNew(STextBlock)
-							.Text(this, &SModuleMakerWidget::GetHeaderFilePath)
+							.Text(this, &SRpModuleMakerWidget::GetHeaderFilePath)
 						]
 					]
 					
@@ -199,7 +199,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 						.HeightOverride(TextBoxHeightOverride)
 						[
 							SNew(STextBlock)
-							.Text(this, &SModuleMakerWidget::GetSourceFilePath)
+							.Text(this, &SRpModuleMakerWidget::GetSourceFilePath)
 						]
 					]
 					
@@ -222,7 +222,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 						.HeightOverride(TextBoxHeightOverride)
 						[
 							SNew(STextBlock)
-							.Text(this, &SModuleMakerWidget::GetConfigFilePath)
+							.Text(this, &SRpModuleMakerWidget::GetConfigFilePath)
 						]
 					]
 				]
@@ -242,13 +242,13 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 				[
 					SNew(SButton)
 					.HAlign(HAlign_Center)
-					.IsEnabled(this, &SModuleMakerWidget::GetCreateButtonAbility)
+					.IsEnabled(this, &SRpModuleMakerWidget::GetCreateButtonAbility)
 					.ContentPadding(FMargin(25.0f, 5.0f))
 					.ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("PrimaryButton"))
 					.TextStyle(FAppStyle::Get(), "LargeText")
 					.ForegroundColor(FAppStyle::Get().GetSlateColor("WhiteBrush"))
 					.Text(INVTEXT("Create Module"))
-					.OnClicked(this, &SModuleMakerWidget::HandleCreateButtonClicked)
+					.OnClicked(this, &SRpModuleMakerWidget::HandleCreateButtonClicked)
 				]
 
 				// Cancel Button
@@ -262,7 +262,7 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 					.TextStyle(FAppStyle::Get(), "LargeText")
 					.ForegroundColor(FAppStyle::Get().GetSlateColor("WhiteBrush"))
 					.Text(INVTEXT("Cancel"))
-					.OnClicked(this, &SModuleMakerWidget::HandleCancelButtonClicked)
+					.OnClicked(this, &SRpModuleMakerWidget::HandleCancelButtonClicked)
 				]
 			]
 #pragma endregion
@@ -271,52 +271,52 @@ void SModuleMakerWidget::Construct(const FArguments& InArgs)
 }
 END_FUNCTION_BUILD_OPTIMIZATION
 
-EVisibility SModuleMakerWidget::GetErrorLabelVisibility() const
+EVisibility SRpModuleMakerWidget::GetErrorLabelVisibility() const
 {
 	return ErrorString.IsEmpty() ? EVisibility::Hidden : EVisibility::Visible;
 }
 
-FText SModuleMakerWidget::GetErrorLabelText() const
+FText SRpModuleMakerWidget::GetErrorLabelText() const
 {
 	return FText::AsCultureInvariant(ErrorString);
 }
 
-EVisibility SModuleMakerWidget::GetChooseFolderVisibility() const
+EVisibility SRpModuleMakerWidget::GetChooseFolderVisibility() const
 {
 	return bLastNameValidityCheckPassed ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
-bool SModuleMakerWidget::GetCreateButtonAbility() const
+bool SRpModuleMakerWidget::GetCreateButtonAbility() const
 {
 	return bLastNameValidityCheckPassed && bLastPathValidityCheckPassed;
 }
 
-FText SModuleMakerWidget::GetModuleName() const
+FText SRpModuleMakerWidget::GetModuleName() const
 {
 	return FText::AsCultureInvariant(NewModuleName);
 }
 
-FText SModuleMakerWidget::GetModulePath() const
+FText SRpModuleMakerWidget::GetModulePath() const
 {
 	return FText::AsCultureInvariant(NewModulePath);
 }
 
-FText SModuleMakerWidget::GetHeaderFilePath() const
+FText SRpModuleMakerWidget::GetHeaderFilePath() const
 {
 	return FText::AsCultureInvariant(HeaderFile);
 }
 
-FText SModuleMakerWidget::GetSourceFilePath() const
+FText SRpModuleMakerWidget::GetSourceFilePath() const
 {
 	return FText::AsCultureInvariant(SourceFile);
 }
 
-FText SModuleMakerWidget::GetConfigFilePath() const
+FText SRpModuleMakerWidget::GetConfigFilePath() const
 {
 	return FText::AsCultureInvariant(ConfigFile);
 }
 
-void SModuleMakerWidget::UpdateSourceFilePaths(bool ClearPaths)
+void SRpModuleMakerWidget::UpdateSourceFilePaths(bool ClearPaths)
 {
 	if(ClearPaths)
 	{
@@ -331,16 +331,16 @@ void SModuleMakerWidget::UpdateSourceFilePaths(bool ClearPaths)
 	ConfigFile = ModuleDirectory / NewModuleName + ".build.cs";
 }
 
-void SModuleMakerWidget::UpdateValidityChecks()
+void SRpModuleMakerWidget::UpdateValidityChecks()
 {
-	bLastNameValidityCheckPassed = FModuleMaker::IsModuleNameValid(NewModuleName, ErrorString);
-	bLastPathValidityCheckPassed = FModuleMaker::IsModuleSourcePathValid(NewModulePath, NewModuleName, ErrorString);
+	bLastNameValidityCheckPassed = FRpModuleMaker::IsModuleNameValid(NewModuleName, ErrorString);
+	bLastPathValidityCheckPassed = FRpModuleMaker::IsModuleSourcePathValid(NewModulePath, NewModuleName, ErrorString);
 }
 
-void SModuleMakerWidget::OnModuleNameChanged(const FText& ModuleNameInput)
+void SRpModuleMakerWidget::OnModuleNameChanged(const FText& ModuleNameInput)
 {
 	const FString& ModuleNameInputString = ModuleNameInput.ToString();
-	bLastNameValidityCheckPassed = FModuleMaker::IsModuleNameValid(ModuleNameInputString, ErrorString);
+	bLastNameValidityCheckPassed = FRpModuleMaker::IsModuleNameValid(ModuleNameInputString, ErrorString);
 	if(bLastNameValidityCheckPassed)
 	{
 		NewModuleName = ModuleNameInputString;
@@ -355,7 +355,7 @@ void SModuleMakerWidget::OnModuleNameChanged(const FText& ModuleNameInput)
 	}
 }
 
-void SModuleMakerWidget::OnModuleNameCommitted(const FText& ModuleNameInput, ETextCommit::Type CommitType)
+void SRpModuleMakerWidget::OnModuleNameCommitted(const FText& ModuleNameInput, ETextCommit::Type CommitType)
 {
 	if(CommitType == ETextCommit::OnEnter || CommitType == ETextCommit::OnUserMovedFocus)
 	{
@@ -374,12 +374,12 @@ void SModuleMakerWidget::OnModuleNameCommitted(const FText& ModuleNameInput, ETe
 	}
 }
 
-void SModuleMakerWidget::HandleFolderChosen(FString& FolderName)
+void SRpModuleMakerWidget::HandleFolderChosen(FString& FolderName)
 {
 	if(!FolderName.EndsWith(TEXT("/"))) { FolderName += TEXT("/"); }
 
 	ErrorString.Empty();
-	bLastPathValidityCheckPassed = FModuleMaker::IsModuleSourcePathValid(FolderName, NewModuleName, ErrorString);
+	bLastPathValidityCheckPassed = FRpModuleMaker::IsModuleSourcePathValid(FolderName, NewModuleName, ErrorString);
 	if(bLastPathValidityCheckPassed)
 	{
 		NewModulePath = FolderName;
@@ -391,7 +391,7 @@ void SModuleMakerWidget::HandleFolderChosen(FString& FolderName)
 	}
 }
 
-FReply SModuleMakerWidget::HandleChooseFolderButtonClicked()
+FReply SRpModuleMakerWidget::HandleChooseFolderButtonClicked()
 {
 	if(bLastNameValidityCheckPassed)
 	{
@@ -415,7 +415,7 @@ FReply SModuleMakerWidget::HandleChooseFolderButtonClicked()
 	return FReply::Handled();
 }
 
-FReply SModuleMakerWidget::HandleCreateButtonClicked()
+FReply SRpModuleMakerWidget::HandleCreateButtonClicked()
 {
 	UpdateValidityChecks();
 	if(bLastNameValidityCheckPassed && bLastPathValidityCheckPassed)
@@ -423,7 +423,7 @@ FReply SModuleMakerWidget::HandleCreateButtonClicked()
 		FString OutFailReason;
 		FFormatOrderedArguments Args;
 		
-		if(!FModuleMaker::CreateNewModule(NewModuleName, NewModulePath, OutFailReason))
+		if(!FRpModuleMaker::CreateNewModule(NewModuleName, NewModulePath, OutFailReason))
 		{
 			if(!OutFailReason.IsEmpty())
 			{
@@ -445,7 +445,7 @@ FReply SModuleMakerWidget::HandleCreateButtonClicked()
 	return FReply::Handled();
 }
 
-FReply SModuleMakerWidget::HandleCancelButtonClicked()
+FReply SRpModuleMakerWidget::HandleCancelButtonClicked()
 {
 	const TSharedPtr<SWindow> ContainingWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
 

@@ -3,7 +3,7 @@
   "Version": 1,
   "VersionName": "1.0",
   "FriendlyName": "Ripple",
-  "Description": "Ripple is a library containing tools, features, and utilities to aid in developing games with the Unreal Engine.",
+  "Description": "Gameplay Features, Utilities, Editor Extensions and More.",
   "Category": "Other",
   "CreatedBy": "AnupamSahu",
   "CreatedByURL": "",
@@ -21,18 +21,13 @@
       "LoadingPhase": "Default"
     },
     {
-      "Name": "EditorExtensions",
+      "Name": "RippleEditor",
       "Type": "Editor",
       "LoadingPhase": "PostEngineInit",
       "AdditionalDependencies": [
         "Engine",
         "CoreUObject"
       ]
-    },
-    {
-      "Name": "RippleLibrary",
-      "Type": "Runtime",
-      "LoadingPhase": "Default"
     }
   ]
 }

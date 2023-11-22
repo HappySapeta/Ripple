@@ -1,16 +1,16 @@
-﻿// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+﻿// Copyright Anupam Sahu. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "RPStateContext.generated.h"
+#include "RpStateContext.generated.h"
 
 // Forward Declarations
-class URPState;
+class URpState;
 
 UINTERFACE(Blueprintable)
-class URPStateContext : public UInterface
+class URpStateContext : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -21,7 +21,7 @@ class URPStateContext : public UInterface
  *  that is coupled with RPState and together they
  *  can be used to create a very simple state machine.
  */
-class RIPPLELIBRARY_API IRPStateContext
+class RIPPLE_API IRpStateContext
 {
 	GENERATED_BODY()
 
@@ -29,21 +29,21 @@ public:
 	
 	// Transitions the state machine to TargetState.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void GoToState(TSubclassOf<URPState> TargetState);
-	void GoToState_Implementation(TSubclassOf<URPState> TargetState);
+	void GoToState(TSubclassOf<URpState> TargetState);
+	void GoToState_Implementation(TSubclassOf<URpState> TargetState);
 	
 	// Starts the state machine by activating StartingState.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void StartStateMachine(TSubclassOf<URPState> StartingState);
-	void StartStateMachine_Implementation(TSubclassOf<URPState> StartingState);
+	void StartStateMachine(TSubclassOf<URpState> StartingState);
+	void StartStateMachine_Implementation(TSubclassOf<URpState> StartingState);
 
 protected:
 
 	// Get CurrentState.
-	virtual TObjectPtr<URPState> GetCurrentState() const = 0;
+	virtual TObjectPtr<URpState> GetCurrentState() const = 0;
 
 	// Set CurrentState.
-	virtual void SetCurrentState(const TObjectPtr<URPState>& Value) = 0;
+	virtual void SetCurrentState(const TObjectPtr<URpState>& Value) = 0;
 };
 
 /**
@@ -54,21 +54,21 @@ protected:
  * It also provides a field to store the current state of the State Machine.
  */
 UCLASS(Blueprintable, BlueprintType)
-class RIPPLELIBRARY_API URPStateContextBase : public UObject, public IRPStateContext
+class RIPPLE_API URpStateContextBase : public UObject, public IRpStateContext
 {
 	GENERATED_BODY()
 	
 protected:
 	
 	// Get CurrentState.
-	virtual TObjectPtr<URPState> GetCurrentState() const override;
+	virtual TObjectPtr<URpState> GetCurrentState() const override;
 
 	// Set CurrentState.
-	virtual void SetCurrentState(const TObjectPtr<URPState>& Value) override;
+	virtual void SetCurrentState(const TObjectPtr<URpState>& Value) override;
 
 protected:
 
 	// Current State of the State Machine.
 	UPROPERTY(Transient)
-	TObjectPtr<URPState> CurrentState;
+	TObjectPtr<URpState> CurrentState;
 };

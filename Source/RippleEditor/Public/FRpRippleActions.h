@@ -1,4 +1,4 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
 #pragma once
 
@@ -7,12 +7,12 @@
 /**
  * 
  */
-class EDITOREXTENSIONS_API FRippleActions : public TCommands<FRippleActions>
+class RIPPLEEDITOR_API FRpRippleActions : public TCommands<FRpRippleActions>
 {
 public:
 
 	// Creates a new Command Set.
-	FRippleActions();
+	FRpRippleActions();
 
 	// Creates UI commands and maps actions.
 	virtual void RegisterCommands() override;

@@ -1,4 +1,4 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
 #pragma once
 
@@ -9,11 +9,11 @@
  * It implements minimal behavior logic
  * to handle user input and invoke necessary actions to easily create new modules. 
  */
-class EDITOREXTENSIONS_API SModuleMakerWidget : public SCompoundWidget
+class RIPPLEEDITOR_API SRpModuleMakerWidget : public SCompoundWidget
 {
 public:
 	
-	SLATE_BEGIN_ARGS( SModuleMakerWidget ) {}
+	SLATE_BEGIN_ARGS( SRpModuleMakerWidget ) {}
 	
 	SLATE_END_ARGS()
 
@@ -85,7 +85,7 @@ private:
 
 	/**
 	 * The final checks on module path and module name are performed.
-	 * FModuleMaker::CreateNewModule is invoked to generate source files for the new module.
+	 * FRpModuleMaker::CreateNewModule is invoked to generate source files for the new module.
 	 * Finally, a dialog is displayed, showing the result of the file generation process.
 	 */
 	FReply HandleCreateButtonClicked();

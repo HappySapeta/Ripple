@@ -1,18 +1,16 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
-#include "FRippleActions.h"
+#include "FRpRippleActions.h"
+#include "ModuleMaker/FRpModuleMaker.h"
 
-#include "ModuleMaker/FModuleMaker.h"
-#include "LoggingMacros.h"
+TSharedRef<FUICommandList> FRpRippleActions::ActionList(new FUICommandList());
 
-TSharedRef<FUICommandList> FRippleActions::ActionList(new FUICommandList());
-
-FRippleActions::FRippleActions()
-	: TCommands<FRippleActions>(FName(TEXT("RPL_MainMenu")), FText::FromString("Ripple Main Menu Commands"), NAME_None, FAppStyle::GetAppStyleSetName())
+FRpRippleActions::FRpRippleActions()
+	: TCommands<FRpRippleActions>(FName(TEXT("RPL_MainMenu")), FText::FromString("Ripple Main Menu Commands"), NAME_None, FAppStyle::GetAppStyleSetName())
 {
 }
 
-void FRippleActions::RegisterCommands()
+void FRpRippleActions::RegisterCommands()
 {
 	#define LOCTEXT_NAMESPACE ""
 
@@ -22,13 +20,13 @@ void FRippleActions::RegisterCommands()
 	#undef LOCTEXT_NAMESPACE
 }
 
-void FRippleActions::FillMenu(FMenuBuilder& MenuBuilder)
+void FRpRippleActions::FillMenu(FMenuBuilder& MenuBuilder)
 {
 	MenuBuilder.BeginSection("Modules", FText::FromString("Modules"));
 	{
 		MenuBuilder.AddMenuEntry
 		(
-			FRippleActions::Get().CreateModule, NAME_None,
+			FRpRippleActions::Get().CreateModule, NAME_None,
 			FText::FromString("Create Module"),
 			FText::FromString("Create a new module"),
 			FSlateIcon()
@@ -38,5 +36,5 @@ void FRippleActions::FillMenu(FMenuBuilder& MenuBuilder)
 
 void FRippleActionCallbacks::CreateModule()
 {
-	FModuleMaker::LaunchModuleCreationDialog();
+	FRpModuleMaker::LaunchModuleCreationDialog();
 }

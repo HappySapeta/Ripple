@@ -1,4 +1,4 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
 #pragma once
 #include "CoreMinimal.h"
@@ -7,7 +7,7 @@
  * The Module Maker class provides functionality
  * to validate file names, paths and create new module files.
  */
-class EDITOREXTENSIONS_API FModuleMaker
+class RIPPLEEDITOR_API FRpModuleMaker
 {
 public:
 	// Creates a new window and launches the Module Maker's UI.
