@@ -63,4 +63,4 @@ void FRippleEditorModule::AddMenuExtension(FMenuBarBuilder& MenuBuilder)
 
 #undef LOCTEXT_NAMESPACE
 
-IMPLEMENT_MODULE(FRippleEditorModule, EditorExtensions)
+IMPLEMENT_MODULE(FRippleEditorModule, RippleEditor)
