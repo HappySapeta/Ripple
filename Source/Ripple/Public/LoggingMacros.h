@@ -1,4 +1,4 @@
-﻿// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+﻿// Copyright Anupam Sahu. All Rights Reserved.
 
 // Logging Macros
 // These Macros wrap over UE_LOG and simplify its usage.

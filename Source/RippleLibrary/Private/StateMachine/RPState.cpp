@@ -1,9 +1,9 @@
-﻿// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+﻿// Copyright Anupam Sahu. All Rights Reserved.
 
-#include "StateMachine/RPState.h"
-#include "StateMachine/RPStateContext.h"
+#include "StateMachine/RpState.h"
+#include "StateMachine/RpStateContext.h"
 
-void URPState::SetContext_Implementation(const TScriptInterface<IRPStateContext>& Context)
+void URpState::SetContext_Implementation(const TScriptInterface<IRpStateContext>& Context)
 {
 	if(StateContext.GetObject() != Context.GetObject())
 	{
@@ -12,13 +12,13 @@ void URPState::SetContext_Implementation(const TScriptInterface<IRPStateContext>
 	}
 }
 
-void URPState::Activate_Implementation()
+void URpState::Activate_Implementation()
 {
 	// Do Nothing.
 }
 
 // Casts the StateContext reference into the requested type and provides a pin on its blueprint node to let the user choose a return type.
-URPStateContextBase* URPState::GetContext(TSubclassOf<URPStateContextBase> ContextSubClass) const
+URpStateContextBase* URpState::GetContext(TSubclassOf<URpStateContextBase> ContextSubClass) const
 {
-	return Cast<URPStateContextBase>(StateContext.GetInterface());
+	return Cast<URpStateContextBase>(StateContext.GetInterface());
 }

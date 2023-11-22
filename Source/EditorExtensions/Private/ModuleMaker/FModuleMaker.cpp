@@ -1,4 +1,4 @@
-// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+// Copyright Anupam Sahu. All Rights Reserved.
 
 #include "ModuleMaker/FModuleMaker.h"
 #include "ModuleMaker/SModuleMakerWidget.h"

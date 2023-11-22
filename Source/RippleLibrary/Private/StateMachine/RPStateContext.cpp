@@ -1,13 +1,13 @@
-﻿// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+﻿// Copyright Anupam Sahu. All Rights Reserved.
 
-#include "StateMachine/RPStateContext.h"
+#include "StateMachine/RpStateContext.h"
 #include "Ripple/Public/LoggingMacros.h"
-#include "StateMachine/RPState.h"
+#include "StateMachine/RpState.h"
 
 // Checks TargetState
 // Sets Current State
 // Executes TargetState
-void IRPStateContext::GoToState_Implementation(TSubclassOf<URPState> TargetState)
+void IRpStateContext::GoToState_Implementation(TSubclassOf<URpState> TargetState)
 {
 	if(!TargetState)
 	{
@@ -15,12 +15,12 @@ void IRPStateContext::GoToState_Implementation(TSubclassOf<URPState> TargetState
 		return;
 	}
 	
-	const TObjectPtr<URPState>& TargetStateObject = TargetState.GetDefaultObject();
+	const TObjectPtr<URpState>& TargetStateObject = TargetState.GetDefaultObject();
 	SetCurrentState(TargetStateObject);
 
 	// Wrapping and sending this interface in a TScriptInterface,
 	// because the SetContext() call doesn't accept anything else.
-	TScriptInterface<IRPStateContext> TempInterface;
+	TScriptInterface<IRpStateContext> TempInterface;
 	TempInterface.SetObject(_getUObject());
 	TempInterface.SetInterface(this);
 
@@ -28,7 +28,7 @@ void IRPStateContext::GoToState_Implementation(TSubclassOf<URPState> TargetState
 	TargetStateObject->Activate();
 }
 
-void IRPStateContext::StartStateMachine_Implementation(TSubclassOf<URPState> StartingState)
+void IRpStateContext::StartStateMachine_Implementation(TSubclassOf<URpState> StartingState)
 {
 	if(!StartingState)
 	{
@@ -38,12 +38,12 @@ void IRPStateContext::StartStateMachine_Implementation(TSubclassOf<URPState> Sta
 	GoToState_Implementation(StartingState);
 }
 
-TObjectPtr<URPState> URPStateContextBase::GetCurrentState() const
+TObjectPtr<URpState> URpStateContextBase::GetCurrentState() const
 {
 	return CurrentState;
 }
 
-void URPStateContextBase::SetCurrentState(const TObjectPtr<URPState>& Value)
+void URpStateContextBase::SetCurrentState(const TObjectPtr<URpState>& Value)
 {
 	CurrentState = Value;
 }

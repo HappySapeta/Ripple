@@ -1,14 +1,14 @@
-﻿// Copyright [PUBLICATION_YEAR] [MYCOMPANY], Inc. All Rights Reserved.
+﻿// Copyright Anupam Sahu. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "RPState.generated.h"
+#include "RpState.generated.h"
 
 // Forward declarations
-class IRPStateContext;
-class URPStateContextBase;
+class IRpStateContext;
+class URpStateContextBase;
 
 /**
  * Ripple Simple State Machine.
@@ -18,7 +18,7 @@ class URPStateContextBase;
  * for state Initialization and Execution.
  */
 UCLASS(Blueprintable)
-class RIPPLELIBRARY_API URPState : public UObject
+class RIPPLELIBRARY_API URpState : public UObject
 {
 	
 	GENERATED_BODY()
@@ -27,7 +27,7 @@ public:
 	
 	// Set the state context object for this state.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void SetContext(const TScriptInterface<IRPStateContext>& Context);
+	void SetContext(const TScriptInterface<IRpStateContext>& Context);
 	
 	// Puts the state into action.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
@@ -35,22 +35,22 @@ public:
 	
 protected:
 
-	// Return StateContext as a subtype of IRPStateContext.
+	// Return StateContext as a subtype of IRpStateContext.
 	// For use in blueprints only.
 	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
-	URPStateContextBase* GetContext(TSubclassOf<URPStateContextBase> ContextSubClass) const;
+	URpStateContextBase* GetContext(TSubclassOf<URpStateContextBase> ContextSubClass) const;
 	
-	// Return StateContext as a subtype of IRPStateContext.
+	// Return StateContext as a subtype of IRpStateContext.
 	// For use in Native code only. 
 	template <class ContextSubClass>
 	FORCEINLINE ContextSubClass* GetContext() const
 	{
-		static_assert(std::is_base_of_v<IRPStateContext, ContextSubClass>, "ContextSubClass is not derived from URPStateContext.");
+		static_assert(std::is_base_of_v<IRpStateContext, ContextSubClass>, "ContextSubClass is not derived from URpStateContext.");
 		return Cast<ContextSubClass>(StateContext.GetInterface());
 	}
 
 private:
 	// The state context object of this state that contains all the information that it needs.
 	UPROPERTY(Transient)
-	TScriptInterface<IRPStateContext> StateContext;
+	TScriptInterface<IRpStateContext> StateContext;
 };
