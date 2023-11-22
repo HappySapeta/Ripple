@@ -18,7 +18,7 @@ class URpStateContextBase;
  * for state Initialization and Execution.
  */
 UCLASS(Blueprintable)
-class RIPPLELIBRARY_API URpState : public UObject
+class RIPPLE_API URpState : public UObject
 {
 	
 	GENERATED_BODY()
