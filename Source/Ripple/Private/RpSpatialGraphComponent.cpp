@@ -23,7 +23,7 @@ void URpSpatialGraphComponent::DeleteGraph()
 
 int32 URpSpatialGraphComponent::AddNode(const FVector& Location)
 {
-	const int32 NewNodeIndex = Nodes.Add(NewObject<URpSpatialGraphNode>());
+	const int32 NewNodeIndex = Nodes.Add(NewObject<URpSpatialGraphNode>(this));
 	SetNodeLocation(NewNodeIndex, Location);
 	return NewNodeIndex;
 }

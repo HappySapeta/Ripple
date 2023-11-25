@@ -24,10 +24,11 @@ public:
 private:
 	
 	// World space location of the node
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (MakeEditWidget = true))
 	FVector Location = FVector::ZeroVector;
 
 	// Indices of nodes connected to this node
+	UPROPERTY(VisibleAnywhere)
 	TSet<URpSpatialGraphNode*> Connections;
 };
 
