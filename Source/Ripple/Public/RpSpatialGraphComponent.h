@@ -12,15 +12,32 @@ class RIPPLE_API URpSpatialGraphNode : public UObject
 {
 	GENERATED_BODY()
 
+	friend class URpSpatialGraphComponent;
+
 public:
+
+	FVector GetLocation() const
+	{
+		return Location;
+	}
+	
+private:
 	
 	// World space location of the node
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	FVector Location = FVector::ZeroVector;
 
 	// Indices of nodes connected to this node
-	UPROPERTY(VisibleAnywhere)
 	TSet<URpSpatialGraphNode*> Connections;
+};
+
+template<>
+struct TStructOpsTypeTraits<URpSpatialGraphNode> : public TStructOpsTypeTraitsBase2<URpSpatialGraphNode>
+{
+	enum
+	{
+		WithSerializer = true
+	};
 };
 
 /**
@@ -38,7 +55,7 @@ public:
 	
 	// Sets default values for this component's properties
 	URpSpatialGraphComponent();
-
+	
 	UFUNCTION(BlueprintCallable, CallInEditor)
 	void CreateGraph();
 
@@ -52,7 +69,7 @@ public:
 	FVector GetNodeLocation(const int32 Index) const;
 
 	// Returns a set of indices of nodes connected to a node
-	TSet<URpSpatialGraphNode*> GetConnections(const int32 Index) const;
+	TSet<const URpSpatialGraphNode*> GetConnections(const int32 Index) const;
 
 	// Set the location of a node.
 	virtual void SetNodeLocation(const int32 Index, const FVector& NewLocation);
@@ -101,7 +118,7 @@ public:
 protected:
 
 	// Array of all nodes in the graph
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditInstanceOnly)
 	TArray<URpSpatialGraphNode*> Nodes;
 	
 };

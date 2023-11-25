@@ -67,11 +67,6 @@ int32 URpSpatialGraphComponent::GetNumNodes() const
 	return Nodes.Num();
 }
 
-TSet<URpSpatialGraphNode*> URpSpatialGraphComponent::GetConnections(const int32 Index) const
-{
-	return Nodes[Index]->Connections;
-}
-
 bool URpSpatialGraphComponent::IsValidIndex(const int32 Index) const
 {
 	return Nodes.IsValidIndex(Index);
@@ -80,6 +75,19 @@ bool URpSpatialGraphComponent::IsValidIndex(const int32 Index) const
 FVector URpSpatialGraphComponent::GetNodeLocation(const int32 Index) const
 {
  	return Nodes[Index]->Location;
+}
+
+TSet<const URpSpatialGraphNode*> URpSpatialGraphComponent::GetConnections(const int32 Index) const
+{
+	TSet<const URpSpatialGraphNode*> ConstConverted;
+	ConstConverted.Reserve(Nodes[Index]->Connections.Num());
+
+	for(URpSpatialGraphNode* Connection : Nodes[Index]->Connections)
+	{
+		ConstConverted.Add(Connection);
+	}
+
+	return ConstConverted;
 }
 
 void URpSpatialGraphComponent::SetNodeLocation(const int32 Index, const FVector& NewLocation)
