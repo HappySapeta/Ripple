@@ -12,7 +12,27 @@ class RIPPLE_API URpSpatialGraphNode : public UObject
 {
 	GENERATED_BODY()
 
+	friend class URpSpatialGraphComponent;
+	
 public:
+
+	FVector GetLocation() const
+	{
+		return Location;
+	}
+
+	TSet<const URpSpatialGraphNode*> GetConnections() const
+	{
+		TSet<const URpSpatialGraphNode*> ConstConverted;
+		ConstConverted.Reserve(Connections.Num());
+
+		for (URpSpatialGraphNode* Node : Connections)
+		{
+			ConstConverted.Add(Node);
+		}
+
+		return ConstConverted;
+	}
 	
 	// World space location of the node
 	UPROPERTY(VisibleAnywhere)
@@ -45,6 +65,8 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor)
 	void DeleteGraph();
 
+	TArray<const URpSpatialGraphNode*> GetNodes() const;
+	
 	// Returns the number of nodes in the graph
 	int32 GetNumNodes() const;
 

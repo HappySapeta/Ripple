@@ -21,6 +21,19 @@ void URpSpatialGraphComponent::DeleteGraph()
 	Nodes.Reset();
 }
 
+TArray<const URpSpatialGraphNode*> URpSpatialGraphComponent::GetNodes() const
+{
+	TArray<const URpSpatialGraphNode*> ConstConverted;
+	ConstConverted.Reserve(Nodes.Num());
+
+	for(URpSpatialGraphNode* Node : Nodes)
+	{
+		ConstConverted.Push(Node);
+	}
+
+	return ConstConverted;
+}
+
 int32 URpSpatialGraphComponent::AddNode(const FVector& Location)
 {
 	const int32 NewNodeIndex = Nodes.Add(NewObject<URpSpatialGraphNode>());

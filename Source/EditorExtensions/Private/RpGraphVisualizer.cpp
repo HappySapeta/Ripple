@@ -28,7 +28,7 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		for(URpSpatialGraphNode* Connection : Connections)
 		{
 			// Sometimes when Node deletion and visualization are performed concurrently an invalid index exception might be encountered.
-			PDI->DrawLine(NodeLocation, Connection->Location, GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
+			PDI->DrawLine(NodeLocation, Connection->GetLocation(), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
 		}
 	}
 }
