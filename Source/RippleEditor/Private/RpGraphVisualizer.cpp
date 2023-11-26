@@ -23,12 +23,11 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		PDI->SetHitProxy(new HNodeVisProxy(Component, Index));
 		PDI->DrawPoint(NodeLocation, Color, GraphComponent->DebugNodeRadius, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
-
-		TSet<const URpSpatialGraphNode*> Connections = GraphComponent->GetConnections(Index);
-		for(const URpSpatialGraphNode* Connection : Connections)
+		
+		TSet<uint32> Connections = GraphComponent->GetConnections(Index);
+		for(const uint32 Connection : Connections)
 		{
-			// Sometimes when Node deletion and visualization are performed concurrently an invalid index exception might be encountered.
-			PDI->DrawLine(NodeLocation, Connection->GetLocation(), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
+			PDI->DrawLine(NodeLocation, GraphComponent->GetNodeLocation(Connection), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
 		}
 	}
 }

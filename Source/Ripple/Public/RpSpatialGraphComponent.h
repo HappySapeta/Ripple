@@ -7,8 +7,8 @@
 #include "RpSpatialGraphComponent.generated.h"
 
 // A node has a location and a set of references to every connected node.
-UCLASS()
-class RIPPLE_API URpSpatialGraphNode : public UObject
+USTRUCT()
+struct RIPPLE_API FRpSpatialGraphNode
 {
 	GENERATED_BODY()
 
@@ -20,25 +20,21 @@ public:
 	{
 		return Location;
 	}
+
+	TSet<uint32> GetConnections() const
+	{
+		return Connections;
+	}
 	
 private:
 	
 	// World space location of the node
-	UPROPERTY(EditAnywhere, meta = (MakeEditWidget = true))
+	UPROPERTY(EditAnywhere)
 	FVector Location = FVector::ZeroVector;
 
 	// Indices of nodes connected to this node
 	UPROPERTY(VisibleAnywhere)
-	TSet<URpSpatialGraphNode*> Connections;
-};
-
-template<>
-struct TStructOpsTypeTraits<URpSpatialGraphNode> : public TStructOpsTypeTraitsBase2<URpSpatialGraphNode>
-{
-	enum
-	{
-		WithSerializer = true
-	};
+	TSet<uint32> Connections;
 };
 
 /**
@@ -63,6 +59,8 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor)
 	void DeleteGraph();
 
+	const TArray<FRpSpatialGraphNode>* GetNodes() const;
+	
 	// Returns the number of nodes in the graph
 	int32 GetNumNodes() const;
 
@@ -70,7 +68,7 @@ public:
 	FVector GetNodeLocation(const int32 Index) const;
 
 	// Returns a set of indices of nodes connected to a node
-	TSet<const URpSpatialGraphNode*> GetConnections(const int32 Index) const;
+	TSet<uint32> GetConnections(const int32 Index) const;
 
 	// Set the location of a node.
 	virtual void SetNodeLocation(const int32 Index, const FVector& NewLocation);
@@ -119,7 +117,7 @@ public:
 protected:
 
 	// Array of all nodes in the graph
-	UPROPERTY(EditInstanceOnly)
-	TArray<URpSpatialGraphNode*> Nodes;
+	UPROPERTY(VisibleAnywhere)
+	TArray<FRpSpatialGraphNode> Nodes;
 	
 };
