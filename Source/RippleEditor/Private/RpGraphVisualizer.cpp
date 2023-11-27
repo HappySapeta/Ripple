@@ -13,22 +13,25 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 	{
 		return;
 	}
-	
-	const int32 NumNodes = GraphComponent->GetNumNodes();
-	for(int Index = 0; Index < NumNodes; ++Index)
+
+	const TArray<FRpSpatialGraphNode>* Nodes = GraphComponent->GetNodes();
+	uint32 Index = 0;
+	for(const FRpSpatialGraphNode& Node : *Nodes)
 	{
-		const FVector& NodeLocation = GraphComponent->GetNodeLocation(Index);
+		const FVector& NodeLocation = Node.GetLocation();
 			
 		FLinearColor Color = (Index == FirstSelectedIndex || Index == SecondSelectedIndex) ? GraphComponent->DebugSelectedNodeColor : GraphComponent->DebugUnselectedNodeColor;
 		PDI->SetHitProxy(new HNodeVisProxy(Component, Index));
 		PDI->DrawPoint(NodeLocation, Color, GraphComponent->DebugNodeRadius, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
 		
-		TSet<uint32> Connections = GraphComponent->GetConnections(Index);
+		TSet<uint32> Connections = Node.GetConnections();
 		for(const uint32 Connection : Connections)
 		{
-			PDI->DrawLine(NodeLocation, GraphComponent->GetNodeLocation(Connection), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
+			PDI->DrawLine(NodeLocation, Nodes->operator[](Connection).GetLocation(), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
 		}
+
+		++Index;
 	}
 }
 
@@ -56,9 +59,9 @@ bool FRpGraphVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportCl
 
 bool FRpGraphVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const
 {
-	if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && GraphComponent->IsValidIndex(FirstSelectedIndex))
+	if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && GraphComponent->GetNodes()->IsValidIndex(FirstSelectedIndex))
 	{
-		OutLocation = GraphComponent->GetNodeLocation(FirstSelectedIndex);
+		OutLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation();
 		return true;
 	}
 
@@ -75,7 +78,7 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	if(ViewportClient->IsAltPressed() && bAllowDuplication)
 	{
 		bAllowDuplication = false;
-		const FVector& NewLocation = GraphComponent->GetNodeLocation(FirstSelectedIndex) + DeltaTranslate;
+		const FVector& NewLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation() + DeltaTranslate;
 
 		const int32 PreviouslySelectedIndex = FirstSelectedIndex;
 		FirstSelectedIndex = GraphComponent->AddNode(NewLocation);
@@ -83,7 +86,7 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	}
 	else if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE)
 	{
-		const FVector& NewLocation = GraphComponent->GetNodeLocation(FirstSelectedIndex) + DeltaTranslate;
+		const FVector& NewLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation() + DeltaTranslate;
 		GraphComponent->SetNodeLocation(FirstSelectedIndex, NewLocation);
 	}
 	
@@ -105,10 +108,11 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 	}
 	else if(Key == EKeys::X && Event == IE_Released)
 	{
-		if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && GraphComponent->GetNumNodes() > 1)
+		const uint32 NumNodes = GraphComponent->GetNodes()->Num();
+		if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && NumNodes > 1)
 		{
 			const_cast<URpSpatialGraphComponent*>(GraphComponent)->DeleteNode(FirstSelectedIndex);
-			FirstSelectedIndex = GraphComponent->GetNumNodes() != 0 ? GraphComponent->GetNumNodes() - 1 : INDEX_NONE;
+			FirstSelectedIndex = NumNodes != 0 ? NumNodes - 2 : INDEX_NONE;
 			bHandled = true;
 		}
 	}

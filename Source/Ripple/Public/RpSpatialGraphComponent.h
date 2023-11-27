@@ -6,7 +6,7 @@
 #include "Components/SceneComponent.h"
 #include "RpSpatialGraphComponent.generated.h"
 
-// A node has a location and a set of references to every connected node.
+// A node has a location and a set of references in the form of indices, to every connected node.
 USTRUCT()
 struct RIPPLE_API FRpSpatialGraphNode
 {
@@ -39,7 +39,7 @@ private:
 
 /**
  * The Spatial Graph Component is designed for constructing spatial graphs within a scene. 
- * Each graph created is bi-directional, meaning that connections between nodes allow travel in both directions.
+ * Each graph created is bi-directional, meaning that connections between nodes allow travel in both directions always.
  * Graphs may be cyclic, allowing for the creation of loops within the graph structure.
  * Additionally, the graphs can be disconnected, supporting the creation of multiple, independent graph segments within the same scene.
  */
@@ -48,34 +48,30 @@ class RIPPLE_API URpSpatialGraphComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
+	// Currently graph modification is only allowed from the Graph Visualizer.
+	friend class FRpGraphVisualizer;
+	
 public:
 	
 	// Sets default values for this component's properties
 	URpSpatialGraphComponent();
-	
+
+	// Return all nodes in the graph
+	const TArray<FRpSpatialGraphNode>* GetNodes() const;
+
+protected:
+
+	// Adds one node to the graph 
 	UFUNCTION(BlueprintCallable, CallInEditor)
 	void CreateGraph();
 
+	// Deletes all nodes effectively deleting the entire graph
 	UFUNCTION(BlueprintCallable, CallInEditor)
 	void DeleteGraph();
-
-	const TArray<FRpSpatialGraphNode>* GetNodes() const;
 	
-	// Returns the number of nodes in the graph
-	int32 GetNumNodes() const;
-
-	// Returns the location of node
-	FVector GetNodeLocation(const int32 Index) const;
-
-	// Returns a set of indices of nodes connected to a node
-	TSet<uint32> GetConnections(const int32 Index) const;
-
 	// Set the location of a node.
 	virtual void SetNodeLocation(const int32 Index, const FVector& NewLocation);
-
-	// Checks if an integer is a valid node index
-	virtual bool IsValidIndex(const int32 Index) const;
-
+	
 	// Adds a new node to the graph at the specified location and returns its index
 	virtual int32 AddNode(const FVector& Location);
 
@@ -117,7 +113,7 @@ public:
 protected:
 
 	// Array of all nodes in the graph
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditFixedSize, EditAnywhere)
 	TArray<FRpSpatialGraphNode> Nodes;
 	
 };
