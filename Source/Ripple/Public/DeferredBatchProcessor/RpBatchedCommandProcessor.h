@@ -26,6 +26,8 @@ private:
 
 	void Execute()
 	{
+		TRACE_CPUPROFILER_EVENT_SCOPE(FRpBatchedCommandProcessor::Execute)
+		
 		switch(ExecutionMode)
 		{
 		case EBatchedExecutionMode::Normal:

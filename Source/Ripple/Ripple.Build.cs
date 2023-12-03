@@ -42,9 +42,13 @@ public class Ripple : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore",
-                "UnrealEd"
+				"SlateCore"
 			}
 		);
+		
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.Add("UnrealEd");
+		}
 	}
 }

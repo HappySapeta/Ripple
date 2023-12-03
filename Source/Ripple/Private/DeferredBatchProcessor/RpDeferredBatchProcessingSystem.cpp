@@ -1,7 +1,10 @@
 ﻿// Copyright Anupam Sahu. All Rights Reserved.
 
 #include "DeferredBatchProcessor/RpDeferredBatchProcessingSystem.h"
+
+#if WITH_EDITOR
 #include "Editor.h"
+#endif
 
 void URpDeferredBatchProcessingSystem::Initialize(FSubsystemCollectionBase& Collection)
 {

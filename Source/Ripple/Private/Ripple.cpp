@@ -2,9 +2,12 @@
 
 #include "Ripple.h"
 
+#if WITH_EDITOR
 #include "ISettingsContainer.h"
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
+#endif
+
 #include "DeferredBatchProcessor/RpDeferredBatchProcessingSystem.h"
 
 #define LOCTEXT_NAMESPACE "FRippleModule"
@@ -13,6 +16,8 @@ bool FRippleModule::SupportsDynamicReloading()
 {
 	return true;
 }
+
+#if UE_EDITOR
 
 void FRippleModule::StartupModule()
 {
@@ -91,6 +96,8 @@ void FRippleModule::UnregisterSettings()
 		SettingsModule->UnregisterSettings("Project", "RippleSettings", "BatchProcessing");
 	}
 }
+
+#endif
 
 #undef LOCTEXT_NAMESPACE
 	
