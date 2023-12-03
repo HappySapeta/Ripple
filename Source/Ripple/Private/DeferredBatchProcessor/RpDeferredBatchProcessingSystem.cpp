@@ -18,7 +18,6 @@ void URpDeferredBatchProcessingSystem::Initialize(FSubsystemCollectionBase& Coll
 			{
 				FTimerHandle TimerHandle;
 				FTimerDelegate TimerDelegate;
-
 				FProcessorPair ProcessorPair;
 
 				ProcessorPair.Get<0>() = MakeShared<FRpBatchedCommandProcessor>(Configuration.BatchSize, Configuration.ExecutionMode);
@@ -49,7 +48,7 @@ bool URpDeferredBatchProcessingSystem::QueueCommand(FName ProcessorName, FRpComm
 bool URpDeferredBatchProcessingSystem::ShouldCreateSubsystem(UObject* Outer) const
 {
 #if WITH_EDITOR
-	return (GEditor && GEditor->IsPlaySessionInProgress());
+	return (GEditor && GEditor->IsPlaySessionInProgress() && bEnabled);
 #endif
 	return bEnabled;
 }
