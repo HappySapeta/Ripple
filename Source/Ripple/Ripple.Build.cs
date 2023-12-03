@@ -43,6 +43,7 @@ public class Ripple : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+                "UnrealEd"
 			}
 		);
 	}
