@@ -75,7 +75,7 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 		return false;
 	}
 
-	if(ViewportClient->IsAltPressed() && bAllowDuplication)
+	if(ViewportClient->IsCtrlPressed() && bAllowDuplication)
 	{
 		bAllowDuplication = false;
 		const FVector& NewLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation() + DeltaTranslate;
@@ -83,6 +83,12 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 		const int32 PreviouslySelectedIndex = FirstSelectedIndex;
 		FirstSelectedIndex = GraphComponent->AddNode(NewLocation);
 		GraphComponent->ConnectNodes(FirstSelectedIndex, PreviouslySelectedIndex);
+	}
+	else if(ViewportClient->IsShiftPressed() && bAllowDuplication)
+	{
+		bAllowDuplication = false;
+		const FVector& NewLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation() + DeltaTranslate;
+		FirstSelectedIndex = GraphComponent->AddNode(NewLocation);
 	}
 	else if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE)
 	{
@@ -97,35 +103,46 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 {
 	bool bHandled = false;
 
-	if(ViewportClient->IsAltPressed() && Key == EKeys::X && Event == IE_Released)
+	if (ViewportClient->IsCtrlPressed())
 	{
-		if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && SecondSelectedIndex != INDEX_NONE)
+		if (IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && SecondSelectedIndex != INDEX_NONE)
 		{
-			const_cast<URpSpatialGraphComponent*>(GraphComponent)->DisconnectNodes(FirstSelectedIndex, SecondSelectedIndex);
-			SecondSelectedIndex = INDEX_NONE;
-			bHandled = true;
+			if(Key == EKeys::X)
+			{
+				const_cast<URpSpatialGraphComponent*>(GraphComponent)->DisconnectNodes(FirstSelectedIndex, SecondSelectedIndex);
+				
+				SecondSelectedIndex = INDEX_NONE;
+				bHandled = true;
+			}
+			else if(Key == EKeys::F)
+			{
+				const_cast<URpSpatialGraphComponent*>(GraphComponent)->ConnectNodes(FirstSelectedIndex, SecondSelectedIndex);
+				
+				SecondSelectedIndex = INDEX_NONE;
+				bHandled = true;
+			}
+			else if(Key == EKeys::B)
+			{
+				FVector ControlPoint = ViewportClient->GetCursorWorldLocationFromMousePos().GetOrigin();
+				ControlPoint.Z = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation().Z;
+				const_cast<URpSpatialGraphComponent*>(GraphComponent)->SmoothConnectNodes(FirstSelectedIndex, SecondSelectedIndex, ControlPoint);
+            
+				FirstSelectedIndex = INDEX_NONE;
+				bHandled = true;
+			}
 		}
 	}
-	else if(Key == EKeys::X && Event == IE_Released)
+	else if (Key == EKeys::X && Event == IE_Released)
 	{
 		const uint32 NumNodes = GraphComponent->GetNodes()->Num();
-		if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && NumNodes > 1)
+		if (IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && NumNodes > 1)
 		{
 			const_cast<URpSpatialGraphComponent*>(GraphComponent)->DeleteNode(FirstSelectedIndex);
 			FirstSelectedIndex = NumNodes != 0 ? NumNodes - 2 : INDEX_NONE;
 			bHandled = true;
 		}
 	}
-	else if(ViewportClient->IsCtrlPressed() && Key == EKeys::F && Event == IE_Released)
-	{
-		if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && SecondSelectedIndex != INDEX_NONE)
-		{
-			const_cast<URpSpatialGraphComponent*>(GraphComponent)->ConnectNodes(FirstSelectedIndex, SecondSelectedIndex);
-			SecondSelectedIndex = INDEX_NONE;
-			bHandled = true;
-		}
-	}
-	else if(Key == EKeys::LeftMouseButton && Event == IE_Released)
+	else if (Key == EKeys::LeftMouseButton && Event == IE_Released)
 	{
 		bAllowDuplication = true;
 	}

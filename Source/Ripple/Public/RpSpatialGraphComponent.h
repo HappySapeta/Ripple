@@ -70,19 +70,23 @@ protected:
 	void DeleteGraph();
 	
 	// Set the location of a node.
-	virtual void SetNodeLocation(const int32 Index, const FVector& NewLocation);
+	void SetNodeLocation(const int32 Index, const FVector& NewLocation);
 	
 	// Adds a new node to the graph at the specified location and returns its index
-	virtual int32 AddNode(const FVector& Location);
+	int32 AddNode(const FVector& Location);
 
 	// Severs a nodes connections and then deletes it
-	virtual void DeleteNode(const int32 Index);
+	void DeleteNode(const int32 Index);
 
-	// Connects two differnet nodes
-	virtual void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex);
+	// Connects two different nodes
+	void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
 	// Disconnects two different nodes
-	virtual void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
+	void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
+
+	void SmoothConnectNodes(const int32 FirstIndex, const int32 SecondIndex, const FVector& ControlPoint);
+
+	void BezierCurve(const FVector& P1, const FVector& P2, const FVector& P0);
 
 public:
 
@@ -107,6 +111,9 @@ public:
 	// Thickness of lines representing edges in the graph
 	UPROPERTY(EditAnywhere, Category = Debug)
 	float DebugEdgeThickness = 3.0f;
+
+	UPROPERTY(EditAnywhere, Category = Connections)
+	int32 BezierSegments = 2;
 
 #endif
 

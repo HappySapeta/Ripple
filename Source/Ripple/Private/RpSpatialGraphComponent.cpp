@@ -82,3 +82,33 @@ void URpSpatialGraphComponent::SetNodeLocation(const int32 Index, const FVector&
 {
 	Nodes[Index].Location = NewLocation;
 }
+
+void URpSpatialGraphComponent::SmoothConnectNodes(const int32 FirstIndex, const int32 SecondIndex, const FVector& ControlPoint)
+{
+	const FVector& P0 = Nodes[FirstIndex].GetLocation();
+	const FVector& P1 = ControlPoint;
+	const FVector& P2 = Nodes[SecondIndex].GetLocation();
+
+	TArray<FVector> NewPoints;
+	
+	const float StepSize = 1 / static_cast<float>(BezierSegments);
+	float Alpha = StepSize;
+	while(Alpha <= 1.0f - StepSize)
+	{
+		NewPoints.Add(P1 + FMath::Square(1 - Alpha) * (P0 - P1) + FMath::Square(Alpha) * (P2 - P1));
+		Alpha += StepSize;
+	}
+	
+	TArray<int32> NewNodeIndices;
+	for(const FVector& NewPoint : NewPoints)
+	{
+		NewNodeIndices.Add(AddNode(NewPoint));
+	}
+
+	ConnectNodes(FirstIndex, NewNodeIndices[0]);
+	for(int32 Index = 0; Index < NewNodeIndices.Num() - 1; ++Index)
+	{
+		ConnectNodes(NewNodeIndices[Index], NewNodeIndices[Index + 1]);
+	}
+	ConnectNodes(SecondIndex, NewNodeIndices.Last());
+}
