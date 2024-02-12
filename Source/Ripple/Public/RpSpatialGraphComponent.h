@@ -21,7 +21,7 @@ public:
 		return Location;
 	}
 
-	TSet<uint32> GetConnections() const
+	const TArray<uint32>& GetConnections() const
 	{
 		return Connections;
 	}
@@ -34,7 +34,7 @@ private:
 
 	// Indices of nodes connected to this node
 	UPROPERTY(VisibleAnywhere)
-	TSet<uint32> Connections;
+	TArray<uint32> Connections;
 };
 
 /**
@@ -75,18 +75,17 @@ protected:
 	// Adds a new node to the graph at the specified location and returns its index
 	int32 AddNode(const FVector& Location);
 
-	// Severs a nodes connections and then deletes it
+	// Removes a node from the Graph
 	void DeleteNode(const int32 Index);
 
-	// Connects two different nodes
+	// Connects two nodes
 	void ConnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
-	// Disconnects two different nodes
+	// Disconnects two nodes
 	void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
+	// Connects two nodes with a Bezier Curve
 	void SmoothConnectNodes(const int32 FirstIndex, const int32 SecondIndex, const FVector& ControlPoint);
-
-	void BezierCurve(const FVector& P1, const FVector& P2, const FVector& P0);
 
 public:
 
@@ -122,5 +121,4 @@ protected:
 	// Array of all nodes in the graph
 	UPROPERTY(EditFixedSize, EditAnywhere)
 	TArray<FRpSpatialGraphNode> Nodes;
-	
 };

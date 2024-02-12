@@ -25,7 +25,7 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		PDI->DrawPoint(NodeLocation, Color, GraphComponent->DebugNodeRadius, SDPG_Foreground);
 		PDI->SetHitProxy(nullptr);
 		
-		TSet<uint32> Connections = Node.GetConnections();
+		const TArray<uint32>& Connections = Node.GetConnections();
 		for(const uint32 Connection : Connections)
 		{
 			PDI->DrawLine(NodeLocation, Nodes->operator[](Connection).GetLocation(), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
