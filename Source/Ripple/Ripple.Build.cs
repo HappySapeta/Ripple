@@ -12,7 +12,7 @@ public class Ripple : ModuleRules
 		(
 			new string[] 
 			{
-				// ... add public include paths required here ...
+				"Ripple/SpatialAcceleration"
 			}
 		);
 				
