@@ -11,6 +11,9 @@ constexpr int GBitRowSize = 64;
 */
 constexpr int GBlockSize = 100;
 
+constexpr int SEARCH_CAPACITY = 16;
+typedef TStaticArray<int32, SEARCH_CAPACITY> FSearchResult;
+
 // Represents a location on the grid in terms of Column and Row Indices.
 struct FRpCellLocation
 {
@@ -57,12 +60,22 @@ class RIPPLE_API FRpImplicitGrid
 {
 public:
 
-	FRpImplicitGrid() = default;
+	void operator ()(const FFloatRange& NewDimensions, const uint32 NewResolution)
+	{
+		if(ensureMsgf(NewResolution > 0, TEXT("Resolution cannot be zero.")))
+		{
+			Dimensions = NewDimensions;
+			Resolution = NewResolution;
+		
+			RowBlocks.Init(FRpBitBlock(), NewResolution);
+			ColumnBlocks.Init(FRpBitBlock(), NewResolution);
+		}
+	}
 	
 	/**
 	 * @brief Reserves and initializes arrays with 0's.
 	 */
-	FRpImplicitGrid(const FFloatRange& GridDimensions, const uint32 GridResolution, const FVector& WorldOffset = FVector::ZeroVector);
+	FRpImplicitGrid() = default;
 
 	void SetPositionsArray(TWeakPtr<TArray<FVector>> PositionsArray);
 	
@@ -80,7 +93,7 @@ public:
 	 * @param Radius Radius of the search region.
 	 * @param Out_ActorIndices Output vector of indices of agents that were found.
 	 */
-	virtual void Search(const FVector& Location, const float Radius, TStaticArray<int32, 16>& Out_ActorIndices, uint32& Out_NumIndices) const;
+	virtual void Search(const FVector& Location, const float Radius, FSearchResult& Out_ActorIndices, uint32& Out_NumIndices) const;
 
 	/**
 	 * @brief Draws lines in the world space to visualize the grid.
@@ -102,7 +115,7 @@ protected:
 	 * @param GridLocation Location of the cell in the Grid.
 	 * @param Out_Indices Output vector of indices of agents that were found.
 	 */
-	void GetObjectsInCell(const FRpCellLocation& GridLocation, TStaticArray<int32, 16>& Out_Indices, uint32& Out_NumIndices) const;
+	void GetObjectsInCell(const FRpCellLocation& GridLocation, FSearchResult& Out_Indices, uint32& Out_NumIndices) const;
 
 	// Fills all block arrays with 0s.
 	virtual void ResetBlocks();
@@ -135,7 +148,7 @@ protected:
 
 private:
 	
-	FFloatRange Dimensions = FFloatRange(100.0f, 100.0f);
+	FFloatRange Dimensions;
 
-	uint32 Resolution = 10;
+	uint32 Resolution = 1;
 };

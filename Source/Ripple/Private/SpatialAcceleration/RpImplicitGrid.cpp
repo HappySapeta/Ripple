@@ -2,19 +2,12 @@
 
 #include "SpatialAcceleration/RpImplicitGrid.h"
 
-FRpImplicitGrid::FRpImplicitGrid(const FFloatRange& GridDimensions, const uint32 GridResolution, const FVector& WorldOffset)
-	:Dimensions(GridDimensions), Resolution(GridResolution)
-{
-	RowBlocks.Init(FRpBitBlock(), GridResolution);
-	ColumnBlocks.Init(FRpBitBlock(), GridResolution);
-}
-
 void FRpImplicitGrid::SetPositionsArray(TWeakPtr<TArray<FVector>> PositionsArray)
 {
 	Positions = PositionsArray;
 }
 
-void FRpImplicitGrid::Search(const FVector& Location, const float Radius, TStaticArray<int32, 16>& Out_ActorIndices, uint32& Out_NumIndices) const
+void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FSearchResult& Out_ActorIndices, uint32& Out_NumIndices) const
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(USpatialGridSubsystem::SearchActors)
 	
@@ -40,7 +33,7 @@ void FRpImplicitGrid::Search(const FVector& Location, const float Radius, TStati
 			{
 				DrawCell(CurrentGridLocation);
 				GetObjectsInCell(CurrentGridLocation, Out_ActorIndices, Out_NumIndices);
-				if(Out_NumIndices >= 16)
+				if(static_cast<int32>(Out_NumIndices) >= Out_ActorIndices.Num())
 				{
 					return;
 				}
@@ -89,10 +82,10 @@ void FRpImplicitGrid::Update()
 	}
 }
 
-void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation, TStaticArray<int32, 16>& Out_Indices, uint32& Out_NumIndices) const
+void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation, FSearchResult& Out_Indices, uint32& Out_NumIndices) const
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(USpatialGridSubsystem::GetIndicesInGridLocation)
-	if(Out_NumIndices >= 16 || !IsValidGridLocation(GridLocation))
+	if(static_cast<int32>(Out_NumIndices) >= Out_Indices.Num() || !IsValidGridLocation(GridLocation))
 	{
 		return;
 	}
@@ -111,7 +104,7 @@ void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation, TSta
 				++Index;
 				++Out_NumIndices;
 
-				if(Out_NumIndices >= 16)
+				if(static_cast<int32>(Out_NumIndices) >= Out_Indices.Num())
 				{
 					return;
 				}
