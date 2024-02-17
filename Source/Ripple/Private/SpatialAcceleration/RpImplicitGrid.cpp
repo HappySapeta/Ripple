@@ -7,7 +7,7 @@ void FRpImplicitGrid::SetPositionsArray(TWeakPtr<TArray<FVector>> PositionsArray
 	Positions = PositionsArray;
 }
 
-void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FSearchResult& Out_ActorIndices, uint32& Out_NumIndices) const
+void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FRpGridSearchResult& Out_ActorIndices, uint32& Out_NumIndices) const
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(USpatialGridSubsystem::SearchActors)
 	
@@ -31,7 +31,6 @@ void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FSearc
 		{
 			if(IsValidGridLocation(CurrentGridLocation))
 			{
-				DrawCell(CurrentGridLocation);
 				GetObjectsInCell(CurrentGridLocation, Out_ActorIndices, Out_NumIndices);
 				if(static_cast<int32>(Out_NumIndices) >= Out_ActorIndices.Num())
 				{
@@ -74,7 +73,7 @@ void FRpImplicitGrid::Update()
 		// Create AdditiveMask
 		const uint32 BlockLevel = Index / GBitRowSize;
 		const uint32 BitLocation = Index % GBitRowSize;
-		const uint64 AdditiveMask = static_cast<uint64>(1) << BitLocation;
+		const RowType AdditiveMask = static_cast<RowType>(1) << BitLocation;
 		
 		// Apply AdditiveMask
 		RowBlocks[GridLocation.X][BlockLevel] |= AdditiveMask;
@@ -82,7 +81,7 @@ void FRpImplicitGrid::Update()
 	}
 }
 
-void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation, FSearchResult& Out_Indices, uint32& Out_NumIndices) const
+void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation, FRpGridSearchResult& Out_Indices, uint32& Out_NumIndices) const
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(USpatialGridSubsystem::GetIndicesInGridLocation)
 	if(static_cast<int32>(Out_NumIndices) >= Out_Indices.Num() || !IsValidGridLocation(GridLocation))
@@ -93,11 +92,11 @@ void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation, FSea
 	uint32 Index = Out_NumIndices;
 	for(uint32 BlockLevel = 0; BlockLevel < GBlockSize; ++BlockLevel)
 	{
-		const uint64 IndicesInThisBlock = RowBlocks[GridLocation.X][BlockLevel] & ColumnBlocks[GridLocation.Y][BlockLevel];
+		const RowType IndicesInThisBlock = RowBlocks[GridLocation.X][BlockLevel] & ColumnBlocks[GridLocation.Y][BlockLevel];
 
 		for(int BitLocation = 0; BitLocation < GBitRowSize; ++BitLocation)
 		{
-			const uint64 FilteredBlock = IndicesInThisBlock & (static_cast<uint64>(1) << BitLocation);
+			const RowType FilteredBlock = IndicesInThisBlock & (static_cast<RowType>(1) << BitLocation);
 			if(FilteredBlock != 0)
 			{
 				Out_Indices[Index] = BlockLevel * GBitRowSize + BitLocation;
@@ -179,7 +178,7 @@ void FRpImplicitGrid::ResetBlocks()
 	}
 }
 
-void FRpImplicitGrid::DrawGrid() const
+void FRpImplicitGrid::DrawDebugGrid(const UWorld* World) const
 {
 	const float CellWidth = Dimensions.Size<float>() / Resolution;
 
@@ -190,28 +189,14 @@ void FRpImplicitGrid::DrawGrid() const
 		FVector LineEnd = FVector(Dimensions.GetUpperBoundValue(), VariableCoordinate, 0.0f);
 
 		// todo : Draw commands have been disabled.
-		//DrawDebugLine(GetWorld(), LineStart, LineEnd, GridParameters->GridColor, true);
+		DrawDebugLine(World, LineStart, LineEnd, FColor::White, true);
 
 		LineStart = FVector(VariableCoordinate, Dimensions.GetLowerBoundValue(), 0.0f);
 		LineEnd = FVector(VariableCoordinate, Dimensions.GetUpperBoundValue(), 0.0f);
 
 		// todo : Draw commands have been disabled.
-		//DrawDebugLine(GetWorld(), LineStart, LineEnd, GridParameters->GridColor, true);
+		DrawDebugLine(World, LineStart, LineEnd, FColor::White, true);
 
 		VariableCoordinate += CellWidth;
 	}
-}
-
-void FRpImplicitGrid::DrawCell(const FRpCellLocation& GridLocation) const
-{
-	if(!IsValidGridLocation(GridLocation))
-	{
-		return;
-	}
-	
-	FVector WorldLocation;
-	ConvertGridToWorldLocation(GridLocation, WorldLocation);
-
-	// todo : Draw commands have been disabled.
-	//DrawDebugBox(GetWorld(),  WorldLocation, GridParameters->LookupBoxSize * FVector::One(), GridParameters->LookupBoxColor);
 }

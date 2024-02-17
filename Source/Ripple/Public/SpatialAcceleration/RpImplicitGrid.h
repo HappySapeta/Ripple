@@ -2,17 +2,19 @@
 
 #pragma once
 
+typedef uint64 RowType;
+
 // This should ideally be 64 since we use a 64-bit unsigned integer, but may vary to support other sizes. 
-constexpr int GBitRowSize = 64;
+constexpr int8 GBitRowSize = std::numeric_limits<RowType>::digits;
 
 /**
 * Number of integers in a BitBlock. Use a larger number to support more agents.
 * E.g : with GBitRowSize of 64, and GBlockSize of 20 the spatial grid can only handle 64 * 20 that is 1280 agents.
 */
-constexpr int GBlockSize = 100;
+constexpr int8 GBlockSize = 100;
 
-constexpr int SEARCH_CAPACITY = 16;
-typedef TStaticArray<int32, SEARCH_CAPACITY> FSearchResult;
+constexpr int MAX_SEARCH_RESULTS = 16;
+typedef TStaticArray<int32, MAX_SEARCH_RESULTS> FRpGridSearchResult;
 
 // Represents a location on the grid in terms of Column and Row Indices.
 struct FRpCellLocation
@@ -33,17 +35,17 @@ struct FRpBitBlock
 		BitRow.Init(0, GBlockSize);
 	}
 
-	uint64& operator[](const uint32 Index)
+	RowType& operator[](const uint32 Index)
 	{
 		return BitRow[Index];
 	}
 	
-	const uint64& operator[](const uint32 Index) const
+	const RowType& operator[](const uint32 Index) const
 	{
 		return BitRow[Index];
 	}
 
-	TArray<uint64, TInlineAllocator<GBlockSize>> BitRow;
+	TArray<RowType, TInlineAllocator<GBlockSize>> BitRow;
 };
 
 /**
@@ -93,18 +95,12 @@ public:
 	 * @param Radius Radius of the search region.
 	 * @param Out_ActorIndices Output vector of indices of agents that were found.
 	 */
-	virtual void Search(const FVector& Location, const float Radius, FSearchResult& Out_ActorIndices, uint32& Out_NumIndices) const;
+	virtual void Search(const FVector& Location, const float Radius, FRpGridSearchResult& Out_ActorIndices, uint32& Out_NumIndices) const;
 
 	/**
 	 * @brief Draws lines in the world space to visualize the grid.
 	 */
-	void DrawGrid() const;
-
-	/**
-	 * @brief Highlights a valid cell in the grid.
-	 * @param GridLocation GridLocation in terms of Row and Column Indices.
-	 */
-	void DrawCell(const FRpCellLocation& GridLocation) const;
+	void DrawDebugGrid(const UWorld* World) const;
 
 	virtual ~FRpImplicitGrid() = default;
 
@@ -115,7 +111,7 @@ protected:
 	 * @param GridLocation Location of the cell in the Grid.
 	 * @param Out_Indices Output vector of indices of agents that were found.
 	 */
-	void GetObjectsInCell(const FRpCellLocation& GridLocation, FSearchResult& Out_Indices, uint32& Out_NumIndices) const;
+	void GetObjectsInCell(const FRpCellLocation& GridLocation, FRpGridSearchResult& Out_Indices, uint32& Out_NumIndices) const;
 
 	// Fills all block arrays with 0s.
 	virtual void ResetBlocks();
