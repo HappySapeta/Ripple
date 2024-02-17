@@ -7,7 +7,7 @@ void FRpImplicitGrid::SetPositionsArray(TWeakPtr<TArray<FVector>> PositionsArray
 	Positions = PositionsArray;
 }
 
-void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FRpGridSearchResult& Out_ActorIndices, uint32& Out_NumIndices) const
+void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FRpGridSearchResult& Out_SearchResults, uint32& Out_NumResults) const
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(USpatialGridSubsystem::SearchActors)
 	
@@ -22,7 +22,7 @@ void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FRpGri
 	const FRpCellLocation& StartGridLocation = FRpCellLocation(SearchGridLocation.X - Reach, SearchGridLocation.Y - Reach);
 	const FRpCellLocation& EndGridLocation = FRpCellLocation(SearchGridLocation.X + Reach, SearchGridLocation.Y + Reach);
 	
-	Out_NumIndices = 0;
+	Out_NumResults = 0;
 	
 	FRpCellLocation CurrentGridLocation = StartGridLocation;
 	while(CurrentGridLocation.X <= EndGridLocation.X)
@@ -31,8 +31,8 @@ void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FRpGri
 		{
 			if(IsValidGridLocation(CurrentGridLocation))
 			{
-				GetObjectsInCell(CurrentGridLocation, Out_ActorIndices, Out_NumIndices);
-				if(static_cast<int32>(Out_NumIndices) >= Out_ActorIndices.Num())
+				GetObjectsInCell(CurrentGridLocation, Out_SearchResults, Out_NumResults);
+				if(static_cast<int32>(Out_NumResults) >= Out_SearchResults.Num())
 				{
 					return;
 				}
@@ -61,7 +61,7 @@ void FRpImplicitGrid::Update()
 	uint32 NumObjects = Positions.Pin()->Num();
 	for(uint32 Index = 0; Index < NumObjects; ++Index)
 	{
-		if(Index >= GBlockSize * GBitRowSize) break;
+		if(Index >= GBitBlockSize * GBitMaskSize) break;
 		
 		// Find array indices
 		FRpCellLocation GridLocation;
@@ -71,9 +71,9 @@ void FRpImplicitGrid::Update()
 		}
 		
 		// Create AdditiveMask
-		const uint32 BlockLevel = Index / GBitRowSize;
-		const uint32 BitLocation = Index % GBitRowSize;
-		const RowType AdditiveMask = static_cast<RowType>(1) << BitLocation;
+		const uint32 BlockLevel = Index / GBitMaskSize;
+		const uint32 BitLocation = Index % GBitMaskSize;
+		const BitMaskType AdditiveMask = static_cast<BitMaskType>(1) << BitLocation;
 		
 		// Apply AdditiveMask
 		RowBlocks[GridLocation.X][BlockLevel] |= AdditiveMask;
@@ -90,16 +90,16 @@ void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation, FRpG
 	}
 
 	uint32 Index = Out_NumIndices;
-	for(uint32 BlockLevel = 0; BlockLevel < GBlockSize; ++BlockLevel)
+	for(uint32 BlockLevel = 0; BlockLevel < GBitBlockSize; ++BlockLevel)
 	{
-		const RowType IndicesInThisBlock = RowBlocks[GridLocation.X][BlockLevel] & ColumnBlocks[GridLocation.Y][BlockLevel];
+		const BitMaskType IndicesInThisBlock = RowBlocks[GridLocation.X][BlockLevel] & ColumnBlocks[GridLocation.Y][BlockLevel];
 
-		for(int BitLocation = 0; BitLocation < GBitRowSize; ++BitLocation)
+		for(int BitLocation = 0; BitLocation < GBitMaskSize; ++BitLocation)
 		{
-			const RowType FilteredBlock = IndicesInThisBlock & (static_cast<RowType>(1) << BitLocation);
+			const BitMaskType FilteredBlock = IndicesInThisBlock & (static_cast<BitMaskType>(1) << BitLocation);
 			if(FilteredBlock != 0)
 			{
-				Out_Indices[Index] = BlockLevel * GBitRowSize + BitLocation;
+				Out_Indices[Index] = BlockLevel * GBitMaskSize + BitLocation;
 				++Index;
 				++Out_NumIndices;
 
@@ -170,7 +170,7 @@ void FRpImplicitGrid::ResetBlocks()
 {
 	for(uint32 BlockIndex = 0; BlockIndex < Resolution; ++BlockIndex)
 	{
-		for(int BlockLevel = 0; BlockLevel < GBlockSize; ++BlockLevel)
+		for(int BlockLevel = 0; BlockLevel < GBitBlockSize; ++BlockLevel)
 		{
 			RowBlocks[BlockIndex][BlockLevel] = 0;
 			ColumnBlocks[BlockIndex][BlockLevel] = 0;
