@@ -2,6 +2,18 @@
 
 #include "SpatialAcceleration/RpImplicitGrid.h"
 
+void FRpImplicitGrid::operator()(const FFloatRange& NewDimensions, const uint32 NewResolution)
+{
+	if(ensureMsgf(NewResolution > 0, TEXT("Resolution cannot be zero.")))
+	{
+		Dimensions = NewDimensions;
+		Resolution = NewResolution;
+		
+		RowBlocks.Init(FRpBitBlock(), NewResolution);
+		ColumnBlocks.Init(FRpBitBlock(), NewResolution);
+	}
+}
+
 void FRpImplicitGrid::SetPositionsArray(TWeakPtr<TArray<FVector>> PositionsArray)
 {
 	Positions = PositionsArray;
@@ -9,7 +21,7 @@ void FRpImplicitGrid::SetPositionsArray(TWeakPtr<TArray<FVector>> PositionsArray
 
 void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FRpGridSearchResult& Out_SearchResults, uint32& Out_NumResults) const
 {
-	TRACE_CPUPROFILER_EVENT_SCOPE(USpatialGridSubsystem::SearchActors)
+	TRACE_CPUPROFILER_EVENT_SCOPE(FRpImplicitGrid::Search)
 	
 	const int Reach = FMath::FloorToInt(Radius / Dimensions.Size<float>() * Resolution);
 
@@ -46,10 +58,7 @@ void FRpImplicitGrid::Search(const FVector& Location, const float Radius, FRpGri
 
 void FRpImplicitGrid::Update()
 {
-	// This function, loops through all registered agents,
-	// fetches their world-space locations and maps them to a location on the Grid.
-	// Finally it writes new bits into the bit-blocks corresponding to said grid location,
-	// to record their presence in a particular row and column.
+	TRACE_CPUPROFILER_EVENT_SCOPE(FRpImplicitGrid::Update)
 	
 	ResetBlocks();
 
@@ -188,13 +197,11 @@ void FRpImplicitGrid::DrawDebugGrid(const UWorld* World) const
 		FVector LineStart = FVector(Dimensions.GetLowerBoundValue(), VariableCoordinate, 0.0f);
 		FVector LineEnd = FVector(Dimensions.GetUpperBoundValue(), VariableCoordinate, 0.0f);
 
-		// todo : Draw commands have been disabled.
 		DrawDebugLine(World, LineStart, LineEnd, FColor::White, true);
 
 		LineStart = FVector(VariableCoordinate, Dimensions.GetLowerBoundValue(), 0.0f);
 		LineEnd = FVector(VariableCoordinate, Dimensions.GetUpperBoundValue(), 0.0f);
 
-		// todo : Draw commands have been disabled.
 		DrawDebugLine(World, LineStart, LineEnd, FColor::White, true);
 
 		VariableCoordinate += CellWidth;

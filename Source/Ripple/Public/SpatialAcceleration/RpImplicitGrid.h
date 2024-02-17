@@ -26,7 +26,10 @@ constexpr int8 GBitMaskSize = std::numeric_limits<BitMaskType>::digits;
 */
 constexpr int8 GBitBlockSize = 20;
 
+// Defines the maximum number of objects that can be found during a search.
 constexpr int MAX_SEARCH_RESULTS = 5;
+
+// Static array of indices of objects found during a search.
 typedef TStaticArray<uint16, MAX_SEARCH_RESULTS> FRpGridSearchResult;
 
 // Wrapper over an Array of 64-bit Integers.
@@ -50,6 +53,7 @@ struct FRpBitBlock
 	TArray<BitMaskType, TInlineAllocator<GBitBlockSize>> BitRow;
 };
 
+
 /**
  * RpImplicitGrid implements a Uniform, Binary, Spatial Acceleration Structure
  * called an Implicit Grid. It works by mapping objects to cells in the grid,
@@ -63,20 +67,8 @@ class RIPPLE_API FRpImplicitGrid
 {
 public:
 
-	/**
-	 * @brief Reserves and initializes arrays with 0's.
-	 */
-	void operator ()(const FFloatRange& NewDimensions, const uint32 NewResolution)
-	{
-		if(ensureMsgf(NewResolution > 0, TEXT("Resolution cannot be zero.")))
-		{
-			Dimensions = NewDimensions;
-			Resolution = NewResolution;
-		
-			RowBlocks.Init(FRpBitBlock(), NewResolution);
-			ColumnBlocks.Init(FRpBitBlock(), NewResolution);
-		}
-	}
+	// Reserves and initializes arrays with 0's.
+	void operator ()(const FFloatRange& NewDimensions, const uint32 NewResolution);
 	
 	FRpImplicitGrid() = default;
 
@@ -86,7 +78,7 @@ public:
 	/**
 	 * 1. Iterates through all registered objects.
 	 * 2. Maps their world location to a location on the Grid.
-	 * 3. Updates bitmasks of the corresponding Grid Location.
+	 * 3. Updates bitmasks of the corresponding Cell.
 	 */
 	virtual void Update();
 	
@@ -99,7 +91,6 @@ public:
 	 */
 	virtual void Search(const FVector& Location, const float Radius, FRpGridSearchResult& Out_SearchResults, uint32& Out_NumResults) const;
 
-	// @brief Draws lines in the world space to visualize the grid.
 	void DrawDebugGrid(const UWorld* World) const;
 
 	virtual ~FRpImplicitGrid() = default;
@@ -110,6 +101,7 @@ protected:
 	 * @brief Returns indices of all objects present in a certain cell.
 	 * @param GridLocation Location of the cell.
 	 * @param Out_Indices Vector of Indices of objects found in the cell.
+	 * @param Out_NumIndices Number of objects found. This may not be equal to the length of Out_Indices. 
 	 */
 	void GetObjectsInCell(const FRpCellLocation& GridLocation, FRpGridSearchResult& Out_Indices, uint32& Out_NumIndices) const;
 
@@ -143,4 +135,5 @@ private:
 	
 	FFloatRange Dimensions;
 	uint32 Resolution = 1;
+	
 };
