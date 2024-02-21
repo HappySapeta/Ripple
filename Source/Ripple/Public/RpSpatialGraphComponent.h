@@ -84,8 +84,10 @@ protected:
 	// Disconnects two nodes
 	void DisconnectNodes(const int32 FirstIndex, const int32 SecondIndex);
 
+#if WITH_EDITOR
 	// Connects two nodes with a Bezier Curve
 	void SmoothConnectNodes(const int32 FirstIndex, const int32 SecondIndex, const FVector& ControlPoint);
+#endif
 
 public:
 

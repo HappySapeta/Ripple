@@ -83,6 +83,8 @@ void URpSpatialGraphComponent::SetNodeLocation(const int32 Index, const FVector&
 	Nodes[Index].Location = NewLocation;
 }
 
+#if WITH_EDITOR
+
 void URpSpatialGraphComponent::SmoothConnectNodes(const int32 FirstIndex, const int32 SecondIndex, const FVector& ControlPoint)
 {
 	const FVector& P0 = Nodes[FirstIndex].GetLocation();
@@ -112,3 +114,5 @@ void URpSpatialGraphComponent::SmoothConnectNodes(const int32 FirstIndex, const 
 	}
 	ConnectNodes(SecondIndex, NewNodeIndices.Last());
 }
+
+#endif
