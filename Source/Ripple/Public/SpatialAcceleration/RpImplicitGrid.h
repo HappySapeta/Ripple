@@ -46,6 +46,47 @@ struct FRpIndexBlock
 	TArray<RpIndexBuffer, TInlineAllocator<GIndexBlockSize>> IndexBuffer;
 };
 
+struct FRpSearchResults
+{
+	void Push(uint16 Index)
+	{
+		if(NumResults < 16)
+		{
+			Results[NumResults] = Index;
+			++NumResults;
+		}
+	}
+
+	void Pop()
+	{
+		if(NumResults > 0)
+		{
+			--NumResults;
+		}
+	}
+
+	uint16 operator[](const uint8 Index)
+	{
+		return Results[Index];
+	}
+
+	void Reset()
+	{
+		for(uint16& Result : Results)
+		{
+			Result = 0;
+		}
+	}
+
+	uint8 Num()
+	{
+		return NumResults;
+	}
+	
+private:
+	TStaticArray<uint16, 16> Results;
+	uint8 NumResults = 0;
+};
 
 /**
  * RpImplicitGrid is a Binary implementation of a Uniform, Spatial Acceleration Structure.
@@ -80,7 +121,9 @@ public:
 	 * @param Location Search Location
 	 * @param Radius Search Radius
 	 */
-	void Search(const FVector& Location, const float Radius) const;
+	void RadialSearch(const FVector& Location, const float Radius, FRpSearchResults& Out_Results) const;
+
+	void LinearSearch(const FVector& StartLocation, const FVector& EndLocation, const float Radius, FRpSearchResults& Out_Results) const;
 
 	void DrawDebugGrid(const UWorld* World) const;
 
@@ -88,9 +131,9 @@ protected:
 	
 	/**
 	 * @brief Returns indices of all objects present in a certain cell.
-	 * @param GridLocation Location of the cell.
+	 * @param CellLocation Location of the cell.
 	 */
-	void GetObjectsInCell(const FRpCellLocation& GridLocation) const;
+	void GetObjectsInCell(const FRpCellLocation& CellLocation, FRpSearchResults& Out_Objects) const;
 
 	// Fills all block arrays with 0s.
 	void ResetAllIndexBuffers();

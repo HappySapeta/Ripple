@@ -19,12 +19,17 @@ void FRpImplicitGrid::SetObjectLocationsArray(TWeakPtr<TArray<FVector>> In_Locat
 	Locations = In_Locations;
 }
 
-void FRpImplicitGrid::Search(const FVector& Location, const float Radius) const
+void FRpImplicitGrid::RadialSearch(const FVector& Location, const float Radius, FRpSearchResults& Out_Results) const
 {
-	// todo : rewrite search function
+	// todo : implement RadialSearch function
 }
 
-void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& GridLocation) const
+void FRpImplicitGrid::LinearSearch(const FVector& StartLocation, const FVector& EndLocation, const float Radius, FRpSearchResults& Out_Results) const
+{
+	// todo : implement LinearSearch function
+}
+
+void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& CellLocation, FRpSearchResults& Out_Results) const
 {
 	// todo : rewrite GetObjectsInCell function
 }
