@@ -7,7 +7,7 @@
  * Bitmasks are just binary data that indicate what objects are present in a Cell.
 **/
 typedef uint64 RpIndexBuffer;
-constexpr int8 GIndexBufferLength = std::numeric_limits<RpIndexBuffer>::digits;
+constexpr int8 GIndexBufferSize = std::numeric_limits<RpIndexBuffer>::digits;
 
 /**
 * Number of IndexBuffers in a Block.
@@ -25,25 +25,38 @@ struct FRpCellLocation
 	uint8 Y = 0;
 };
 
+struct FRpCellBlock
+{
+	uint8 X1, X2, Y1, Y2;
+};
+
 // Wrapper over an Array of 64-bit Integers.
 struct FRpIndexBlock
 {
 	FRpIndexBlock()
 	{
-		IndexBuffer.Init(0, GIndexBlockSize);
+		IndexBuffers.Init(0, GIndexBlockSize);
 	}
 
 	RpIndexBuffer& operator[](const uint8 Index)
 	{
-		return IndexBuffer[Index];
+		return IndexBuffers[Index];
 	}
 	
 	const RpIndexBuffer& operator[](const uint8 Index) const
 	{
-		return IndexBuffer[Index];
+		return IndexBuffers[Index];
 	}
 
-	TArray<RpIndexBuffer, TInlineAllocator<GIndexBlockSize>> IndexBuffer;
+	void Reset()
+	{
+		for(RpIndexBuffer& Buffer : IndexBuffers)
+		{
+			Buffer = 0;
+		}
+	}
+	
+	TArray<RpIndexBuffer, TInlineAllocator<GIndexBlockSize>> IndexBuffers;
 };
 
 struct FRpSearchResults
@@ -65,7 +78,7 @@ struct FRpSearchResults
 		}
 	}
 
-	uint16 operator[](const uint8 Index)
+	uint16 operator[](const uint16 Index)
 	{
 		return Results[Index];
 	}
@@ -150,6 +163,10 @@ protected:
 	// Checks if a given cell location is valid.
 	bool IsValidLocation(const FRpCellLocation& GridLocation) const;
 
+	FRpCellBlock GetCellBlock(const FVector& Location, float Radius) const;
+
+	void MergeCellBlock(const FRpCellBlock& CellBlock) const;
+
 protected:
 	
 	// An array of BitBlocks that maps objects based on the X-Coordinate of their location.
@@ -160,6 +177,9 @@ protected:
 
 	// Array containing Locations of objects.
 	TWeakPtr<TArray<FVector>> Locations;
+
+	mutable FRpIndexBlock MergedRowBlocks;
+	mutable FRpIndexBlock MergedColumnBlocks;
 
 private:
 	
