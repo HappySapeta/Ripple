@@ -2,83 +2,115 @@
 
 #include "SpatialAcceleration/RpImplicitGrid.h"
 
-void FRpImplicitGrid::operator()(const FFloatRange& NewDimensions, const uint32 NewResolution)
+void FRpImplicitGrid::Initialize
+(
+	const FFloatRange& NewDimensions,
+	const uint32 NewResolution,
+	const TWeakPtr<TArray<FVector>>& InLocations
+)
 {
-	if(ensureMsgf(NewResolution > 0, TEXT("Resolution cannot be zero.")))
-	{
-		Dimensions = NewDimensions;
-		Resolution = NewResolution;
-		
-		RowBlocks.Init(FRpIndexBlock(), NewResolution);
-		ColumnBlocks.Init(FRpIndexBlock(), NewResolution);
-	}
+	check(NewResolution > 0);
+	Dimensions = NewDimensions;
+	Resolution = NewResolution;
+	
+	RowBlocks.Init(FRpIndexBlock(), NewResolution);
+	ColumnBlocks.Init(FRpIndexBlock(), NewResolution);
+
+	check(InLocations.IsValid());
+	Locations = InLocations;
 }
 
-void FRpImplicitGrid::SetObjectLocationsArray(TWeakPtr<TArray<FVector>> In_Locations)
+void FRpImplicitGrid::RadialSearch
+(
+	const FVector& Location,
+	const float Radius,
+	FRpSearchResults& OutResults
+) const
 {
-	Locations = In_Locations;
-}
+	TRACE_CPUPROFILER_EVENT_SCOPE(UTrSimulationSystem::RadialSearch)
 
-void FRpImplicitGrid::RadialSearch(const FVector& Location, const float Radius, FRpSearchResults& Out_Results) const
-{
-	Out_Results.Reset();
-	MergeCellBlock(GetCellBlock(Location, Radius));
+	MergedRowBlocks.Reset();
+	MergedColumnBlocks.Reset();
 
-	for(uint8 BufferId = 0; BufferId < GIndexBlockSize; ++BufferId)
+	const FRpCellLocation LowerBound = TransformLocation(Location - Radius * FVector::One());
+	const FRpCellLocation UpperBound = TransformLocation(Location + Radius * FVector::One());
+
+	for (uint8 X = LowerBound.X; X <= UpperBound.X; ++X)
 	{
-		RpIndexBuffer Buffer = MergedRowBlocks[BufferId] & MergedColumnBlocks[BufferId];
-		while(Buffer)
+		for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
 		{
-			RpIndexBuffer Object = Buffer & ~(Buffer - 1);
-			uint16 ObjectIndex = static_cast<uint16>(log2(Object)) + BufferId * GIndexBufferSize;
-			Out_Results.Push(ObjectIndex);
-			Buffer ^= Object;
+			MergedRowBlocks[BufferIndex] |= RowBlocks[X][BufferIndex];
 		}
 	}
+
+	for (uint8 Y = LowerBound.Y; Y <= UpperBound.Y; ++Y)
+	{
+		for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
+		{
+			MergedColumnBlocks[BufferIndex] |= ColumnBlocks[Y][BufferIndex];
+		}
+	}
+
+	GetObjectsInCell(OutResults);
 }
 
-void FRpImplicitGrid::LinearSearch(const FVector& StartLocation, const FVector& EndLocation, const float Radius, FRpSearchResults& Out_Results) const
+void FRpImplicitGrid::RaySearch
+(
+	const FVector& StartLocation,
+	const FVector& EndLocation,
+	const float Radius,
+	FRpSearchResults& OutResults
+) const
 {
 	// todo : implement LinearSearch function
 }
 
-void FRpImplicitGrid::GetObjectsInCell(const FRpCellLocation& CellLocation, FRpSearchResults& Out_Results) const
+void FRpImplicitGrid::GetObjectsInCell(FRpSearchResults& OutObjects) const
 {
-	
+	for (uint8 BufferId = 0; BufferId < GIndexBlockSize; ++BufferId)
+	{
+		RpIndexBuffer Buffer = MergedRowBlocks[BufferId] & MergedColumnBlocks[BufferId];
+		while (Buffer)
+		{
+			const RpIndexBuffer Object = Buffer & ~(Buffer - 1);
+			const uint16 ObjectIndex = static_cast<uint16>(log2(Object)) + BufferId * GIndexBufferSize;
+			OutObjects.Push(ObjectIndex);
+			Buffer ^= Object;
+		}
+	}
 }
 
 void FRpImplicitGrid::Update()
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(FRpImplicitGrid::Update)
 	
-	ResetAllIndexBuffers();
-
 	if(!Locations.IsValid())
 	{
 		return;
 	}
+	
+	ResetAllIndexBuffers();
 
-	uint32 NumObjects = Locations.Pin()->Num();
+	const uint32 NumObjects = Locations.Pin()->Num();
 	if(ensureMsgf(NumObjects < GIndexBlockSize * GIndexBufferSize, TEXT("Number of objects assigned to the grid exceeds its capacity.")))
 	{
-		for(uint32 Index = 0; Index < NumObjects; ++Index)
+		for (uint32 Index = 0; Index < NumObjects; ++Index)
 		{
 			const FVector& ObjectLocation = Locations.Pin()->operator[](Index);
-		
+
 			// Find array indices
-			if(!IsValidLocation(ObjectLocation))
+			if (!IsValidLocation(ObjectLocation))
 			{
 				continue;
 			}
 
-			FRpCellLocation GridLocation = TransformLocation(ObjectLocation);
-		
 			// Create AdditiveMask
 			const uint32 BlockLevel = Index / GIndexBufferSize;
 			const uint32 BitLocation = Index % GIndexBufferSize;
 			const RpIndexBuffer AdditiveMask = static_cast<RpIndexBuffer>(1) << BitLocation;
-		
+
 			// Apply AdditiveMask
+			const FRpCellLocation GridLocation = TransformLocation(ObjectLocation);
 			RowBlocks[GridLocation.X][BlockLevel] |= AdditiveMask;
 			ColumnBlocks[GridLocation.Y][BlockLevel] |= AdditiveMask;
 		}
@@ -103,11 +135,9 @@ FVector FRpImplicitGrid::TransformLocation(const FRpCellLocation& GridLocation) 
 {
 	const float RangeSize = Dimensions.Size<float>();
 
-	float X, Y;
-	
 	// Normalize
-	X = GridLocation.X / static_cast<float>(Resolution);
-	Y = GridLocation.Y / static_cast<float>(Resolution);
+	float X = GridLocation.X / static_cast<float>(Resolution);
+	float Y = GridLocation.Y / static_cast<float>(Resolution);
 
 	// Scale
 	X *= RangeSize;
@@ -132,51 +162,11 @@ bool FRpImplicitGrid::IsValidLocation(const FRpCellLocation& GridLocation) const
 	return RowBlocks.IsValidIndex(GridLocation.X) && ColumnBlocks.IsValidIndex(GridLocation.Y);
 }
 
-FRpCellBlock FRpImplicitGrid::GetCellBlock(const FVector& Location, float Radius) const
-{
-	const float GridSize = Dimensions.Size<float>();
-	const float CellSize = GridSize / static_cast<float>(Resolution);
-
-	float PosX = Location.X + GridSize * 0.5f;
-	float PosY = Location.Y + GridSize * 0.5f;
-
-	const float ResolutionFloat = static_cast<float>(Resolution - 1);
-	return
-	{
-		static_cast<uint8>(FMath::Clamp(FMath::FloorToFloat(PosX - Radius) / CellSize, 0, ResolutionFloat)),
-		static_cast<uint8>(FMath::Clamp(FMath::FloorToFloat(PosX + Radius) / CellSize, 0, ResolutionFloat)),
-		static_cast<uint8>(FMath::Clamp(FMath::FloorToFloat(PosY - Radius) / CellSize, 0, ResolutionFloat)),
-		static_cast<uint8>(FMath::Clamp(FMath::FloorToFloat(PosY + Radius) / CellSize, 0, ResolutionFloat))
-	};
-}
-
-void FRpImplicitGrid::MergeCellBlock(const FRpCellBlock& CellBlock) const
-{
-	MergedRowBlocks.Reset();
-	MergedColumnBlocks.Reset();
-
-	for(uint8 X = CellBlock.X1; X <= CellBlock.X2; ++X)
-	{
-		for(uint8 BufferId = 0; BufferId < GIndexBlockSize; ++BufferId)
-		{
-			MergedColumnBlocks[BufferId] |= ColumnBlocks[X][BufferId];
-		}
-	}
-
-	for(uint8 Y = CellBlock.Y1; Y <= CellBlock.Y2; ++Y)
-	{
-		for(uint8 BufferId = 0; BufferId < GIndexBlockSize; ++BufferId)
-		{
-			MergedRowBlocks[BufferId] |= RowBlocks[Y][BufferId];
-		}
-	}
-}
-
 void FRpImplicitGrid::ResetAllIndexBuffers()
 {
-	for(uint32 BlockIndex = 0; BlockIndex < Resolution; ++BlockIndex)
+	for (uint32 BlockIndex = 0; BlockIndex < Resolution; ++BlockIndex)
 	{
-		for(int BlockLevel = 0; BlockLevel < GIndexBlockSize; ++BlockLevel)
+		for (int BlockLevel = 0; BlockLevel < GIndexBlockSize; ++BlockLevel)
 		{
 			RowBlocks[BlockIndex][BlockLevel] = 0;
 			ColumnBlocks[BlockIndex][BlockLevel] = 0;
@@ -189,16 +179,14 @@ void FRpImplicitGrid::DrawDebugGrid(const UWorld* World) const
 	const float CellWidth = Dimensions.Size<float>() / Resolution;
 
 	float VariableCoordinate = Dimensions.GetLowerBoundValue();
-	while(VariableCoordinate <= Dimensions.GetUpperBoundValue())
+	while (VariableCoordinate <= Dimensions.GetUpperBoundValue())
 	{
 		FVector LineStart = FVector(Dimensions.GetLowerBoundValue(), VariableCoordinate, 0.0f);
 		FVector LineEnd = FVector(Dimensions.GetUpperBoundValue(), VariableCoordinate, 0.0f);
-
 		DrawDebugLine(World, LineStart, LineEnd, FColor::White, true);
 
 		LineStart = FVector(VariableCoordinate, Dimensions.GetLowerBoundValue(), 0.0f);
 		LineEnd = FVector(VariableCoordinate, Dimensions.GetUpperBoundValue(), 0.0f);
-
 		DrawDebugLine(World, LineStart, LineEnd, FColor::White, true);
 
 		VariableCoordinate += CellWidth;

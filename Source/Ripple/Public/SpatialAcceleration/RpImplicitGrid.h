@@ -15,27 +15,15 @@ constexpr int8 GIndexBufferSize = std::numeric_limits<RpIndexBuffer>::digits;
 */
 constexpr int8 GIndexBlockSize = 20;
 
-// Location of a cell in the grid represented by Row and Column Index as X and Y respectively.
-struct FRpCellLocation
-{
-	// Row Index
-	uint8 X = 0;
-
-	// Column Index
-	uint8 Y = 0;
-};
-
-struct FRpCellBlock
-{
-	uint8 X1, X2, Y1, Y2;
-};
-
-// Wrapper over an Array of 64-bit Integers.
+// Block of IndexBuffers
 struct FRpIndexBlock
 {
 	FRpIndexBlock()
 	{
-		IndexBuffers.Init(0, GIndexBlockSize);
+		for(RpIndexBuffer& Buffer : IndexBuffers)
+		{
+			Buffer = 0;
+		}
 	}
 
 	RpIndexBuffer& operator[](const uint8 Index)
@@ -56,50 +44,59 @@ struct FRpIndexBlock
 		}
 	}
 	
-	TArray<RpIndexBuffer, TInlineAllocator<GIndexBlockSize>> IndexBuffers;
+	TStaticArray<RpIndexBuffer, GIndexBlockSize> IndexBuffers;
 };
 
-struct FRpSearchResults
+// Location of a cell in the grid represented by Row and Column Index as X and Y respectively.
+struct FRpCellLocation
 {
-	void Push(uint16 Index)
+	// Row Index
+	uint8 X = 0;
+
+	// Column Index
+	uint8 Y = 0;
+};
+
+template<typename T, uint32 N>
+struct TRpStaticVector
+{
+	void Push(T Item)
 	{
-		if(NumResults < 16)
+		if(Size < N)
 		{
-			Results[NumResults] = Index;
-			++NumResults;
+			Array[Size] = Item;
+			++Size;
 		}
 	}
 
 	void Pop()
 	{
-		if(NumResults > 0)
+		if(Size > 0)
 		{
-			--NumResults;
+			--Size;
 		}
 	}
 
-	uint16 operator[](const uint16 Index)
+	uint32 operator[](const uint32 Index)
 	{
-		return Results[Index];
+		return Array[Index];
 	}
 
 	void Reset()
 	{
-		for(uint16& Result : Results)
-		{
-			Result = 0;
-		}
+		Size = 0;
 	}
 
-	uint8 Num()
+	uint8 Num() const
 	{
-		return NumResults;
+		return Size;
 	}
 	
-private:
-	TStaticArray<uint16, 16> Results;
-	uint8 NumResults = 0;
+	TStaticArray<T, N> Array;
+	uint32 Size = 0;
 };
+
+typedef TRpStaticVector<uint32, 16> FRpSearchResults; 
 
 /**
  * RpImplicitGrid is a Binary implementation of a Uniform, Spatial Acceleration Structure.
@@ -117,10 +114,7 @@ public:
 	FRpImplicitGrid() = default;
 	
 	// Reserves and initializes arrays with 0's.
-	void operator ()(const FFloatRange& NewDimensions, const uint32 NewResolution);
-
-	// Set a weak reference to array of positions of objects.
-	void SetObjectLocationsArray(TWeakPtr<TArray<FVector>> In_Locations);
+	void Initialize(const ::FFloatRange& NewDimensions, const FPlatformTypes::uint32 NewResolution, const TWeakPtr<TArray<FVector>>& InLocations);
 	
 	/**
 	 * 1. Iterates through all registered objects.
@@ -130,23 +124,20 @@ public:
 	void Update();
 	
 	/**
-	 * @brief Finds all objects in an area of the Grid.
+	 * @brief Finds all objects in a region.
 	 * @param Location Search Location
 	 * @param Radius Search Radius
 	 */
-	void RadialSearch(const FVector& Location, const float Radius, FRpSearchResults& Out_Results) const;
+	void RadialSearch(const FVector& Location, const float Radius, FRpSearchResults& OutResults) const;
 
-	void LinearSearch(const FVector& StartLocation, const FVector& EndLocation, const float Radius, FRpSearchResults& Out_Results) const;
+	void RaySearch(const FVector& StartLocation, const FVector& EndLocation, const float Radius, FRpSearchResults& OutResults) const;
 
 	void DrawDebugGrid(const UWorld* World) const;
 
 protected:
 	
-	/**
-	 * @brief Returns indices of all objects present in a certain cell.
-	 * @param CellLocation Location of the cell.
-	 */
-	void GetObjectsInCell(const FRpCellLocation& CellLocation, FRpSearchResults& Out_Objects) const;
+	// Returns indices of all objects present in a certain cell.
+	void GetObjectsInCell(FRpSearchResults& OutObjects) const;
 
 	// Fills all block arrays with 0s.
 	void ResetAllIndexBuffers();
@@ -163,10 +154,6 @@ protected:
 	// Checks if a given cell location is valid.
 	bool IsValidLocation(const FRpCellLocation& GridLocation) const;
 
-	FRpCellBlock GetCellBlock(const FVector& Location, float Radius) const;
-
-	void MergeCellBlock(const FRpCellBlock& CellBlock) const;
-
 protected:
 	
 	// An array of BitBlocks that maps objects based on the X-Coordinate of their location.
@@ -177,12 +164,10 @@ protected:
 
 	// Array containing Locations of objects.
 	TWeakPtr<TArray<FVector>> Locations;
-
+	
 	mutable FRpIndexBlock MergedRowBlocks;
 	mutable FRpIndexBlock MergedColumnBlocks;
 
-private:
-	
 	FFloatRange Dimensions;
 	uint8 Resolution = 1;
 	
