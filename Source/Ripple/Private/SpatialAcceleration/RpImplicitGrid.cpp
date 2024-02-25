@@ -54,15 +54,87 @@ void FRpImplicitGrid::RadialSearch
 	GetObjectsInCell(OutResults);
 }
 
-void FRpImplicitGrid::RaySearch
+void FRpImplicitGrid::LineSearch
 (
 	const FVector& StartLocation,
 	const FVector& EndLocation,
-	const float Radius,
-	FRpSearchResults& OutResults
+	FRpSearchResults& OutResults,
+	const UWorld* World
 ) const
 {
-	// todo : implement LinearSearch function
+	if(!IsValidLocation(StartLocation))
+	{
+		return;
+	}
+
+	MergedRowBlocks.Reset();
+	MergedColumnBlocks.Reset();
+	
+	const float X1 = StartLocation.X;
+	const float Y1 = StartLocation.Y;
+	const float X2 = EndLocation.X;
+	const float Y2 = EndLocation.Y;
+	
+	auto [I, J] = TransformLocation(StartLocation);
+	const auto [IEnd, JEnd] = TransformLocation(EndLocation);
+
+	const int DeltaI = ((X1 < X2) ? 1 : ((X1 > X2) ? -1 : 0));
+	const int DeltaJ = ((Y1 < Y2) ? 1 : ((Y1 > Y2) ? -1 : 0));
+
+	const float CellSize = Dimensions.Size<float>() / Resolution;
+	const float MinX = CellSize * FMath::Floor(X1 / CellSize);
+	const float MaxX = MinX + CellSize;
+	const float MinY = CellSize * FMath::Floor(Y1 / CellSize);
+	const float MaxY = MinY + CellSize;
+
+	float Tx = ((X1 < X2) ? (X1 - MinX) : (MaxX - X1)) / FMath::Abs(X2 - X1);
+	float Ty = ((Y1 < Y2) ? (Y1 - MinY) : (MaxY - Y1)) / FMath::Abs(Y2 - Y1);
+
+	const float DeltaTx = CellSize / FMath::Abs(X2 - X1);
+	const float DeltaTy = CellSize / FMath::Abs(Y2 - Y1);
+
+	while(true)
+	{
+		if(IsValidLocation({I, J}))
+		{
+			//FVector Extents = {CellSize * 0.5f, CellSize * 0.5f, CellSize * 0.5f};
+			//DrawDebugBox(World, TransformLocation({I, J}), Extents, FColor::White, false, 0.016f);
+			for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
+			{
+				MergedRowBlocks[BufferIndex] |= RowBlocks[I][BufferIndex];
+			}
+			
+			for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
+			{
+				MergedColumnBlocks[BufferIndex] |= ColumnBlocks[J][BufferIndex];
+			}
+		}
+		else
+		{
+			break;
+		}
+		
+		if(Tx <= Ty)
+		{
+			if(I == IEnd)
+			{
+				break;
+			}
+			Tx += DeltaTx;
+			I += DeltaI;
+		}
+		else
+		{
+			if(J == JEnd)
+			{
+				break;
+			}
+			Ty += DeltaTy;
+			J += DeltaJ;
+		}
+	}
+
+	GetObjectsInCell(OutResults);
 }
 
 void FRpImplicitGrid::GetObjectsInCell(FRpSearchResults& OutObjects) const

@@ -130,7 +130,7 @@ public:
 	 */
 	void RadialSearch(const FVector& Location, const float Radius, FRpSearchResults& OutResults) const;
 
-	void RaySearch(const FVector& StartLocation, const FVector& EndLocation, const float Radius, FRpSearchResults& OutResults) const;
+	void LineSearch(const FVector& StartLocation, const FVector& EndLocation, FRpSearchResults& OutResults, const UWorld* World = nullptr) const;
 
 	void DrawDebugGrid(const UWorld* World) const;
 
