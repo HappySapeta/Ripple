@@ -126,8 +126,8 @@ FRpCellLocation FRpImplicitGrid::TransformLocation(FVector WorldLocation) const
 
 	return FRpCellLocation
 	{
-		FMath::Clamp<uint8>(WorldLocation.X / CellSize, 0, Resolution - 1),
-		FMath::Clamp<uint8>(WorldLocation.Y / CellSize, 0, Resolution - 1)
+		FMath::Clamp<uint8>(FMath::FloorToInt(WorldLocation.X / CellSize), 0, Resolution - 1),
+		FMath::Clamp<uint8>(FMath::FloorToInt(WorldLocation.Y / CellSize), 0, Resolution - 1)
 	};
 }
 
