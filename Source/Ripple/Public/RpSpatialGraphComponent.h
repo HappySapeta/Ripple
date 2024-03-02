@@ -57,7 +57,7 @@ public:
 	URpSpatialGraphComponent();
 
 	// Return all nodes in the graph
-	const TArray<FRpSpatialGraphNode>* GetNodes() const;
+	const TArray<FRpSpatialGraphNode>& GetNodes() const;
 
 protected:
 

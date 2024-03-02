@@ -14,9 +14,9 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		return;
 	}
 
-	const TArray<FRpSpatialGraphNode>* Nodes = GraphComponent->GetNodes();
+	const TArray<FRpSpatialGraphNode>& Nodes = GraphComponent->GetNodes();
 	uint32 Index = 0;
-	for(const FRpSpatialGraphNode& Node : *Nodes)
+	for(const FRpSpatialGraphNode& Node : Nodes)
 	{
 		const FVector& NodeLocation = Node.GetLocation();
 			
@@ -28,7 +28,7 @@ void FRpGraphVisualizer::DrawVisualization(const UActorComponent* Component, con
 		const TArray<uint32>& Connections = Node.GetConnections();
 		for(const uint32 Connection : Connections)
 		{
-			PDI->DrawLine(NodeLocation, Nodes->operator[](Connection).GetLocation(), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
+			PDI->DrawLine(NodeLocation, Nodes[Connection].GetLocation(), GraphComponent->DebugEdgeColor, SDPG_Foreground, GraphComponent->DebugEdgeThickness);
 		}
 
 		++Index;
@@ -52,16 +52,18 @@ bool FRpGraphVisualizer::VisProxyHandleClick(FEditorViewportClient* InViewportCl
 	else
 	{
 		FirstSelectedIndex = Proxy->SelectedIndex;
+		SecondSelectedIndex = INDEX_NONE;
 	}
 
+	UE_LOG(LogTemp, Log, TEXT("Node %d was selected"), Proxy->SelectedIndex);
 	return true;
 }
 
 bool FRpGraphVisualizer::GetWidgetLocation(const FEditorViewportClient* ViewportClient, FVector& OutLocation) const
 {
-	if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && GraphComponent->GetNodes()->IsValidIndex(FirstSelectedIndex))
+	if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && GraphComponent->GetNodes().IsValidIndex(FirstSelectedIndex))
 	{
-		OutLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation();
+		OutLocation = GraphComponent->GetNodes()[FirstSelectedIndex].GetLocation();
 		return true;
 	}
 
@@ -78,7 +80,7 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	if(ViewportClient->IsCtrlPressed() && bAllowDuplication)
 	{
 		bAllowDuplication = false;
-		const FVector& NewLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation() + DeltaTranslate;
+		const FVector& NewLocation = GraphComponent->GetNodes()[FirstSelectedIndex].GetLocation() + DeltaTranslate;
 
 		const int32 PreviouslySelectedIndex = FirstSelectedIndex;
 		FirstSelectedIndex = GraphComponent->AddNode(NewLocation);
@@ -87,12 +89,12 @@ bool FRpGraphVisualizer::HandleInputDelta(FEditorViewportClient* ViewportClient,
 	else if(ViewportClient->IsShiftPressed() && bAllowDuplication)
 	{
 		bAllowDuplication = false;
-		const FVector& NewLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation() + DeltaTranslate;
+		const FVector& NewLocation = GraphComponent->GetNodes()[FirstSelectedIndex].GetLocation() + DeltaTranslate;
 		FirstSelectedIndex = GraphComponent->AddNode(NewLocation);
 	}
 	else if(IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE)
 	{
-		const FVector& NewLocation = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation() + DeltaTranslate;
+		const FVector& NewLocation = GraphComponent->GetNodes()[FirstSelectedIndex].GetLocation() + DeltaTranslate;
 		GraphComponent->SetNodeLocation(FirstSelectedIndex, NewLocation);
 	}
 	
@@ -124,7 +126,7 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 			else if(Key == EKeys::B)
 			{
 				FVector ControlPoint = ViewportClient->GetCursorWorldLocationFromMousePos().GetOrigin();
-				ControlPoint.Z = GraphComponent->GetNodes()->operator[](FirstSelectedIndex).GetLocation().Z;
+				ControlPoint.Z = GraphComponent->GetNodes()[FirstSelectedIndex].GetLocation().Z;
 				const_cast<URpSpatialGraphComponent*>(GraphComponent)->SmoothConnectNodes(FirstSelectedIndex, SecondSelectedIndex, ControlPoint);
             
 				FirstSelectedIndex = INDEX_NONE;
@@ -134,7 +136,7 @@ bool FRpGraphVisualizer::HandleInputKey(FEditorViewportClient* ViewportClient, F
 	}
 	else if (Key == EKeys::X && Event == IE_Released)
 	{
-		const uint32 NumNodes = GraphComponent->GetNodes()->Num();
+		const uint32 NumNodes = GraphComponent->GetNodes().Num();
 		if (IsValid(GraphComponent) && FirstSelectedIndex != INDEX_NONE && NumNodes > 1)
 		{
 			const_cast<URpSpatialGraphComponent*>(GraphComponent)->DeleteNode(FirstSelectedIndex);
