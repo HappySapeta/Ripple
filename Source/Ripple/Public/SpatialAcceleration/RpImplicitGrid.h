@@ -132,7 +132,7 @@ public:
 
 	void LineSearch(const FVector& StartLocation, const FVector& EndLocation, FRpSearchResults& OutResults, const UWorld* World = nullptr) const;
 
-	void DrawDebugGrid(const UWorld* World) const;
+	void DrawDebug(const UWorld* World, const float Duration) const;
 
 protected:
 	
@@ -170,5 +170,7 @@ protected:
 
 	FFloatRange Dimensions;
 	uint8 Resolution = 1;
+
+	mutable TArray<FRpCellLocation> DebugBuffer; 
 	
 };
