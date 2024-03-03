@@ -130,7 +130,7 @@ public:
 	 */
 	void RadialSearch(const FVector& Location, const float Radius, FRpSearchResults& OutResults) const;
 
-	void LineSearch(const FVector& StartLocation, const FVector& EndLocation, FRpSearchResults& OutResults, const UWorld* World = nullptr) const;
+	void LineSearch(const FVector& StartLocation, const FVector& EndLocation, FRpSearchResults& OutResults) const;
 
 	void DrawDebug(const UWorld* World, const float Duration) const;
 
@@ -171,6 +171,6 @@ protected:
 	FFloatRange Dimensions;
 	uint8 Resolution = 1;
 
-	mutable TArray<FRpCellLocation> DebugBuffer; 
+	mutable TRpStaticVector<FRpCellLocation, 1000> DebugBuffer; 
 	
 };

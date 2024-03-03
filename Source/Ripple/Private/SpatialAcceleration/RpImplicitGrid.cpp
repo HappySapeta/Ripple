@@ -18,8 +18,6 @@ void FRpImplicitGrid::Initialize
 
 	check(InLocations.IsValid());
 	Locations = InLocations;
-
-	DebugBuffer.Reserve(Resolution * Resolution);
 }
 
 void FRpImplicitGrid::RadialSearch
@@ -36,17 +34,6 @@ void FRpImplicitGrid::RadialSearch
 
 	const FRpCellLocation LowerBound = TransformLocation(Location - Radius * FVector::One());
 	const FRpCellLocation UpperBound = TransformLocation(Location + Radius * FVector::One());
-
-	for (uint8 X = LowerBound.X; X <= UpperBound.X; ++X)
-	{
-		for (uint8 Y = LowerBound.Y; Y <= UpperBound.Y; ++Y)
-		{
-			for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
-			{
-				DebugBuffer.Add({X, Y});
-			}
-		}
-	}
 	
 	for (uint8 X = LowerBound.X; X <= UpperBound.X; ++X)
 	{
@@ -71,8 +58,7 @@ void FRpImplicitGrid::LineSearch
 (
 	const FVector& StartLocation,
 	const FVector& EndLocation,
-	FRpSearchResults& OutResults,
-	const UWorld* World
+	FRpSearchResults& OutResults
 ) const
 {
 	if(!IsValidLocation(StartLocation))
@@ -110,7 +96,7 @@ void FRpImplicitGrid::LineSearch
 	{
 		if(IsValidLocation({I, J}))
 		{
-			DebugBuffer.Add({I, J});
+			DebugBuffer.Push({I, J});
 			for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
 			{
 				MergedRowBlocks[BufferIndex] |= RowBlocks[I][BufferIndex];
@@ -278,7 +264,7 @@ void FRpImplicitGrid::DrawDebug(const UWorld* World, const float Duration) const
 
 	constexpr float CELL_DEBUG_SCALE = 0.25f;
 	const float CellSize = Dimensions.Size<float>() / Resolution;
-	for(const FRpCellLocation& CellLocation : DebugBuffer)
+	for(const FRpCellLocation& CellLocation : DebugBuffer.Array)
 	{
 		FVector Extents = FVector(CellSize) * CELL_DEBUG_SCALE;
 		DrawDebugBox(World, TransformLocation(CellLocation), Extents, FColor::Green, false, Duration);
