@@ -2,11 +2,9 @@
 
 #include "SpatialAcceleration/RpImplicitGrid.h"
 
-void FRpImplicitGrid::Initialize
-(
+void FRpImplicitGrid::Initialize(
 	const FFloatRange& NewDimensions,
-	const uint32 NewResolution,
-	const TWeakPtr<TArray<FVector>>& InLocations
+	const uint32 NewResolution
 )
 {
 	check(NewResolution > 0);
@@ -15,9 +13,6 @@ void FRpImplicitGrid::Initialize
 	
 	RowBlocks.Init(FRpIndexBlock(), NewResolution);
 	ColumnBlocks.Init(FRpIndexBlock(), NewResolution);
-
-	check(InLocations.IsValid());
-	Locations = InLocations;
 }
 
 void FRpImplicitGrid::RadialSearch
@@ -150,23 +145,18 @@ void FRpImplicitGrid::GetObjectsInCell(FRpSearchResults& OutObjects) const
 	}
 }
 
-void FRpImplicitGrid::Update()
+void FRpImplicitGrid::Update(const TArray<FVector>& Positions)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(FRpImplicitGrid::Update)
 	
-	if(!Locations.IsValid())
-	{
-		return;
-	}
-	
 	ResetAllIndexBuffers();
 
-	const uint32 NumObjects = Locations.Pin()->Num();
+	const uint32 NumObjects = Positions.Num();
 	if(ensureMsgf(NumObjects < GIndexBlockSize * GIndexBufferSize, TEXT("Number of objects assigned to the grid exceeds its capacity.")))
 	{
 		for (uint32 Index = 0; Index < NumObjects; ++Index)
 		{
-			const FVector& ObjectLocation = Locations.Pin()->operator[](Index);
+			const FVector& ObjectLocation = Positions[Index];
 
 			// Find array indices
 			if (!IsValidLocation(ObjectLocation))
@@ -264,10 +254,10 @@ void FRpImplicitGrid::DrawDebug(const UWorld* World, const float Duration) const
 
 	constexpr float CELL_DEBUG_SCALE = 0.25f;
 	const float CellSize = Dimensions.Size<float>() / Resolution;
-	for(const FRpCellLocation& CellLocation : DebugBuffer.Array)
+	for(int Index = 0; Index < DebugBuffer.Num(); ++Index)
 	{
 		FVector Extents = FVector(CellSize) * CELL_DEBUG_SCALE;
-		DrawDebugBox(World, TransformLocation(CellLocation), Extents, FColor::Green, false, Duration);
+		DrawDebugBox(World, TransformLocation(DebugBuffer[Index]), Extents, FColor::Green, false, Duration);
 	}
 
 	DebugBuffer.Reset();

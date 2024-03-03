@@ -77,7 +77,7 @@ struct TRpStaticVector
 		}
 	}
 
-	uint32 operator[](const uint32 Index)
+	T operator[](const uint32 Index)
 	{
 		return Array[Index];
 	}
@@ -93,6 +93,8 @@ struct TRpStaticVector
 	}
 	
 	TStaticArray<T, N> Array;
+	
+private:
 	uint32 Size = 0;
 };
 
@@ -114,14 +116,14 @@ public:
 	FRpImplicitGrid() = default;
 	
 	// Reserves and initializes arrays with 0's.
-	void Initialize(const ::FFloatRange& NewDimensions, const FPlatformTypes::uint32 NewResolution, const TWeakPtr<TArray<FVector>>& InLocations);
+	void Initialize(const FFloatRange& NewDimensions, const FPlatformTypes::uint32 NewResolution);
 	
 	/**
 	 * 1. Iterates through all registered objects.
 	 * 2. Maps their world location to a location on the Grid.
 	 * 3. Updates bitmasks of the corresponding Cell.
 	 */
-	void Update();
+	void Update(const TArray<FVector>& Positions);
 	
 	/**
 	 * @brief Finds all objects in a region.
@@ -161,9 +163,6 @@ protected:
 	
 	// An array of BitBlocks that maps objects based on the Y-Coordinate of their location.
 	TArray<FRpIndexBlock> ColumnBlocks;
-
-	// Array containing Locations of objects.
-	TWeakPtr<TArray<FVector>> Locations;
 	
 	mutable FRpIndexBlock MergedRowBlocks;
 	mutable FRpIndexBlock MergedColumnBlocks;
@@ -171,6 +170,6 @@ protected:
 	FFloatRange Dimensions;
 	uint8 Resolution = 1;
 
-	mutable TRpStaticVector<FRpCellLocation, 1000> DebugBuffer; 
+	mutable TRpStaticVector<FRpCellLocation, 200> DebugBuffer; 
 	
 };
