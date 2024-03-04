@@ -89,18 +89,14 @@ void FRpImplicitGrid::LineSearch
 
 	while(true)
 	{
-		if(IsValidLocation({I, J}))
+		const FRpCellLocation CellLocation = {I, J};
+		if(IsValidLocation(CellLocation))
 		{
-			DebugBuffer.Push({I, J});
-			for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
-			{
-				MergedRowBlocks[BufferIndex] |= RowBlocks[I][BufferIndex];
-			}
-			
-			for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
-			{
-				MergedColumnBlocks[BufferIndex] |= ColumnBlocks[J][BufferIndex];
-			}
+			SampleCell(CellLocation);
+			SampleCell({I + 1, J + 1});
+			SampleCell({I + 1, J - 1});
+			SampleCell({I - 1, J + 1});
+			SampleCell({I - 1, J - 1});
 		}
 		else
 		{
@@ -128,6 +124,27 @@ void FRpImplicitGrid::LineSearch
 	}
 
 	GetObjectsInCell(OutResults);
+}
+
+void FRpImplicitGrid::SampleCell(const FRpCellLocation& CellLocation) const
+{
+	if(!IsValidLocation(CellLocation))
+	{
+		return;
+	}
+
+	// todo - debugger is not working properly.
+	//DebugBuffer.Push(CellLocation);
+	
+	for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
+	{
+		MergedRowBlocks[BufferIndex] |= RowBlocks[CellLocation.X][BufferIndex];
+	}
+			
+	for (uint8 BufferIndex = 0; BufferIndex < GIndexBlockSize; ++BufferIndex)
+	{
+		MergedColumnBlocks[BufferIndex] |= ColumnBlocks[CellLocation.Y][BufferIndex];
+	}
 }
 
 void FRpImplicitGrid::GetObjectsInCell(FRpSearchResults& OutObjects) const

@@ -51,10 +51,10 @@ struct FRpIndexBlock
 struct FRpCellLocation
 {
 	// Row Index
-	uint8 X = 0;
+	int X = 0;
 
 	// Column Index
-	uint8 Y = 0;
+	int Y = 0;
 };
 
 template<typename T, uint32 N>
@@ -144,6 +144,8 @@ protected:
 	// Fills all block arrays with 0s.
 	void ResetAllIndexBuffers();
 
+	void SampleCell(const FRpCellLocation& CellLocation) const;
+	
 	// Converts world-space location to a location of a cell in the grid.
 	FRpCellLocation TransformLocation(FVector WorldLocation) const;
 
