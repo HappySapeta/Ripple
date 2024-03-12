@@ -5,43 +5,43 @@ class FRpPIDController
 {
 public:
 
-	FRpPIDController() = default;
-	
-	FRpPIDController(const T* TargetVar, const float ProportionalConstant, const float IntegralConstant, const float DerivativeConstant)
-		:Target(TargetVar), Kp(ProportionalConstant), Ki(IntegralConstant), Kd(DerivativeConstant)
+	FRpPIDController(const T& InitialError)
+		: PreviousError(InitialError)
 	{}
 	
-	T Evaluate(const T& Input, const float DeltaTime)
+	void Tune(const float ProportionalConstant, const float IntegralConstant, const float DerivativeConstant)
 	{
-		return GetProportionalComponent(Input) + GetIntegralComponent(Input, DeltaTime) + GetDerivativeComponent(Input, DeltaTime);
+		Kp = ProportionalConstant;
+		Ki = IntegralConstant;
+		Kd = DerivativeConstant;
+	}
+	
+	T Evaluate(const T& Error, const float DeltaTime)
+	{
+		T result = GetProportionalComponent(Error) + GetIntegralComponent(Error, DeltaTime) + GetDerivativeComponent(Error, DeltaTime);
+		PreviousError = Error;
+		return result;
 	}
 
-	T GetProportionalComponent(const T& Input)
+	T GetProportionalComponent(const T& Error)
 	{
-		return Kp * GetError(Input);
+		return Kp * Error;
 	}
 
-	T GetIntegralComponent(const T& Input, const float DeltaTime)
+	T GetIntegralComponent(const T& Error, const float DeltaTime)
 	{
-		return Ki * GetError(Input) * DeltaTime;
+		return Ki * (Error + PreviousError) * DeltaTime;
 	}
 
-	T GetDerivativeComponent(const T& Input, const float DeltaTime)
+	T GetDerivativeComponent(const T& Error, const float DeltaTime)
 	{
-		return Kd * (GetError(Input) / DeltaTime);
+		return Kd * ((Error - PreviousError) / DeltaTime);
 	}
 	
 private:
 
-	T GetError(const T& Input)
-	{
-		return Input - *Target;
-	}
+	T PreviousError = T {};
 	
-private:
-
-	const T* Target = nullptr;
-
 	float Kp = 0.0f;
 	float Ki = 0.0f;
 	float Kd = 0.0f;
