@@ -98,7 +98,7 @@ private:
 	uint32 Size = 0;
 };
 
-typedef TRpStaticVector<uint32, 16> FRpSearchResults; 
+typedef TArray<uint32, TInlineAllocator<16>> FRpSearchResults; 
 
 /**
  * RpImplicitGrid is a Binary implementation of a Uniform, Spatial Acceleration Structure.
