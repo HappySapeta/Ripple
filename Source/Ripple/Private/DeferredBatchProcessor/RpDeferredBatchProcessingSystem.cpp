@@ -49,6 +49,7 @@ bool URpDeferredBatchProcessingSystem::ShouldCreateSubsystem(UObject* Outer) con
 {
 #if WITH_EDITOR
 	return (GEditor && GEditor->IsPlaySessionInProgress() && bEnabled);
-#endif
+#else
 	return bEnabled;
+#endif
 }
