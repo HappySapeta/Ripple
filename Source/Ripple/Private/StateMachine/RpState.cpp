@@ -1,24 +1,18 @@
 ﻿// Copyright Anupam Sahu. All Rights Reserved.
 
 #include "StateMachine/RpState.h"
-#include "StateMachine/RpStateContext.h"
 
-void URpState::SetContext_Implementation(const TScriptInterface<IRpStateContext>& Context)
+void URpState::SetBlackboard(URpStateMachineBlackboardBase* NewBlackboard)
 {
-	if(StateContext.GetObject() != Context.GetObject())
-	{
-		StateContext.SetObject(Context.GetObject());
-		StateContext.SetInterface(Context.GetInterface());
-	}
+	Blackboard = NewBlackboard;
 }
 
-void URpState::Activate_Implementation()
+void URpState::Activate()
 {
-	// Do Nothing.
+	OnActivate();
 }
 
-// Casts the StateContext reference into the requested type and provides a pin on its blueprint node to let the user choose a return type.
-URpStateContextBase* URpState::GetContext(TSubclassOf<URpStateContextBase> ContextSubClass) const
+void URpState::DeActivate()
 {
-	return Cast<URpStateContextBase>(StateContext.GetInterface());
+	OnDeactivate();
 }
