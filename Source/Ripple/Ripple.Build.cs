@@ -30,7 +30,7 @@ public class Ripple : ModuleRules
 		(
 			new string[]
 			{
-				"Core",
+				"Core", "CoreUObject", "GameplayTags",
 			}
 		);
 			
