@@ -20,16 +20,18 @@ public:
 
 	FRpGOAPState& ModifyState()
 	{
-		return State;
+		return GoalState;
 	}
 
 	const FRpGOAPState& GetState() const
 	{
-		return State;
+		return GoalState;
 	}
+	
+	bool IsGoal(const FRpGOAPState& State, const float Tolerance = 0.00001f) const;
 	
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	FRpGOAPState State;
+	FRpGOAPState GoalState;
 };

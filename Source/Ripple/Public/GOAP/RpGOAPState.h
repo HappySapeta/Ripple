@@ -20,6 +20,62 @@ USTRUCT()
 struct FRpVariant
 {
 	GENERATED_BODY()
+	
+	bool operator==(const FRpVariant& Other) const
+	{
+		if (Other.Type != Type)
+		{
+			return false;
+		}
+		
+		switch (Type)
+		{
+			case ERpVariantType::Float:
+			{
+				return FloatValue == Other.FloatValue;
+			}
+			case ERpVariantType::Int:
+			{
+				return IntValue == Other.IntValue;
+			}
+			case ERpVariantType::Bool:
+			{
+				return BoolValue == Other.BoolValue;
+			}
+			default:
+				break;
+		}
+		
+		return false;
+	}
+	
+	static bool IsNearlyEqual(const FRpVariant& Lhs, const FRpVariant& Rhs, const float Tolerance = 0.00001f)
+	{
+		if (Lhs.Type != Rhs.Type)
+		{
+			return false;
+		}
+		
+		switch (Lhs.Type)
+		{
+			case ERpVariantType::Float:
+			{
+				return (Lhs.FloatValue - Rhs.FloatValue) < Tolerance;
+			}
+			case ERpVariantType::Int:
+			{
+				return (Lhs.IntValue - Rhs.IntValue) < Tolerance;
+			}
+			case ERpVariantType::Bool:
+			{
+				return Lhs.BoolValue == Rhs.BoolValue;
+			}
+			default:
+				break;
+		}
+		
+		return false;
+	}
 
 	void Set(ERpVariantType RequestedType, const void* Value)
 	{
@@ -79,7 +135,7 @@ struct FRpVariant
 };
 
 UENUM()
-enum class EGOAPVarId : uint16
+enum class EGOAPFactName : uint16
 {
 	Test1 = 0,
 	Test2
@@ -92,11 +148,11 @@ struct FRpGOAPState
 	
 public:
 	
-	void AddVar(const EGOAPVarId Index, const ERpVariantType Type, const void* Value)
+	void AddVar(const EGOAPFactName Index, const ERpVariantType Type, const void* Value)
 	{
-		if (!Data.Contains(Index))
+		if (!Facts.Contains(Index))
 		{
-			Data[Index].Set(Type, Value);
+			Facts[Index].Set(Type, Value);
 		}
 		else
 		{
@@ -104,11 +160,11 @@ public:
 		}
 	}
 
-	void* GetVar(const EGOAPVarId Index, const ERpVariantType Type)
+	void* GetVar(const EGOAPFactName Index, const ERpVariantType Type)
 	{
-		if (Data.Contains(Index))
+		if (Facts.Contains(Index))
 		{
-			return Data[Index].Get(Type);
+			return Facts[Index].Get(Type);
 		}
 		else
 		{
@@ -118,11 +174,11 @@ public:
 		return nullptr;
 	}
 
-	void SetVar(const EGOAPVarId Index, const ERpVariantType Type, const void* Value)
+	void SetVar(const EGOAPFactName Index, const ERpVariantType Type, const void* Value)
 	{
-		if (Data.Contains(Index))
+		if (Facts.Contains(Index))
 		{
-			Data[Index].Set(Type, Value);
+			Facts[Index].Set(Type, Value);
 		}
 		else
 		{
@@ -133,5 +189,5 @@ public:
 public:
 	
 	UPROPERTY(EditDefaultsOnly)
-	TMap<EGOAPVarId, FRpVariant> Data;
+	TMap<EGOAPFactName, FRpVariant> Facts;
 };
