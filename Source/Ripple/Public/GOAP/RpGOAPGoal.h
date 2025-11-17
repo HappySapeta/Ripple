@@ -17,21 +17,9 @@ class RIPPLE_API URpGOAPGoal : public UObject
 	GENERATED_BODY()
 
 public:
-
-	FRpGOAPState& ModifyState()
-	{
-		return GoalState;
-	}
-
-	const FRpGOAPState& GetState() const
-	{
-		return GoalState;
-	}
-	
-	bool IsGoal(const FRpGOAPState& State, const float Tolerance = 0.00001f) const;
 	
 protected:
 
-	UPROPERTY(EditDefaultsOnly)
-	FRpGOAPState GoalState;
+	UPROPERTY(EditAnywhere, DisplayName = "RequiredState")
+	FRpGOAPState State;
 };
