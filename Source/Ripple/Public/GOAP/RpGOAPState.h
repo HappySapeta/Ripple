@@ -13,8 +13,8 @@ struct FRpVariantBase
 	GENERATED_BODY()
 };
 
-USTRUCT(BlueprintType, DisplayName = "Rp Float")
-struct FRpVarFloat : public FRpVariantBase
+USTRUCT(BlueprintType, DisplayName = "Floating Point")
+struct FRpVariantFloat : public FRpVariantBase
 {
 	GENERATED_BODY()
 	
@@ -22,8 +22,8 @@ struct FRpVarFloat : public FRpVariantBase
 	float Value = 0.0f;
 };
 
-USTRUCT(BlueprintType, DisplayName = "Rp Integer")
-struct FRpVarInteger : public FRpVariantBase
+USTRUCT(BlueprintType, DisplayName = "Integer")
+struct FRpVariantInteger : public FRpVariantBase
 {
 	GENERATED_BODY()
 	
@@ -31,8 +31,8 @@ struct FRpVarInteger : public FRpVariantBase
 	int Value = 0;
 };
 
-USTRUCT(BlueprintType, DisplayName = "Rp Bool")
-struct FRpVarBool : public FRpVariantBase
+USTRUCT(BlueprintType, DisplayName = "Boolean")
+struct FRpVariantBool : public FRpVariantBase
 {
 	GENERATED_BODY()
 	
@@ -40,31 +40,63 @@ struct FRpVarBool : public FRpVariantBase
 	bool Value = false;
 };
 
+UENUM()
+enum ERpCondition : uint8
+{
+	EQUAL,
+	LESS,
+	GREATER
+};
+
 USTRUCT(BlueprintType)
-struct FRpVariantWrapper 
+struct FRpStateDescriptor 
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
-	FInstancedStruct Var;
+	FInstancedStruct Fact;
 };
- 
+
 USTRUCT(BlueprintType)
-struct FRpGOAPState
+struct FRpGoalDescriptor
 {
 	GENERATED_BODY()
-
+	
+	bool Evaluate(const FRpStateDescriptor& State) const
+	{
+		// TODO : Pending implementation
+		return false;
+	}
+	
+	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
+	FInstancedStruct Fact;
+	
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<ERpCondition> Condition = ERpCondition::EQUAL;
+	
+};
+ 
+UCLASS()
+class URpGOAPState : public UObject
+{
+	GENERATED_BODY()
+	
 public:
+	
+	bool Contains(const FGameplayTag& FactName) const
+	{
+		return Facts.Contains(FactName);
+	}
 	
 	template <typename Type>
 	const Type& Get(const FGameplayTag& FactName) const requires TIsDerivedFrom<Type, FRpVariantBase>::IsDerived 
 	{
 		if (ensureMsgf(Facts.Contains(FactName), TEXT("Failed to find Fact with given name.")))
 		{
-			const auto Var = Facts[FactName].Var;
+			const auto Var = Facts[FactName].Fact;
 			if (ensureMsgf(Var.IsValid(), TEXT("Invalid Struct.")))
 			{
-				return Facts[FactName].Var.Get<Type>();
+				return Facts[FactName].Fact.Get<Type>();
 			}
 		}
 		return FRpVariantBase{};
@@ -75,10 +107,10 @@ public:
 	{
 		if (ensureMsgf(Facts.Contains(FactName), TEXT("Failed to find Fact with given name.")))
 		{
-			const auto Var = Facts[FactName].Var;
+			const auto Var = Facts[FactName].Fact;
 			if (ensureMsgf(Var.IsValid(), TEXT("Invalid Struct.")))
 			{
-				Facts[FactName].Var.GetMutable<Type>() = Value;
+				Facts[FactName].Fact.GetMutable<Type>() = Value;
 			}
 		}
 	}
@@ -86,5 +118,20 @@ public:
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<FGameplayTag, FRpVariantWrapper> Facts;
+	TMap<FGameplayTag, FRpStateDescriptor> Facts;
+};
+
+UCLASS(Blueprintable, BlueprintType)
+class RIPPLE_API URpGOAPGoalState : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	
+	bool Evaluate(const URpGOAPState* TestState);
+	
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FGameplayTag, FRpGoalDescriptor> Facts;
 };
