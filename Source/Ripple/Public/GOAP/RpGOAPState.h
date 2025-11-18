@@ -67,9 +67,9 @@ struct FRpVariantBool : public FRpVariantBase
 UENUM()
 enum ERpCondition : uint8
 {
-	EQUAL,
-	LESS,
-	GREATER
+	EQUAL,  // Equal to requirement
+	LESS,   // Less than requirement
+	GREATER // Greater than requirement
 };
 
 USTRUCT(BlueprintType)
@@ -155,7 +155,7 @@ public:
 	
 protected:
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<FGameplayTag, FRpStateDescriptor> Facts;
 };
 
@@ -166,10 +166,11 @@ class RIPPLE_API URpGOAPGoalState : public UObject
 
 public:
 	
+	UFUNCTION(BlueprintCallable)
 	bool Evaluate(const URpGOAPState* TestState);
 	
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<FGameplayTag, FRpGoalDescriptor> Requirements;
 };

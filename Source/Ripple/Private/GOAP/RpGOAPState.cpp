@@ -64,14 +64,32 @@ bool URpGOAPGoalState::Evaluate(const URpGOAPState* TestState)
 		switch (Descriptor.Condition)
 		{
 			case EQUAL:
-				return Descriptor.Fact.GetPtr<FRpVariantBase>()->operator==(TestState->Get(FactName));
+			{
+				const bool bResult = Descriptor.Fact.GetPtr<FRpVariantBase>()->operator==(TestState->Get(FactName));
+				if (bResult == false)
+				{
+					return false;
+				}
+			}
 			case LESS:
-				return Descriptor.Fact.GetPtr<FRpVariantBase>()->operator<(TestState->Get(FactName));
+			{
+				const bool bResult = Descriptor.Fact.GetPtr<FRpVariantBase>()->operator<(TestState->Get(FactName));
+				if (bResult == false)
+				{
+					return false;
+				}
+			}
 			case GREATER:
-				return Descriptor.Fact.GetPtr<FRpVariantBase>()->operator>(TestState->Get(FactName));
+			{
+				const bool bResult = Descriptor.Fact.GetPtr<FRpVariantBase>()->operator>(TestState->Get(FactName));
+				if (bResult == false)
+				{
+					return false;
+				}
+			}
 			default:
 				break;
 		}
 	}
-	return false;
+	return true;
 }
