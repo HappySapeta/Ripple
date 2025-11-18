@@ -11,6 +11,12 @@ USTRUCT(BlueprintType)
 struct FRpVariantBase
 {
 	GENERATED_BODY()
+	
+	virtual ~FRpVariantBase() = default;
+	
+	virtual bool operator==(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator==, return false; );
+	virtual bool operator<(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator<, return false; );
+	virtual bool operator>(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator>, return false; );
 };
 
 USTRUCT(BlueprintType, DisplayName = "Floating Point")
@@ -18,6 +24,12 @@ struct FRpVariantFloat : public FRpVariantBase
 {
 	GENERATED_BODY()
 	
+	virtual ~FRpVariantFloat() = default;
+	
+	virtual bool operator==(const FRpVariantBase* Other) const override;
+	virtual bool operator<(const FRpVariantBase* Other) const override;
+	virtual bool operator>(const FRpVariantBase* Other) const override;
+
 	UPROPERTY(EditAnywhere)
 	float Value = 0.0f;
 };
@@ -27,6 +39,12 @@ struct FRpVariantInteger : public FRpVariantBase
 {
 	GENERATED_BODY()
 	
+	virtual ~FRpVariantInteger() = default;
+	
+	virtual bool operator==(const FRpVariantBase*) const override;
+	virtual bool operator<(const FRpVariantBase*) const override;
+	virtual bool operator>(const FRpVariantBase*) const override;
+	
 	UPROPERTY(EditAnywhere)
 	int Value = 0;
 };
@@ -35,6 +53,12 @@ USTRUCT(BlueprintType, DisplayName = "Boolean")
 struct FRpVariantBool : public FRpVariantBase
 {
 	GENERATED_BODY()
+	
+	virtual ~FRpVariantBool() = default;
+	
+	virtual bool operator==(const FRpVariantBase*) const override;
+	virtual bool operator<(const FRpVariantBase*) const override;
+	virtual bool operator>(const FRpVariantBase*) const override;
 	
 	UPROPERTY(EditAnywhere)
 	bool Value = false;
@@ -76,7 +100,7 @@ struct FRpGoalDescriptor
 	
 };
  
-UCLASS()
+UCLASS(Blueprintable)
 class URpGOAPState : public UObject
 {
 	GENERATED_BODY()
@@ -86,6 +110,20 @@ public:
 	bool Contains(const FGameplayTag& FactName) const
 	{
 		return Facts.Contains(FactName);
+	}
+	
+	const FRpVariantBase* Get(const FGameplayTag& FactName) const 
+	{
+		if (ensureMsgf(Facts.Contains(FactName), TEXT("Failed to find Fact with given name.")))
+		{
+			const auto Var = Facts[FactName].Fact;
+			if (ensureMsgf(Var.IsValid(), TEXT("Invalid Struct.")))
+			{
+				return Facts[FactName].Fact.GetPtr<FRpVariantBase>();
+			}
+		}
+		
+		return nullptr;
 	}
 	
 	template <typename Type>
@@ -133,5 +171,5 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TMap<FGameplayTag, FRpGoalDescriptor> Facts;
+	TMap<FGameplayTag, FRpGoalDescriptor> Requirements;
 };
