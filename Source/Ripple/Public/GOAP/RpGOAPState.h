@@ -158,19 +158,3 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<FGameplayTag, FRpStateDescriptor> Facts;
 };
-
-UCLASS(Blueprintable, BlueprintType)
-class RIPPLE_API URpGOAPGoalState : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	
-	UFUNCTION(BlueprintCallable)
-	bool Evaluate(const URpGOAPState* TestState);
-	
-protected:
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<FGameplayTag, FRpGoalDescriptor> Requirements;
-};
