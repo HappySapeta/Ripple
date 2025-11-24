@@ -67,9 +67,14 @@ struct FRpVariantBool : public FRpVariantBase
 UENUM()
 enum ERpCondition : uint8
 {
-	EQUAL,  // Equal to requirement
-	LESS,   // Less than requirement
-	GREATER // Greater than requirement
+	// Equal to requirement
+	EQUAL,
+	
+	// Less than requirement
+	LESS,
+	
+	// Greater than requirement
+	GREATER
 };
 
 USTRUCT(BlueprintType)
@@ -82,7 +87,7 @@ struct FRpStateDescriptor
 };
 
 USTRUCT(BlueprintType)
-struct FRpGoalDescriptor
+struct FRpRequirementDescriptor
 {
 	GENERATED_BODY()
 	

@@ -1,9 +1,16 @@
 ﻿// Copyright Anupam Sahu. All Rights Reserved.
+#include "GOAP/RpGOAPAction.h"
 
-#include "GOAP/RpGOAPGoal.h"
-#include "GOAP/RpGOAPState.h"
+void URpGOAPAction::Perform(const URpGOAPState* TestState)
+{
+	if (!CheckRequirements(TestState))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to perform GOAP Action. Requirements are not met."));
+		return;
+	}
+}
 
-bool URpGOAPGoal::Evaluate(const URpGOAPState* TestState)
+bool URpGOAPAction::CheckRequirements(const URpGOAPState* TestState)
 {
 	for (const auto& [FactName, Descriptor] : Requirements)
 	{

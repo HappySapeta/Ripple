@@ -5,24 +5,18 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "RpGOAPState.h"
-#include "UObject/Object.h"
 #include "RpGOAPGoal.generated.h"
 
 /**
  * 
  */
-UCLASS(Blueprintable, BlueprintType)
-class RIPPLE_API URpGOAPGoal : public UObject
+UCLASS()
+class RIPPLE_API URpGOAPGoal : public UDataAsset
 {
 	GENERATED_BODY()
-
-public:
-	
-	UFUNCTION(BlueprintCallable)
-	bool Evaluate(const URpGOAPState* TestState);
 	
 protected:
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<FGameplayTag, FRpGoalDescriptor> Requirements;
+	TMap<FGameplayTag, FRpRequirementDescriptor> Requirements;
 };
