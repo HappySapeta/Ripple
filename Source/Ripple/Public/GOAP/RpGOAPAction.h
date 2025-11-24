@@ -30,6 +30,11 @@ public:
 	{
 		Cost = NewCost;
 	}
+	
+protected:
+	
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPerformAction")
+	void BP_OnPerformAction();
 
 protected:
 	

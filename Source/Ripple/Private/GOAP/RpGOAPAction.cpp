@@ -8,6 +8,8 @@ void URpGOAPAction::Perform(const URpGOAPState* TestState)
 		UE_LOG(LogTemp, Warning, TEXT("Failed to perform GOAP Action. Requirements are not met."));
 		return;
 	}
+	
+	BP_OnPerformAction();
 }
 
 bool URpGOAPAction::CheckRequirements(const URpGOAPState* TestState)
