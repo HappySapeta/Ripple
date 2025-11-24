@@ -10,13 +10,13 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Category = "Ripple GOAP")
 class RIPPLE_API URpGOAPGoal : public UDataAsset
 {
 	GENERATED_BODY()
 	
 protected:
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag, FRpRequirementDescriptor> Requirements;
 };

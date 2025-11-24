@@ -20,6 +20,6 @@ public:
 
 private:
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
 	TSubclassOf<URpGOAPPlanner> PlannerClass;
 };

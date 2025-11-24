@@ -105,7 +105,7 @@ struct FRpRequirementDescriptor
 	
 };
  
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, Category = "Ripple GOAP")
 class URpGOAPState : public UObject
 {
 	GENERATED_BODY()

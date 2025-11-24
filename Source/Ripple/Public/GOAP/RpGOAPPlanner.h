@@ -11,16 +11,19 @@ class URpGOAPGoal;
 /**
  * 
  */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Blueprintable, BlueprintType, Category = "Ripple GOAP")
 class RIPPLE_API URpGOAPPlanner : public UObject
 {
 	GENERATED_BODY()
 	
 protected:
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TArray<URpGOAPGoal*> Goals;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<URpGOAPState> StartingState;
+	
+	UPROPERTY(VisibleInstanceOnly)
 	TObjectPtr<URpGOAPState> CurrentState;
 };
