@@ -17,6 +17,9 @@ public:
 
 	// Sets default values for this component's properties
 	URpGOAPComponent();
+	
+	UFUNCTION(BlueprintCallable)
+	URpGOAPPlanner* GetPlanner();
 
 private:
 	

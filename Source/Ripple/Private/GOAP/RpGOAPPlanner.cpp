@@ -85,8 +85,13 @@ bool URpGOAPPlanner::AreRequirementsSatisfied(const TMap<FGameplayTag, FRpRequir
 	return true;
 }
 
-const URpGOAPState* URpGOAPPlanner::Simulate(const URpGOAPState* Input, const URpGOAPAction* Action) const
+const URpGOAPState* URpGOAPPlanner::Simulate(const URpGOAPState* Input, const URpGOAPAction* Action)
 {
+	URpGOAPState* StateCopy = DuplicateObject(Input, GetOuter());
+	for (const auto& [FactName, EffectDescriptor] : Action->GetEffects())
+	{
+		StateCopy->Set(FactName, EffectDescriptor);
+	}
 	
-	return nullptr;
+	return StateCopy;
 }

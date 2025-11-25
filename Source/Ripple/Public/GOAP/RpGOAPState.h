@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "RpGOAPState.generated.h"
 
+class URpGOAPAction;
+
 UCLASS(Blueprintable, Category = "Ripple GOAP")
 class URpGOAPState : public UObject
 {
@@ -14,51 +16,11 @@ class URpGOAPState : public UObject
 	
 public:
 	
-	bool Contains(const FGameplayTag& FactName) const
-	{
-		return Facts.Contains(FactName);
-	}
-	
-	const FRpVariantBase* Get(const FGameplayTag& FactName) const 
-	{
-		if (ensureMsgf(Facts.Contains(FactName), TEXT("Failed to find Fact with given name.")))
-		{
-			const auto Var = Facts[FactName].Fact;
-			if (ensureMsgf(Var.IsValid(), TEXT("Invalid Struct.")))
-			{
-				return Facts[FactName].Fact.GetPtr<FRpVariantBase>();
-			}
-		}
-		
-		return nullptr;
-	}
-	
-	template <typename Type>
-	const Type& Get(const FGameplayTag& FactName) const requires TIsDerivedFrom<Type, FRpVariantBase>::IsDerived 
-	{
-		if (ensureMsgf(Facts.Contains(FactName), TEXT("Failed to find Fact with given name.")))
-		{
-			const auto Var = Facts[FactName].Fact;
-			if (ensureMsgf(Var.IsValid(), TEXT("Invalid Struct.")))
-			{
-				return Facts[FactName].Fact.Get<Type>();
-			}
-		}
-		return FRpVariantBase{};
-	}
-	
-	template <typename Type>
-	void Set(const FGameplayTag& FactName, const Type& Value) requires TIsDerivedFrom<Type, FRpVariantBase>::IsDerived
-	{
-		if (ensureMsgf(Facts.Contains(FactName), TEXT("Failed to find Fact with given name.")))
-		{
-			const auto Var = Facts[FactName].Fact;
-			if (ensureMsgf(Var.IsValid(), TEXT("Invalid Struct.")))
-			{
-				Facts[FactName].Fact.GetMutable<Type>() = Value;
-			}
-		}
-	}
+	const URpGOAPState* Propagate(const URpGOAPAction* Action);
+	bool Contains(const FGameplayTag& FactName) const;
+	const UScriptStruct* GetScriptStruct(const FGameplayTag& FactName) const;
+	const FRpVariantBase* Get(const FGameplayTag& FactName) const;
+	void Set(const FGameplayTag& FactName, const FRpStateDescriptor& Value);
 	
 protected:
 	

@@ -2,54 +2,44 @@
 
 #include "GOAP/RpGOAPState.h"
 
-bool FRpVariantFloat::operator==(const FRpVariantBase* Other) const
+const URpGOAPState* URpGOAPState::Propagate(const URpGOAPAction* Action)
 {
-	const FRpVariantFloat* OtherFloat = static_cast<const FRpVariantFloat*>(Other);
-	return Value == OtherFloat->Value;
+	return nullptr;
 }
 
-bool FRpVariantFloat::operator<(const FRpVariantBase* Other) const
+bool URpGOAPState::Contains(const FGameplayTag& FactName) const
 {
-	const FRpVariantFloat* OtherFloat = static_cast<const FRpVariantFloat*>(Other);
-	return Value < OtherFloat->Value;
+	return Facts.Contains(FactName);
 }
 
-bool FRpVariantFloat::operator>(const FRpVariantBase* Other) const
+const UScriptStruct* URpGOAPState::GetScriptStruct(const FGameplayTag& FactName) const
 {
-	const FRpVariantFloat* OtherFloat = static_cast<const FRpVariantFloat*>(Other);
-	return Value > OtherFloat->Value;
+	if (Facts.Contains(FactName))
+	{
+		return Facts[FactName].Fact.GetScriptStruct();
+	}
+	
+	return nullptr;
 }
 
-bool FRpVariantInteger::operator==(const FRpVariantBase* Other) const
+const FRpVariantBase* URpGOAPState::Get(const FGameplayTag& FactName) const
 {
-	const FRpVariantInteger* OtherInt = static_cast<const FRpVariantInteger*>(Other);
-	return Value == OtherInt->Value;
+	if (ensureMsgf(Facts.Contains(FactName), TEXT("Failed to find Fact with given name.")))
+	{
+		const auto Var = Facts[FactName].Fact;
+		if (ensureMsgf(Var.IsValid(), TEXT("Invalid Struct.")))
+		{
+			return Facts[FactName].Fact.GetPtr<FRpVariantBase>();
+		}
+	}
+		
+	return nullptr;
 }
 
-bool FRpVariantInteger::operator<(const FRpVariantBase* Other) const
+void URpGOAPState::Set(const FGameplayTag& FactName, const FRpStateDescriptor& Value)
 {
-	const FRpVariantInteger* OtherInt = static_cast<const FRpVariantInteger*>(Other);
-	return Value < OtherInt->Value;
-}
-
-bool FRpVariantInteger::operator>(const FRpVariantBase* Other) const
-{
-	const FRpVariantInteger* OtherInt = static_cast<const FRpVariantInteger*>(Other);
-	return Value > OtherInt->Value;
-}
-
-bool FRpVariantBool::operator==(const FRpVariantBase* Other) const
-{
-	const FRpVariantBool* OtherBool = static_cast<const FRpVariantBool*>(Other);
-	return Value == OtherBool->Value;
-}
-
-bool FRpVariantBool::operator<(const FRpVariantBase* Other) const
-{
-	return false;
-}
-
-bool FRpVariantBool::operator>(const FRpVariantBase* Other) const
-{
-	return false;
+	if (ensureAlwaysMsgf(GetScriptStruct(FactName) == Value.Fact.GetScriptStruct(),TEXT("ScriptStructs do not match")))
+	{
+		Facts[FactName] = Value;
+	}
 }

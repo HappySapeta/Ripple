@@ -23,10 +23,12 @@ public:
 	const URpGOAPGoal* PickGoal();
 	void CreatePlan(const URpGOAPGoal* ChosenGoal);
 	
+	UFUNCTION(BlueprintCallable)
+	const URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
+	
 protected:
 	
 	bool AreRequirementsSatisfied(const TMap<FGameplayTag, FRpRequirementDescriptor>& Requirements, const URpGOAPState* State) const;
-	const URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action) const;
 	
 protected:
 	

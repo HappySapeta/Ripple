@@ -11,6 +11,8 @@ struct FRpVariantBase
 	
 	virtual ~FRpVariantBase() = default;
 	
+	virtual void Set(const FRpVariantBase*) PURE_VIRTUAL (FRpVariantBase::Set, );
+	
 	virtual bool operator==(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator==, return false; );
 	virtual bool operator<(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator<, return false; );
 	virtual bool operator>(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator>, return false; );
@@ -26,6 +28,7 @@ struct FRpVariantFloat : public FRpVariantBase
 	virtual bool operator==(const FRpVariantBase* Other) const override;
 	virtual bool operator<(const FRpVariantBase* Other) const override;
 	virtual bool operator>(const FRpVariantBase* Other) const override;
+	virtual void Set(const FRpVariantBase*) override;
 
 	UPROPERTY(EditAnywhere)
 	float Value = 0.0f;
@@ -41,6 +44,7 @@ struct FRpVariantInteger : public FRpVariantBase
 	virtual bool operator==(const FRpVariantBase*) const override;
 	virtual bool operator<(const FRpVariantBase*) const override;
 	virtual bool operator>(const FRpVariantBase*) const override;
+	virtual void Set(const FRpVariantBase*) override;
 	
 	UPROPERTY(EditAnywhere)
 	int Value = 0;
@@ -56,6 +60,7 @@ struct FRpVariantBool : public FRpVariantBase
 	virtual bool operator==(const FRpVariantBase*) const override;
 	virtual bool operator<(const FRpVariantBase*) const override;
 	virtual bool operator>(const FRpVariantBase*) const override;
+	virtual void Set(const FRpVariantBase*) override;
 	
 	UPROPERTY(EditAnywhere)
 	bool Value = false;
