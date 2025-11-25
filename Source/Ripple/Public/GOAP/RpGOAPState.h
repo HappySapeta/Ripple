@@ -17,10 +17,10 @@ class URpGOAPState : public UObject
 public:
 	
 	const URpGOAPState* Propagate(const URpGOAPAction* Action);
-	bool Contains(const FGameplayTag& FactName) const;
 	const UScriptStruct* GetScriptStruct(const FGameplayTag& FactName) const;
 	const FRpVariantBase* Get(const FGameplayTag& FactName) const;
 	void Set(const FGameplayTag& FactName, const FRpStateDescriptor& Value);
+	bool Contains(const FGameplayTag& FactName) const;
 	
 protected:
 	

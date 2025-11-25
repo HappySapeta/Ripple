@@ -1,8 +1,12 @@
 // Copyright Anupam Sahu. All Rights Reserved.
 
 #pragma once
+
 #include "StructUtils/InstancedStruct.h"
 #include "RpGOAPTypes.generated.h"
+
+typedef TMap<FGameplayTag, FRpRequirementDescriptor> RequirementsContainer;
+typedef TMap<FGameplayTag, FRpStateDescriptor> FactsContainer;
 
 USTRUCT(BlueprintType)
 struct FRpVariantBase
@@ -104,6 +108,5 @@ struct FRpRequirementDescriptor
 	
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<ERpCondition> Condition = ERpCondition::EQUAL;
-	
 };
  

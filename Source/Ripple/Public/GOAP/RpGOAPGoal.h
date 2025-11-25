@@ -17,7 +17,7 @@ class RIPPLE_API URpGOAPGoal : public UDataAsset
 	
 public:
 	
-	const TMap<FGameplayTag, FRpRequirementDescriptor>& GetRequirements() const
+	const RequirementsContainer& GetRequirements() const
 	{
 		return Requirements;
 	}

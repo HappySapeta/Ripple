@@ -42,8 +42,7 @@ void URpGOAPPlanner::CreatePlan(const URpGOAPGoal* ChosenGoal)
 	CurrentGoal = ChosenGoal;
 }
 
-bool URpGOAPPlanner::AreRequirementsSatisfied(const TMap<FGameplayTag, FRpRequirementDescriptor>& Requirements,
-											 const URpGOAPState* State) const
+bool URpGOAPPlanner::AreRequirementsSatisfied(const RequirementsContainer& Requirements, const URpGOAPState* State) const
 {
 	for (const auto& [FactName, Requirement] : Requirements)
 	{

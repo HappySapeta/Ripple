@@ -28,7 +28,7 @@ public:
 	
 protected:
 	
-	bool AreRequirementsSatisfied(const TMap<FGameplayTag, FRpRequirementDescriptor>& Requirements, const URpGOAPState* State) const;
+	bool AreRequirementsSatisfied(const RequirementsContainer& Requirements, const URpGOAPState* State) const;
 	
 protected:
 	
