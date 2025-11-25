@@ -15,8 +15,23 @@ class RIPPLE_API URpGOAPGoal : public UDataAsset
 {
 	GENERATED_BODY()
 	
+public:
+	
+	const TMap<FGameplayTag, FRpRequirementDescriptor>& GetRequirements() const
+	{
+		return Requirements;
+	}
+	
+	uint8 GetPriority() const
+	{
+		return Priority;
+	}
+	
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TMap<FGameplayTag, FRpRequirementDescriptor> Requirements;
+	
+	UPROPERTY(EditDefaultsOnly)
+	uint8 Priority = 0;
 };

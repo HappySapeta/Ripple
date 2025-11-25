@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RpGOAPState.h"
 #include "UObject/Object.h"
+#include "GameplayTagContainer.h"
+#include "RpGOAPTypes.h"
 #include "RpGOAPAction.generated.h"
+
+class URpGOAPState;
 
 /**
  * 
@@ -19,8 +22,6 @@ public:
 	
 	virtual void Perform(const URpGOAPState* TestState);
 	
-	bool CheckRequirements(const URpGOAPState* State);
-	
 	float GetCost() const
 	{
 		return Cost;	
@@ -29,6 +30,16 @@ public:
 	void SetCost(const float NewCost)
 	{
 		Cost = NewCost;
+	}
+	
+	const TMap<FGameplayTag, FRpRequirementDescriptor>& GetRequirements() const
+	{
+		return Requirements;
+	}
+	
+	const TMap<FGameplayTag, FRpStateDescriptor>& GetEffects() const
+	{
+		return Effects;
 	}
 	
 protected:

@@ -3,108 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "RpGOAPTypes.h"
 #include "GameplayTagContainer.h"
-#include "StructUtils/InstancedStruct.h"
 #include "RpGOAPState.generated.h"
 
-USTRUCT(BlueprintType)
-struct FRpVariantBase
-{
-	GENERATED_BODY()
-	
-	virtual ~FRpVariantBase() = default;
-	
-	virtual bool operator==(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator==, return false; );
-	virtual bool operator<(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator<, return false; );
-	virtual bool operator>(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator>, return false; );
-};
-
-USTRUCT(BlueprintType, DisplayName = "Floating Point")
-struct FRpVariantFloat : public FRpVariantBase
-{
-	GENERATED_BODY()
-	
-	virtual ~FRpVariantFloat() = default;
-	
-	virtual bool operator==(const FRpVariantBase* Other) const override;
-	virtual bool operator<(const FRpVariantBase* Other) const override;
-	virtual bool operator>(const FRpVariantBase* Other) const override;
-
-	UPROPERTY(EditAnywhere)
-	float Value = 0.0f;
-};
-
-USTRUCT(BlueprintType, DisplayName = "Integer")
-struct FRpVariantInteger : public FRpVariantBase
-{
-	GENERATED_BODY()
-	
-	virtual ~FRpVariantInteger() = default;
-	
-	virtual bool operator==(const FRpVariantBase*) const override;
-	virtual bool operator<(const FRpVariantBase*) const override;
-	virtual bool operator>(const FRpVariantBase*) const override;
-	
-	UPROPERTY(EditAnywhere)
-	int Value = 0;
-};
-
-USTRUCT(BlueprintType, DisplayName = "Boolean")
-struct FRpVariantBool : public FRpVariantBase
-{
-	GENERATED_BODY()
-	
-	virtual ~FRpVariantBool() = default;
-	
-	virtual bool operator==(const FRpVariantBase*) const override;
-	virtual bool operator<(const FRpVariantBase*) const override;
-	virtual bool operator>(const FRpVariantBase*) const override;
-	
-	UPROPERTY(EditAnywhere)
-	bool Value = false;
-};
-
-UENUM()
-enum ERpCondition : uint8
-{
-	// Equal to requirement
-	EQUAL,
-	
-	// Less than requirement
-	LESS,
-	
-	// Greater than requirement
-	GREATER
-};
-
-USTRUCT(BlueprintType)
-struct FRpStateDescriptor 
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
-	FInstancedStruct Fact;
-};
-
-USTRUCT(BlueprintType)
-struct FRpRequirementDescriptor
-{
-	GENERATED_BODY()
-	
-	bool Evaluate(const FRpStateDescriptor& State) const
-	{
-		// TODO : Pending implementation
-		return false;
-	}
-	
-	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
-	FInstancedStruct Fact;
-	
-	UPROPERTY(EditAnywhere)
-	TEnumAsByte<ERpCondition> Condition = ERpCondition::EQUAL;
-	
-};
- 
 UCLASS(Blueprintable, Category = "Ripple GOAP")
 class URpGOAPState : public UObject
 {
