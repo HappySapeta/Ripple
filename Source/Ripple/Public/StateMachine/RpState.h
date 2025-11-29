@@ -16,7 +16,7 @@ class URpStateMachineBlackboardBase;
  * Derived states provide implementation logic
  * for state Initialization and Execution.
  */
-UCLASS(BlueprintType, Abstract)
+UCLASS(BlueprintType, Blueprintable, Abstract)
 class RIPPLE_API URpState : public UObject
 {
 	
