@@ -3,23 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "RpGOAPState.h"
-#include "UObject/Object.h"
 #include "RpGOAPGoal.generated.h"
-
 
 /**
  * 
  */
-UCLASS(Blueprintable, BlueprintType)
-class RIPPLE_API URpGOAPGoal : public UObject
+UCLASS(Category = "Ripple GOAP")
+class RIPPLE_API URpGOAPGoal : public UDataAsset
 {
 	GENERATED_BODY()
-
+	
 public:
 	
+	const RequirementsContainer& GetRequirements() const
+	{
+		return Requirements;
+	}
+	
+	uint8 GetPriority() const
+	{
+		return Priority;
+	}
+	
 protected:
-
-	UPROPERTY(EditAnywhere, DisplayName = "RequiredState")
-	FRpGOAPState State;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FGameplayTag, FRpRequirementDescriptor> Requirements;
+	
+	UPROPERTY(EditDefaultsOnly)
+	uint8 Priority = 0;
 };
