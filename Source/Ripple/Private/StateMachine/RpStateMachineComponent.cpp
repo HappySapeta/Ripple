@@ -2,6 +2,7 @@
 
 #include "StateMachine/RpStateMachineComponent.h"
 #include "StateMachine/RpState.h"
+#include "StateMachine/RpStateMachineBlackboard.h"
 #include "StateMachine/RpStateTransitionRule.h"
 
 URpStateMachineComponent::URpStateMachineComponent()
@@ -11,8 +12,14 @@ URpStateMachineComponent::URpStateMachineComponent()
 
 void URpStateMachineComponent::Start()
 {
-	CurrentState = StartingState.GetDefaultObject();
-	CurrentState->Activate();
+	for (URpState* State : StateInstances)
+	{
+		if (State->GetClass() == StartingState)
+		{
+			CurrentState = State;
+			CurrentState->Activate();
+		}
+	}
 }
 
 void URpStateMachineComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -26,21 +33,49 @@ void URpStateMachineComponent::TickComponent(const float DeltaTime, const ELevel
 	}
 }
 
+void URpStateMachineComponent::BeginPlay()
+{
+	StateMachineBlackboard = NewObject<URpStateMachineBlackboardBase>(GetTransientPackage(), StatemachineBBClass);
+	
+	for (const auto& StateClass : StateClasses)
+	{
+		URpState* NewState = NewObject<URpState>(GetTransientPackage(), StateClass);
+		StateInstances.Add(NewState);
+		
+		NewState->SetContext(StateMachineBlackboard);
+	}
+	
+	for (const auto& RuleClass : TransitionRules)
+	{
+		URpStateTransitionRule* NewRule = NewObject<URpStateTransitionRule>(GetTransientPackage(), RuleClass);
+		TransitionRuleInstances.Add(NewRule);
+		
+		NewRule->SetBlackboard(StateMachineBlackboard);
+	}
+	
+	Super::BeginPlay();
+}
+
 void URpStateMachineComponent::ProcessRules()
 {
 	URpState* NextState = nullptr;
-	for (const TSubclassOf<URpStateTransitionRule>& RuleSubclass : TransitionRules)
+	for (const URpStateTransitionRule* Rule : TransitionRuleInstances)
 	{
-		const URpStateTransitionRule* Rule = RuleSubclass.GetDefaultObject();
-		if (Rule->GetRequiredState().GetDefaultObject() != CurrentState)
+		if (Rule->GetRequiredState() != CurrentState->GetClass())
 		{
 			continue;
 		}
 			
 		if (Rule->CanTransition())
 		{
-			NextState = Rule->GetNextState().GetDefaultObject();
-			break;
+			for (URpState* State : StateInstances)
+			{
+				if (State->GetClass() == Rule->GetNextState())
+				{
+					NextState = State;
+					break;
+				}
+			}
 		}
 	}
 

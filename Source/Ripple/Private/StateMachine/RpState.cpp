@@ -2,11 +2,6 @@
 
 #include "StateMachine/RpState.h"
 
-void URpState::SetBlackboard(URpStateMachineBlackboardBase* NewBlackboard)
-{
-	Blackboard = NewBlackboard;
-}
-
 void URpState::Activate()
 {
 	OnActivate();

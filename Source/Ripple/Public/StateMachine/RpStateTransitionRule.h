@@ -12,7 +12,7 @@ class URpStateMachineBlackboardBase;
 /**
  * 
  */
-UCLASS(BlueprintType, Abstract)
+UCLASS(BlueprintType, Blueprintable, Abstract)
 class RIPPLE_API URpStateTransitionRule : public UObject
 {
 	GENERATED_BODY() 
@@ -43,8 +43,8 @@ protected:
 
 	// Return State Blackboard as a subtype of IRpStateContext.
 	// For use in blueprints only.
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "URpStateMachineBlackboardBase"))
-	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> BlackboardSubClass) const
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
+	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass) const
 	{
 		return Blackboard;
 	}
@@ -68,7 +68,7 @@ protected:
 
 	// The state context object of this state that contains all the information that it needs.
 	UPROPERTY(Transient)
-	URpStateMachineBlackboardBase* Blackboard;
+	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
 };
  
 inline void URpStateTransitionRule::SetBlackboard(URpStateMachineBlackboardBase* NewBlackboard)

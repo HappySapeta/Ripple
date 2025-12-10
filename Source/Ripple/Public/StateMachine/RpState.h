@@ -23,14 +23,16 @@ class RIPPLE_API URpState : public UObject
 	GENERATED_BODY()
 
 public:
-	
-	// Set the state context object for this state.
-	UFUNCTION(BlueprintCallable)
-	void SetBlackboard(URpStateMachineBlackboardBase* NewBlackboard);
 
 	UFUNCTION(BlueprintNativeEvent, DisplayName = "OnStateUpdate")
 	void StateUpdate(const float DeltaTime);
 	virtual void StateUpdate_Implementation(const float DeltaTime) {}
+	
+	UFUNCTION(BlueprintCallable)
+	void SetContext(URpStateMachineBlackboardBase* NewBlackboard)
+	{
+		Blackboard = NewBlackboard;
+	}
 	
 	void Activate();
 	void DeActivate();
@@ -65,6 +67,6 @@ protected:
 private:
 	
 	// The state context object of this state that contains all the information that it needs.
-	UPROPERTY(Transient)
-	URpStateMachineBlackboardBase* Blackboard;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
 };

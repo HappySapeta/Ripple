@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "RpStateMachineComponent.generated.h"
 
+class URpStateMachineBlackboardBase;
 class URpState; 
 class URpStateTransitionRule;
 
@@ -32,16 +33,35 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	const URpState* GetCurrentState() const { return CurrentState; }
 
+public:
+
+	virtual void BeginPlay() override;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<URpState> StartingState;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TArray<TSubclassOf<URpState>> StateClasses;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<URpStateTransitionRule>> TransitionRules;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<URpStateMachineBlackboardBase> StatemachineBBClass;
+	
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TObjectPtr<URpStateMachineBlackboardBase> StateMachineBlackboard;
 	
 private:
 	
 	UPROPERTY()
 	TObjectPtr<URpState> CurrentState;
+	
+	UPROPERTY(Transient)
+	TArray<URpState*> StateInstances;
+	
+	UPROPERTY(Transient)
+	TArray<URpStateTransitionRule*> TransitionRuleInstances;
 };
