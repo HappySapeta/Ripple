@@ -25,8 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Start();
 	
-	UFUNCTION(BlueprintCallable)
-	URpStateMachineBlackboardBase* GetContext()
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
+	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
 	{
 		return StateMachineBlackboard;
 	}
