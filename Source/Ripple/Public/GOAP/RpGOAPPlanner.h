@@ -4,48 +4,65 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-#include "RpGOAPGoal.h"
+#include "GOAP/RpGOAPState.h"
 #include "RpGOAPPlanner.generated.h"
 
+class URpGOAPGoal;
 class URpGOAPAction;
-class URpGOAPState;
+
+struct FMostOptimalState
+{
+	bool operator()(const URpGOAPState& A, const URpGOAPState& B) const
+	{
+		return A.GetFCost() == B.GetFCost() ? A.GetHCost() < B.GetHCost() : A.GetFCost() < B.GetFCost(); 
+	}
+};
 
 /** 
  * 
  */
-UCLASS(Blueprintable, BlueprintType, Category = "Ripple GOAP")
+UCLASS(Blueprintable, Category = "Ripple GOAP")
 class RIPPLE_API URpGOAPPlanner : public UObject
 {
 	GENERATED_BODY()
 	
 public:
 	
-	const URpGOAPGoal* PickGoal();
-	void CreatePlan(const URpGOAPGoal* ChosenGoal);
+	void AddGoal(URpGOAPGoal* NewGoal);
+	void AddAction(URpGOAPAction* NewAction);
+	void SetStartingState(URpGOAPState* StartingState);
 	
 	UFUNCTION(BlueprintCallable)
-	const URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
+	const URpGOAPGoal* PickGoal();
+	
+	UFUNCTION(BlueprintCallable)
+	void CreatePlan(const URpGOAPGoal* ChosenGoal);
+
+	UFUNCTION(BlueprintCallable)
+	URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
 	
 protected:
 	
-	bool AreRequirementsSatisfied(const RequirementsContainer& Requirements, const URpGOAPState* State) const;
+	TArray<URpGOAPAction*> GetAvailableActionsFor(URpGOAPState* CurrentState);
+	int PerformDFS(const URpGOAPState* Current, TArray<const URpGOAPAction*>& ActionPlan);
+	void PerformAStar(TArray<const URpGOAPAction*>& ActionPlan);
+
+private:
 	
-protected:
-	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	TArray<URpGOAPGoal*> Goals;
 	
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<URpGOAPAction>> Actions; 
+	UPROPERTY()
+	TArray<URpGOAPAction*> Actions; 
 	
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<URpGOAPState> StartingState;
+	UPROPERTY()
+	URpGOAPState* StartingState;
 	
-	UPROPERTY(VisibleInstanceOnly)
-	TObjectPtr<URpGOAPState> CurrentState;
+	UPROPERTY()
+	const URpGOAPGoal* Goal;
 	
 private:
 	
 	UPROPERTY()
-	const URpGOAPGoal* CurrentGoal;
+	TArray<URpGOAPState*> OpenSet;
 };

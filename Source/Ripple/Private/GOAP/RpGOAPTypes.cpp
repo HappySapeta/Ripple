@@ -1,5 +1,11 @@
 #include "GOAP/RpGOAPTypes.h"
 
+int FRpVariantFloat::GetAbsDifference(const FRpVariantBase* Other) const
+{
+	const FRpVariantFloat* OtherFloat = static_cast<const FRpVariantFloat*>(Other);
+	return FMath::Abs(OtherFloat->Value - Value);
+}
+
 bool FRpVariantFloat::operator==(const FRpVariantBase* Other) const
 {
 	const FRpVariantFloat* OtherFloat = static_cast<const FRpVariantFloat*>(Other);
@@ -23,6 +29,12 @@ void FRpVariantFloat::Set(const FRpVariantBase* Other)
 	Value = static_cast<const FRpVariantFloat*>(Other)->Value;
 }
 
+int FRpVariantInteger::GetAbsDifference(const FRpVariantBase* Other) const
+{
+	const FRpVariantInteger* OtherInt = static_cast<const FRpVariantInteger*>(Other);
+	return FMath::Abs(OtherInt->Value - Value);
+}
+
 bool FRpVariantInteger::operator==(const FRpVariantBase* Other) const
 {
 	const FRpVariantInteger* OtherInt = static_cast<const FRpVariantInteger*>(Other);
@@ -44,6 +56,12 @@ bool FRpVariantInteger::operator>(const FRpVariantBase* Other) const
 void FRpVariantInteger::Set(const FRpVariantBase* Other)
 {
 	Value = static_cast<const FRpVariantInteger*>(Other)->Value;
+}
+
+int FRpVariantBool::GetAbsDifference(const FRpVariantBase* Other) const
+{
+	const FRpVariantBool* OtherBool = static_cast<const FRpVariantBool*>(Other);
+	return FMath::Abs(static_cast<int>(OtherBool->Value) - static_cast<int>(Value));
 }
 
 bool FRpVariantBool::operator==(const FRpVariantBase* Other) const

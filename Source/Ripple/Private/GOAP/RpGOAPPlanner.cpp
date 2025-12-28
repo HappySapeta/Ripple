@@ -1,7 +1,24 @@
 ﻿// Copyright Anupam Sahu. All Rights Reserved.
 
 #include "GOAP/RpGOAPPlanner.h"
+#include "GOAP/RpGOAPState.h"
 #include "GOAP/RpGOAPAction.h"
+#include "GOAP/RpGOAPGoal.h"
+
+void URpGOAPPlanner::AddGoal(URpGOAPGoal* NewGoal)
+{
+	Goals.Push(NewGoal);
+}
+
+void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
+{
+	Actions.Push(NewAction);
+}
+
+void URpGOAPPlanner::SetStartingState(URpGOAPState* State)
+{
+	StartingState = State;
+}
 
 // O(n) : n = number of goals.
 const URpGOAPGoal* URpGOAPPlanner::PickGoal()
@@ -16,7 +33,7 @@ const URpGOAPGoal* URpGOAPPlanner::PickGoal()
 		}
 		
 		// Ignore goal if it has currently been achieved.
-		if (AreRequirementsSatisfied(PotentialGoal->GetRequirements(), CurrentState))
+		if (StartingState->DoesSatisfyRequirements(PotentialGoal->GetRequirements()))
 		{
 			continue;
 		}
@@ -37,59 +54,132 @@ const URpGOAPGoal* URpGOAPPlanner::PickGoal()
 	return ChosenGoal;	
 }
 
+// TODO : Implementation incomplete
 void URpGOAPPlanner::CreatePlan(const URpGOAPGoal* ChosenGoal)
 {
-	CurrentGoal = ChosenGoal;
+	Goal = ChosenGoal;
+	TArray<const URpGOAPAction*> ActionPlan;
+	
+	
+	
+	//int Result = PerformDFS(StartingState, ActionPlan);
+	//if (Result == TNumericLimits<int>::Max())
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("No path could be found!"));
+	//}
+	//else if (Result == 0)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Already at goal."));
+	//}
+	//else
+	//{
+	//	int Step = 0;
+	//	for (const URpGOAPAction* Action : ActionPlan)
+	//	{
+	//		UE_LOG(LogTemp, Log, TEXT("%d Action : %s"), ++Step, *Action->GetName());
+	//	}
+	//}
 }
 
-bool URpGOAPPlanner::AreRequirementsSatisfied(const RequirementsContainer& Requirements, const URpGOAPState* State) const
+int URpGOAPPlanner::PerformDFS(const URpGOAPState* Current, TArray<const URpGOAPAction*>& ActionPlan)
 {
-	for (const auto& [FactName, Requirement] : Requirements)
+	if (!Current)
 	{
-		if (!State->Contains(FactName))
+		return TNumericLimits<int>::Max();
+	}
+	
+	if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
+	{
+		return 0;
+	}
+	
+	int Min = TNumericLimits<int>::Max();
+	for (const URpGOAPAction* Action : GetAvailableActionsFor(StartingState))
+	{
+		const URpGOAPState* NextState = Simulate(StartingState, Action);
+		int Cost = Action->GetCost() + PerformDFS(NextState, ActionPlan);
+		if (Cost < Min)
 		{
-			return false;
-		}
-
-		switch (Requirement.Condition)
-		{
-			case EQUAL:
-			{
-				const bool bResult = Requirement.Fact.GetPtr<FRpVariantBase>()->operator==(State->Get(FactName));
-				if (bResult == false)
-				{
-					return false;
-				}
-			}
-			case LESS:
-			{
-				const bool bResult = Requirement.Fact.GetPtr<FRpVariantBase>()->operator>(State->Get(FactName));
-				if (bResult == false)
-				{
-					return false;
-				}
-			}
-			case GREATER:
-			{
-				const bool bResult = Requirement.Fact.GetPtr<FRpVariantBase>()->operator<(State->Get(FactName));
-				if (bResult == false)
-				{
-					return false;
-				}
-			}
-			default:
-				break;
+			Min = Cost;
+			ActionPlan.Push(Action);
 		}
 	}
-	return true;
+	
+	return Min;
 }
 
-const URpGOAPState* URpGOAPPlanner::Simulate(const URpGOAPState* Input, const URpGOAPAction* Action)
+void URpGOAPPlanner::PerformAStar(TArray<const URpGOAPAction*>& ActionPlan)
+{
+	URpGOAPState* GoalState = nullptr;
+	if(!StartingState || !Goal)
+	{
+		return;
+	}
+	
+	StartingState->SetGCost(0);
+	// TODO : URpGOAPGoal::CalcDistanceFromState() implementation pending
+	StartingState->SetHCost(StartingState->CalcDistanceFromGoal(Goal));
+	
+	OpenSet.Push(StartingState);
+	
+	while (!OpenSet.IsEmpty())
+	{
+		URpGOAPState* Current;
+		OpenSet.HeapPop(Current, FMostOptimalState());
+		Current->SetSeen(true);
+		
+		// GOAL HAS BEEN REACHED
+		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
+		{
+			GoalState = Current;
+		}
+		
+		for (URpGOAPAction* Action : GetAvailableActionsFor(Current))
+		{
+			URpGOAPState* Neighbor = Simulate(Current, Action);
+			if (Neighbor->IsSeen()) // TODO : Avoid comparing pointers
+			{
+				continue;
+			}
+			
+			// TODO : URpGOAPState::DistanceFrom() Implementation pending
+			const int NewGCost = Current->GetGCost() + Current->CalcDistanceFromState(Neighbor);
+			const bool bIsInOpen = OpenSet.Contains(Neighbor); // TODO : Avoid comparing pointers
+			if (NewGCost < Neighbor->GetGCost() || !bIsInOpen)
+			{
+				Neighbor->SetGCost(NewGCost);
+				Neighbor->SetHCost(Neighbor->CalcDistanceFromGoal(Goal));
+				Neighbor->SetLinkingAction(Action);
+				
+				if (!bIsInOpen)
+				{
+					OpenSet.HeapPush(Neighbor, FMostOptimalState());
+				}
+			}
+		}
+	}
+}
+
+TArray<URpGOAPAction*> URpGOAPPlanner::GetAvailableActionsFor(URpGOAPState* CurrentState)
+{
+	TArray<URpGOAPAction*> AvailableActions;
+	for (const auto& Action : Actions)
+	{
+		if (CurrentState->DoesSatisfyRequirements(Action->GetRequirements()))
+		{
+			AvailableActions.Push(Action);
+		}
+	}
+	
+	return AvailableActions;
+}
+
+URpGOAPState* URpGOAPPlanner::Simulate(const URpGOAPState* Input, const URpGOAPAction* Action)
 {
 	URpGOAPState* StateCopy = DuplicateObject(Input, GetOuter());
 	for (const auto& [FactName, EffectDescriptor] : Action->GetEffects())
 	{
-		StateCopy->Set(FactName, EffectDescriptor);
+		StateCopy->SetFact(FactName, EffectDescriptor);
 	}
 	
 	return StateCopy;

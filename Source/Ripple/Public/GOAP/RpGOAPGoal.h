@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "RpGOAPState.h"
+#include "GOAP/RpGOAPTypes.h"
 #include "RpGOAPGoal.generated.h"
 
 /**
@@ -17,7 +17,7 @@ class RIPPLE_API URpGOAPGoal : public UDataAsset
 	
 public:
 	
-	const RequirementsContainer& GetRequirements() const
+	const TMap<FGameplayTag, FRpRequirementDescriptor>& GetRequirements() const
 	{
 		return Requirements;
 	}

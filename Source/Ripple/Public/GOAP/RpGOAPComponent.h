@@ -6,6 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "RpGOAPComponent.generated.h"
 
+class URpGOAPState;
+class URpGOAPGoal;
+class URpGOAPAction;
 class URpGOAPPlanner;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -20,9 +23,22 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	URpGOAPPlanner* GetPlanner();
+	
+	virtual void BeginPlay() override;
 
 private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
-	TSubclassOf<URpGOAPPlanner> PlannerClass;
+	TSubclassOf<URpGOAPState> StartingStateClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
+	TArray<TSubclassOf<URpGOAPGoal>> GoalClasses;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
+	TArray<TSubclassOf<URpGOAPAction>> ActionClasses;
+	
+private:
+	
+	UPROPERTY()
+	URpGOAPPlanner* Planner;
 };
