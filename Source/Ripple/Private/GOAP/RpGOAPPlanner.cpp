@@ -59,26 +59,13 @@ void URpGOAPPlanner::CreatePlan(const URpGOAPGoal* ChosenGoal)
 {
 	Goal = ChosenGoal;
 	TArray<const URpGOAPAction*> ActionPlan;
+	PerformAStar(ActionPlan);
 	
-	
-	
-	//int Result = PerformDFS(StartingState, ActionPlan);
-	//if (Result == TNumericLimits<int>::Max())
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("No path could be found!"));
-	//}
-	//else if (Result == 0)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Already at goal."));
-	//}
-	//else
-	//{
-	//	int Step = 0;
-	//	for (const URpGOAPAction* Action : ActionPlan)
-	//	{
-	//		UE_LOG(LogTemp, Log, TEXT("%d Action : %s"), ++Step, *Action->GetName());
-	//	}
-	//}
+	int Index = 0;
+	for (const URpGOAPAction* Action : ActionPlan)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Action %d : %s"), ++Index, *Action->GetName());
+	}
 }
 
 int URpGOAPPlanner::PerformDFS(const URpGOAPState* Current, TArray<const URpGOAPAction*>& ActionPlan)
@@ -116,40 +103,42 @@ void URpGOAPPlanner::PerformAStar(TArray<const URpGOAPAction*>& ActionPlan)
 		return;
 	}
 	
-	StartingState->SetGCost(0);
-	// TODO : URpGOAPGoal::CalcDistanceFromState() implementation pending
-	StartingState->SetHCost(StartingState->CalcDistanceFromGoal(Goal));
+	StartingState->GetAStarNode().SetGCost(0);
+	StartingState->GetAStarNode().SetHCost(StartingState->CalcDistanceFromGoal(Goal));
+	StartingState->GetAStarNode().SetLinkingAction(nullptr);
 	
 	OpenSet.Push(StartingState);
 	
-	while (!OpenSet.IsEmpty())
+	while (OpenSet.Num() > 0)
 	{
 		URpGOAPState* Current;
 		OpenSet.HeapPop(Current, FMostOptimalState());
-		Current->SetSeen(true);
+		Current->GetAStarNode().SetSeen(true);
 		
 		// GOAL HAS BEEN REACHED
 		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
 		{
 			GoalState = Current;
+			break;
 		}
 		
 		for (URpGOAPAction* Action : GetAvailableActionsFor(Current))
 		{
 			URpGOAPState* Neighbor = Simulate(Current, Action);
-			if (Neighbor->IsSeen()) // TODO : Avoid comparing pointers
+			if (!Neighbor || Neighbor->GetAStarNode().IsSeen())
 			{
 				continue;
 			}
 			
-			// TODO : URpGOAPState::DistanceFrom() Implementation pending
-			const int NewGCost = Current->GetGCost() + Current->CalcDistanceFromState(Neighbor);
-			const bool bIsInOpen = OpenSet.Contains(Neighbor); // TODO : Avoid comparing pointers
-			if (NewGCost < Neighbor->GetGCost() || !bIsInOpen)
+			const int NewGCost = Current->GetAStarNode().GetGCost() + Current->CalcDistanceFromState(Neighbor) + Action->GetCost();
+			
+			const bool bIsInOpen = OpenSet.Contains(Neighbor);
+			if (NewGCost < Neighbor->GetAStarNode().GetGCost() || !bIsInOpen)
 			{
-				Neighbor->SetGCost(NewGCost);
-				Neighbor->SetHCost(Neighbor->CalcDistanceFromGoal(Goal));
-				Neighbor->SetLinkingAction(Action);
+				Neighbor->GetAStarNode().SetGCost(NewGCost);
+				Neighbor->GetAStarNode().SetHCost(Neighbor->CalcDistanceFromGoal(Goal));
+				Neighbor->GetAStarNode().SetLinkingAction(Action);
+				Neighbor->GetAStarNode().SetParent(Current);
 				
 				if (!bIsInOpen)
 				{
@@ -157,6 +146,23 @@ void URpGOAPPlanner::PerformAStar(TArray<const URpGOAPAction*>& ActionPlan)
 				}
 			}
 		}
+	}
+	
+	// Prepare path
+	{
+		ActionPlan.Reset();
+		URpGOAPState* Current = GoalState;
+		while (Current)
+		{
+			const URpGOAPAction* Action = Current->GetAStarNode().GetLinkingAction();
+			if (!Action)
+			{
+				break;
+			}
+			ActionPlan.Push(Action);
+			Current = Current->GetAStarNode().GetParent();
+		}
+		Algo::Reverse(ActionPlan);
 	}
 }
 
@@ -179,7 +185,10 @@ URpGOAPState* URpGOAPPlanner::Simulate(const URpGOAPState* Input, const URpGOAPA
 	URpGOAPState* StateCopy = DuplicateObject(Input, GetOuter());
 	for (const auto& [FactName, EffectDescriptor] : Action->GetEffects())
 	{
-		StateCopy->SetFact(FactName, EffectDescriptor);
+		if (!StateCopy->SetFact(FactName, EffectDescriptor))
+		{
+			return nullptr;
+		}
 	}
 	
 	return StateCopy;

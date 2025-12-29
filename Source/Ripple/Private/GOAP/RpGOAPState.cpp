@@ -21,6 +21,7 @@ bool URpGOAPState::DoesSatisfyRequirements(const TMap<FGameplayTag, FRpRequireme
 				{
 					return false;
 				}
+				break;
 			}
 			case LESS:
 			{
@@ -29,6 +30,7 @@ bool URpGOAPState::DoesSatisfyRequirements(const TMap<FGameplayTag, FRpRequireme
 				{
 					return false;
 				}
+				break;
 			}
 			case GREATER:
 			{
@@ -37,6 +39,7 @@ bool URpGOAPState::DoesSatisfyRequirements(const TMap<FGameplayTag, FRpRequireme
 				{
 					return false;
 				}
+				break;
 			}
 			default:
 				break;
@@ -121,10 +124,18 @@ const FRpVariantBase* URpGOAPState::GetFact(const FGameplayTag& FactName) const
 	return nullptr;
 }
 
-void URpGOAPState::SetFact(const FGameplayTag& FactName, const FRpStateDescriptor& Value)
+bool URpGOAPState::SetFact(const FGameplayTag& FactName, const FRpStateDescriptor& Value)
 {
+	if (!Facts.Contains(FactName))
+	{
+		return false;
+	}
+	
 	if (ensureAlwaysMsgf(GetScriptStruct(FactName) == Value.Fact.GetScriptStruct(),TEXT("ScriptStructs do not match")))
 	{
 		Facts[FactName] = Value;
+		return true;
 	}
+	
+	return false;
 }

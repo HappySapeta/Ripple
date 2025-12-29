@@ -3,11 +3,21 @@
 #include "GOAP/RpGOAPComponent.h"
 
 #include "GOAP/RpGOAPAction.h"
+#include "GOAP/RpGOAPGoal.h"
 #include "GOAP/RpGOAPPlanner.h"
 
 URpGOAPComponent::URpGOAPComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+}
+
+URpGOAPPlanner* URpGOAPComponent::GetPlanner()
+{
+	return Planner;
+}
+
+void URpGOAPComponent::InitializePlanner()
+{
 	Planner = NewObject<URpGOAPPlanner>();
 	for (const auto& GoalClass : GoalClasses)
 	{
@@ -20,18 +30,12 @@ URpGOAPComponent::URpGOAPComponent()
 	Planner->SetStartingState(NewObject<URpGOAPState>(GetTransientPackage(), StartingStateClass));
 }
 
-URpGOAPPlanner* URpGOAPComponent::GetPlanner()
+void URpGOAPComponent::CreatePlan()
 {
-	return Planner;
-}
-
-void URpGOAPComponent::BeginPlay()
-{
-	Super::BeginPlay();
-	
 	const URpGOAPGoal* ChosenGoal = Planner->PickGoal();
 	Planner->CreatePlan(ChosenGoal);
 }
+
 
 
 

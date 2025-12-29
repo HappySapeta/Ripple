@@ -24,7 +24,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	URpGOAPPlanner* GetPlanner();
 	
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable)
+	void InitializePlanner();
+	
+	UFUNCTION(BlueprintCallable)
+	void CreatePlan();
 
 private:
 	

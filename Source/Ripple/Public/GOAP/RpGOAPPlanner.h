@@ -12,9 +12,12 @@ class URpGOAPAction;
 
 struct FMostOptimalState
 {
-	bool operator()(const URpGOAPState& A, const URpGOAPState& B) const
+	bool operator()(URpGOAPState& A, URpGOAPState& B) const
 	{
-		return A.GetFCost() == B.GetFCost() ? A.GetHCost() < B.GetHCost() : A.GetFCost() < B.GetFCost(); 
+		return 
+		A.GetAStarNode().GetFCost() == B.GetAStarNode().GetFCost() ? 
+		A.GetAStarNode().GetHCost() < B.GetAStarNode().GetHCost() : 
+		A.GetAStarNode().GetFCost() < B.GetAStarNode().GetFCost(); 
 	}
 };
 

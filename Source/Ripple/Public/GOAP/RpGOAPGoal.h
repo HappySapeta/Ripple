@@ -10,8 +10,8 @@
 /**
  * 
  */
-UCLASS(Category = "Ripple GOAP")
-class RIPPLE_API URpGOAPGoal : public UDataAsset
+UCLASS(Blueprintable, Category = "Ripple GOAP")
+class RIPPLE_API URpGOAPGoal : public UObject
 {
 	GENERATED_BODY()
 	
