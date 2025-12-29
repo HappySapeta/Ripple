@@ -4,20 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "RpGOAPState.h"
+#include "GOAP/RpGOAPTypes.h"
 #include "RpGOAPGoal.generated.h"
 
 /**
  * 
  */
-UCLASS(Category = "Ripple GOAP")
-class RIPPLE_API URpGOAPGoal : public UDataAsset
+UCLASS(Blueprintable, Category = "Ripple GOAP")
+class RIPPLE_API URpGOAPGoal : public UObject
 {
 	GENERATED_BODY()
 	
 public:
 	
-	const RequirementsContainer& GetRequirements() const
+	const TMap<FGameplayTag, FRpRequirementDescriptor>& GetRequirements() const
 	{
 		return Requirements;
 	}

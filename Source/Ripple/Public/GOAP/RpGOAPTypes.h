@@ -5,8 +5,7 @@
 #include "StructUtils/InstancedStruct.h"
 #include "RpGOAPTypes.generated.h"
 
-typedef TMap<FGameplayTag, FRpRequirementDescriptor> RequirementsContainer;
-typedef TMap<FGameplayTag, FRpStateDescriptor> FactsContainer;
+typedef TMap<FGameplayTag, FRpStateDescriptor> FFactsContainer;
 
 USTRUCT(BlueprintType)
 struct FRpVariantBase
@@ -17,6 +16,7 @@ struct FRpVariantBase
 	
 	virtual void Set(const FRpVariantBase*) PURE_VIRTUAL (FRpVariantBase::Set, );
 	
+	virtual int GetAbsDifference(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::GetAbsDifference, return 0; );
 	virtual bool operator==(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator==, return false; );
 	virtual bool operator<(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator<, return false; );
 	virtual bool operator>(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator>, return false; );
@@ -29,6 +29,7 @@ struct FRpVariantFloat : public FRpVariantBase
 	
 	virtual ~FRpVariantFloat() = default;
 	
+	virtual int GetAbsDifference(const FRpVariantBase* Other) const override;
 	virtual bool operator==(const FRpVariantBase* Other) const override;
 	virtual bool operator<(const FRpVariantBase* Other) const override;
 	virtual bool operator>(const FRpVariantBase* Other) const override;
@@ -45,6 +46,7 @@ struct FRpVariantInteger : public FRpVariantBase
 	
 	virtual ~FRpVariantInteger() = default;
 	
+	virtual int GetAbsDifference(const FRpVariantBase*) const override;
 	virtual bool operator==(const FRpVariantBase*) const override;
 	virtual bool operator<(const FRpVariantBase*) const override;
 	virtual bool operator>(const FRpVariantBase*) const override;
@@ -61,6 +63,7 @@ struct FRpVariantBool : public FRpVariantBase
 	
 	virtual ~FRpVariantBool() = default;
 	
+	virtual int GetAbsDifference(const FRpVariantBase*) const override;
 	virtual bool operator==(const FRpVariantBase*) const override;
 	virtual bool operator<(const FRpVariantBase*) const override;
 	virtual bool operator>(const FRpVariantBase*) const override;
@@ -96,12 +99,6 @@ USTRUCT(BlueprintType)
 struct FRpRequirementDescriptor
 {
 	GENERATED_BODY()
-	
-	bool Evaluate(const FRpStateDescriptor& State) const
-	{
-		// TODO : Pending implementation
-		return false;
-	}
 	
 	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
 	FInstancedStruct Fact;

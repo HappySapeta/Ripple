@@ -9,6 +9,63 @@
 
 class URpGOAPAction;
 
+USTRUCT(NotBlueprintable, NotBlueprintType)
+struct FRpGOAPAStarNode
+{
+	GENERATED_BODY()
+	
+public:
+	
+	void Reset()
+	{
+		GCost = BIG_NUMBER;
+		HCost = BIG_NUMBER;
+		LinkingAction = nullptr;
+		bSeen = false;
+	}
+	
+	float GetFCost() const{return GCost + HCost;}
+	void SetGCost(const int Value){GCost = Value;}
+	float GetGCost() const{return GCost;}
+	void SetHCost(const int Value){HCost = Value;}
+	float GetHCost() const{return HCost;}
+	
+	void SetLinkingAction(const URpGOAPAction* Action){LinkingAction = Action;}
+	const URpGOAPAction* GetLinkingAction() const{return LinkingAction;}
+
+	void SetSeen(bool Value)
+	{
+		bSeen = Value;
+	}
+	
+	bool IsSeen() const
+	{
+		return bSeen;
+	}
+
+	void SetParent(URpGOAPState* Current)
+	{
+		Parent = Current;
+	}
+	
+	URpGOAPState* GetParent() const
+	{
+		return Parent;
+	}
+
+private:
+	
+	float GCost = BIG_NUMBER;
+	float HCost = BIG_NUMBER;
+	bool bSeen = false;
+	
+	UPROPERTY()
+	const URpGOAPAction* LinkingAction = nullptr;
+	
+	UPROPERTY()
+	URpGOAPState* Parent = nullptr;
+};
+
 UCLASS(Blueprintable, Category = "Ripple GOAP")
 class URpGOAPState : public UObject
 {
@@ -16,14 +73,32 @@ class URpGOAPState : public UObject
 	
 public:
 	
-	const URpGOAPState* Propagate(const URpGOAPAction* Action);
+	URpGOAPState()
+	{
+		AStarNode.Reset();
+	}
+	
 	const UScriptStruct* GetScriptStruct(const FGameplayTag& FactName) const;
-	const FRpVariantBase* Get(const FGameplayTag& FactName) const;
-	void Set(const FGameplayTag& FactName, const FRpStateDescriptor& Value);
-	bool Contains(const FGameplayTag& FactName) const;
+	const FRpVariantBase* GetFact(const FGameplayTag& FactName) const;
+	bool SetFact(const FGameplayTag& FactName, const FRpStateDescriptor& Value);
 	
-protected:
+	bool DoesSatisfyRequirements(const TMap<FGameplayTag, FRpRequirementDescriptor>& Requirements) const;
+	int CalcDistanceFromState(const URpGOAPState* State);
+	int CalcDistanceFromGoal(const URpGOAPGoal* Goal);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FRpGOAPAStarNode& GetAStarNode()
+	{
+		return AStarNode;
+	}
+	
+	bool operator==(const URpGOAPState& Other) const;
+
+private:
+	
+	UPROPERTY(EditAnywhere)
 	TMap<FGameplayTag, FRpStateDescriptor> Facts;
+
+private:
+	
+	FRpGOAPAStarNode AStarNode;
 };

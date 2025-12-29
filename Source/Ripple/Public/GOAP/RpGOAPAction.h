@@ -32,12 +32,12 @@ public:
 		Cost = NewCost;
 	}
 	
-	const RequirementsContainer& GetRequirements() const
+	const TMap<FGameplayTag, FRpRequirementDescriptor>& GetRequirements() const
 	{
 		return Requirements;
 	}
 	
-	const FactsContainer& GetEffects() const
+	const FFactsContainer& GetEffects() const
 	{
 		return Effects;
 	}

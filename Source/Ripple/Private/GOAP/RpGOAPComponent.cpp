@@ -2,6 +2,8 @@
 
 #include "GOAP/RpGOAPComponent.h"
 
+#include "GOAP/RpGOAPAction.h"
+#include "GOAP/RpGOAPGoal.h"
 #include "GOAP/RpGOAPPlanner.h"
 
 URpGOAPComponent::URpGOAPComponent()
@@ -11,8 +13,29 @@ URpGOAPComponent::URpGOAPComponent()
 
 URpGOAPPlanner* URpGOAPComponent::GetPlanner()
 {
-	return PlannerClass.GetDefaultObject();
+	return Planner;
 }
+
+void URpGOAPComponent::InitializePlanner()
+{
+	Planner = NewObject<URpGOAPPlanner>();
+	for (const auto& GoalClass : GoalClasses)
+	{
+		Planner->AddGoal(NewObject<URpGOAPGoal>(GetTransientPackage(), GoalClass));
+	}
+	for (const auto& ActionClass : ActionClasses)
+	{
+		Planner->AddAction(NewObject<URpGOAPAction>(GetTransientPackage(), ActionClass));
+	}
+	Planner->SetStartingState(NewObject<URpGOAPState>(GetTransientPackage(), StartingStateClass));
+}
+
+void URpGOAPComponent::CreatePlan()
+{
+	const URpGOAPGoal* ChosenGoal = Planner->PickGoal();
+	Planner->CreatePlan(ChosenGoal);
+}
+
 
 
 
