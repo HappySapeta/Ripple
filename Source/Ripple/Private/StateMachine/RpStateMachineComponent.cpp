@@ -84,5 +84,6 @@ void URpStateMachineComponent::ProcessRules()
 		CurrentState->DeActivate();
 		CurrentState = NextState;
 		CurrentState->Activate();
+		OnStateChanged.Broadcast(CurrentState->GetStateName());
 	}
 }
