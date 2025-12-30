@@ -32,7 +32,7 @@ void URpGOAPComponent::InitializePlanner()
 
 void URpGOAPComponent::CreatePlan()
 {
-	const URpGOAPGoal* ChosenGoal = Planner->PickGoal();
+	URpGOAPGoal* ChosenGoal = Planner->PickGoal();
 	Planner->CreatePlan(ChosenGoal);
 }
 

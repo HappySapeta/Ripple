@@ -18,22 +18,24 @@ class RIPPLE_API URpStateMachineComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStateChanged, FString, NewState);
+	
 public:
 
 	URpStateMachineComponent();
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void ProcessRules();
+	
 	UFUNCTION(BlueprintCallable)
 	void Start();
-	
+
 	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
 	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
 	{
 		return StateMachineBlackboard;
 	}
-	
-	void ProcessRules();
-
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 protected: 
 
@@ -41,8 +43,9 @@ protected:
 	const URpState* GetCurrentState() const { return CurrentState; }
 
 public:
-
-	virtual void BeginPlay() override;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnStateChanged OnStateChanged;
 
 protected:
 
@@ -60,7 +63,7 @@ protected:
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
 	TObjectPtr<URpStateMachineBlackboardBase> StateMachineBlackboard;
-	
+
 private:
 	
 	UPROPERTY()

@@ -36,7 +36,11 @@ public:
 	
 	void Activate();
 	void DeActivate();
-	
+	FString GetStateName() const
+	{
+		return StateName;
+	}
+
 protected:
 
 	// Return State Blackboard as a subtype of IRpStateContext.
@@ -69,4 +73,7 @@ private:
 	// The state context object of this state that contains all the information that it needs.
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FString StateName;
 };

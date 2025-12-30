@@ -48,6 +48,19 @@ bool URpGOAPState::DoesSatisfyRequirements(const TMap<FGameplayTag, FRpRequireme
 	return true;	
 }
 
+bool URpGOAPState::WillHaveEffects(const TMap<FGameplayTag, FRpStateDescriptor>& Effects)
+{
+	for (const auto& [FactName, Effect] : Effects)
+	{
+		if (Effect.Fact.GetPtr<FRpVariantBase>()->operator!=(GetFact(FactName)))
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 int URpGOAPState::CalcDistanceFromState(const URpGOAPState* State)
 {
 	int Distance = 0; 
