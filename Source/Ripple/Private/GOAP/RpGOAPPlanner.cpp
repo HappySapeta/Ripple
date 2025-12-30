@@ -21,10 +21,10 @@ void URpGOAPPlanner::SetStartingState(URpGOAPState* State)
 }
 
 // O(n) : n = number of goals.
-const URpGOAPGoal* URpGOAPPlanner::PickGoal()
+URpGOAPGoal* URpGOAPPlanner::PickGoal()
 {
-	const URpGOAPGoal* ChosenGoal = nullptr;
-	for (const URpGOAPGoal* PotentialGoal : Goals)
+	URpGOAPGoal* ChosenGoal = nullptr;
+	for (URpGOAPGoal* PotentialGoal : Goals)
 	{
 		if (!IsValid(ChosenGoal))
 		{
@@ -54,57 +54,29 @@ const URpGOAPGoal* URpGOAPPlanner::PickGoal()
 	return ChosenGoal;	
 }
 
-// TODO : Implementation incomplete
-void URpGOAPPlanner::CreatePlan(const URpGOAPGoal* ChosenGoal)
+void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal)
 {
-	Goal = ChosenGoal;
-	TArray<const URpGOAPAction*> ActionPlan;
-	PerformAStar(ActionPlan);
+	PrimaryGoal = ChosenGoal;
+	TArray<const URpGOAPAction*> PrimaryActionPlan;
+	PerformAStar(PrimaryGoal, PrimaryActionPlan);
 	
 	int Index = 0;
-	for (const URpGOAPAction* Action : ActionPlan)
+	for (const URpGOAPAction* Action : PrimaryActionPlan)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Action %d : %s"), ++Index, *Action->GetName());
 	}
 }
 
-int URpGOAPPlanner::PerformDFS(const URpGOAPState* Current, TArray<const URpGOAPAction*>& ActionPlan)
-{
-	if (!Current)
-	{
-		return TNumericLimits<int>::Max();
-	}
-	
-	if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
-	{
-		return 0;
-	}
-	
-	int Min = TNumericLimits<int>::Max();
-	for (const URpGOAPAction* Action : GetAvailableActionsFor(StartingState))
-	{
-		const URpGOAPState* NextState = Simulate(StartingState, Action);
-		int Cost = Action->GetCost() + PerformDFS(NextState, ActionPlan);
-		if (Cost < Min)
-		{
-			Min = Cost;
-			ActionPlan.Push(Action);
-		}
-	}
-	
-	return Min;
-}
-
-void URpGOAPPlanner::PerformAStar(TArray<const URpGOAPAction*>& ActionPlan)
+void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<const URpGOAPAction*>& ActionPlan)
 {
 	URpGOAPState* GoalState = nullptr;
-	if(!StartingState || !Goal)
+	if(!StartingState || !PrimaryGoal)
 	{
 		return;
 	}
 	
 	StartingState->GetAStarNode().SetGCost(0);
-	StartingState->GetAStarNode().SetHCost(StartingState->CalcDistanceFromGoal(Goal));
+	StartingState->GetAStarNode().SetHCost(StartingState->CalcDistanceFromGoal(PrimaryGoal));
 	StartingState->GetAStarNode().SetLinkingAction(nullptr);
 	
 	OpenSet.Push(StartingState);
@@ -116,13 +88,38 @@ void URpGOAPPlanner::PerformAStar(TArray<const URpGOAPAction*>& ActionPlan)
 		Current->GetAStarNode().SetSeen(true);
 		
 		// GOAL HAS BEEN REACHED
-		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
+		if (Current->DoesSatisfyRequirements(PrimaryGoal->GetRequirements()))
 		{
 			GoalState = Current;
 			break;
 		}
 		
-		for (URpGOAPAction* Action : GetAvailableActionsFor(Current))
+		TArray<URpGOAPAction*> AvailableActions;
+		{
+			TArray<URpGOAPAction*> UnavailableActions;
+			GetAvailableActionsFor(Current, AvailableActions, UnavailableActions);
+		
+			if (AvailableActions.IsEmpty() && !UnavailableActions.IsEmpty())
+			{
+				// set new goals to fullfill requirements and make actions available.			
+				for (URpGOAPAction* Action : UnavailableActions)
+				{
+					URpGOAPGoal* IntermediateGoal = NewObject<URpGOAPGoal>(GetTransientPackage());
+					IntermediateGoal->SetRequirements(Action->GetRequirements());
+				
+					TArray<const URpGOAPAction*> IntermediateActions;
+					PerformAStar(IntermediateGoal, IntermediateActions);
+				
+					if (!IntermediateActions.IsEmpty())
+					{
+						ActionPlan.Append(IntermediateActions);
+						AvailableActions.Push(Action);
+					}
+				}
+			}
+		}
+		
+		for (URpGOAPAction* Action : AvailableActions)
 		{
 			URpGOAPState* Neighbor = Simulate(Current, Action);
 			if (!Neighbor || Neighbor->GetAStarNode().IsSeen())
@@ -136,7 +133,7 @@ void URpGOAPPlanner::PerformAStar(TArray<const URpGOAPAction*>& ActionPlan)
 			if (NewGCost < Neighbor->GetAStarNode().GetGCost() || !bIsInOpen)
 			{
 				Neighbor->GetAStarNode().SetGCost(NewGCost);
-				Neighbor->GetAStarNode().SetHCost(Neighbor->CalcDistanceFromGoal(Goal));
+				Neighbor->GetAStarNode().SetHCost(Neighbor->CalcDistanceFromGoal(PrimaryGoal));
 				Neighbor->GetAStarNode().SetLinkingAction(Action);
 				Neighbor->GetAStarNode().SetParent(Current);
 				
@@ -166,18 +163,25 @@ void URpGOAPPlanner::PerformAStar(TArray<const URpGOAPAction*>& ActionPlan)
 	}
 }
 
-TArray<URpGOAPAction*> URpGOAPPlanner::GetAvailableActionsFor(URpGOAPState* CurrentState)
+void URpGOAPPlanner::GetAvailableActionsFor
+(
+	URpGOAPState* CurrentState, 
+	TArray<URpGOAPAction*>& AvailableActions, 
+	TArray<URpGOAPAction*>& UnavailableActions
+)
 {
-	TArray<URpGOAPAction*> AvailableActions;
 	for (const auto& Action : Actions)
 	{
-		if (CurrentState->DoesSatisfyRequirements(Action->GetRequirements()))
+		if (CurrentState->DoesSatisfyRequirements(Action->GetRequirements()) && 
+			CurrentState->WillHaveEffects(Action->GetEffects()))
 		{
 			AvailableActions.Push(Action);
 		}
+		else
+		{
+			UnavailableActions.Push(Action);
+		}
 	}
-	
-	return AvailableActions;
 }
 
 URpGOAPState* URpGOAPPlanner::Simulate(const URpGOAPState* Input, const URpGOAPAction* Action)

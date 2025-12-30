@@ -36,19 +36,18 @@ public:
 	void SetStartingState(URpGOAPState* StartingState);
 	
 	UFUNCTION(BlueprintCallable)
-	const URpGOAPGoal* PickGoal();
+	URpGOAPGoal* PickGoal();
 	
 	UFUNCTION(BlueprintCallable)
-	void CreatePlan(const URpGOAPGoal* ChosenGoal);
+	void CreatePlan(URpGOAPGoal* ChosenGoal);
 
 	UFUNCTION(BlueprintCallable)
 	URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
 	
 protected:
-	
-	TArray<URpGOAPAction*> GetAvailableActionsFor(URpGOAPState* CurrentState);
-	int PerformDFS(const URpGOAPState* Current, TArray<const URpGOAPAction*>& ActionPlan);
-	void PerformAStar(TArray<const URpGOAPAction*>& ActionPlan);
+
+	void GetAvailableActionsFor(URpGOAPState* CurrentState, TArray<URpGOAPAction*>& AvailableActions, TArray<URpGOAPAction*>& UnavailableActions);
+	void PerformAStar(URpGOAPGoal* CurrentGoal, TArray<const URpGOAPAction*>& ActionPlan);
 
 private:
 	
@@ -62,7 +61,7 @@ private:
 	URpGOAPState* StartingState;
 	
 	UPROPERTY()
-	const URpGOAPGoal* Goal;
+	URpGOAPGoal* PrimaryGoal;
 	
 private:
 	

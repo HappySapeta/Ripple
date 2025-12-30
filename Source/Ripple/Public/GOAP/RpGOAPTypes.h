@@ -20,6 +20,11 @@ struct FRpVariantBase
 	virtual bool operator==(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator==, return false; );
 	virtual bool operator<(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator<, return false; );
 	virtual bool operator>(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator>, return false; );
+	
+	bool operator!=(const FRpVariantBase* Other) const
+	{
+		return !(operator==(Other));
+	}
 };
 
 USTRUCT(BlueprintType, DisplayName = "Floating Point")

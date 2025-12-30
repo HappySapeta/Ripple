@@ -26,7 +26,12 @@ public:
 	{
 		return Priority;
 	}
-	
+
+	void SetRequirements(const TMap<FGameplayTag, FRpRequirementDescriptor>& NewRequirements)
+	{
+		Requirements = NewRequirements;
+	}
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

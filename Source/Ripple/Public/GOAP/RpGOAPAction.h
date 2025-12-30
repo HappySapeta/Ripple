@@ -20,7 +20,7 @@ class RIPPLE_API URpGOAPAction : public UObject
 	
 public:
 	
-	virtual void Perform(const URpGOAPState* TestState);
+	virtual void Perform(URpGOAPState* State);
 	
 	float GetCost() const
 	{
@@ -46,6 +46,9 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPerformAction")
 	void BP_OnPerformAction();
+	
+	UFUNCTION(BlueprintCallable)
+	void OnActionComplete();
 
 protected:
 	
@@ -57,4 +60,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<FGameplayTag, FRpStateDescriptor> Effects;
+	
+	UPROPERTY(BlueprintReadOnly)
+	URpGOAPState* TargetState;
 };

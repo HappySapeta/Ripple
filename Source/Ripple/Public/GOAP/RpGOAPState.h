@@ -83,6 +83,7 @@ public:
 	bool SetFact(const FGameplayTag& FactName, const FRpStateDescriptor& Value);
 	
 	bool DoesSatisfyRequirements(const TMap<FGameplayTag, FRpRequirementDescriptor>& Requirements) const;
+	bool WillHaveEffects(const TMap<FGameplayTag, FRpStateDescriptor>& Effects);
 	int CalcDistanceFromState(const URpGOAPState* State);
 	int CalcDistanceFromGoal(const URpGOAPGoal* Goal);
 	
