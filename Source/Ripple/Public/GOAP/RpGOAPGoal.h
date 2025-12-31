@@ -31,6 +31,29 @@ public:
 	{
 		Requirements = NewRequirements;
 	}
+	
+	UFUNCTION(BlueprintCallable)
+	const UScriptStruct* GetScriptStruct(const FGameplayTag& FactName) const
+	{
+		if (Requirements.Contains(FactName))
+		{
+			return Requirements[FactName].Fact.GetScriptStruct();
+		}
+	
+		return nullptr;
+	}
+	
+	UFUNCTION(BlueprintCallable)
+	void SetRequirement(const FGameplayTag& FactName, const FRpRequirementDescriptor& Value)
+	{
+		if (Requirements.Contains(FactName))
+		{
+			if (ensureAlwaysMsgf(GetScriptStruct(FactName) == Value.Fact.GetScriptStruct(),TEXT("ScriptStructs do not match")))
+			{
+				Requirements[FactName] = Value;
+			}
+		}
+	}
 
 protected:
 	

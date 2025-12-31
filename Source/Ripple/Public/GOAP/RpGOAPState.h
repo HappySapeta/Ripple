@@ -77,10 +77,14 @@ public:
 	{
 		AStarNode.Reset();
 	}
-	
+
+	UFUNCTION(BlueprintCallable)
 	const UScriptStruct* GetScriptStruct(const FGameplayTag& FactName) const;
-	const FRpVariantBase* GetFact(const FGameplayTag& FactName) const;
+	
+	UFUNCTION(BlueprintCallable)
 	bool SetFact(const FGameplayTag& FactName, const FRpStateDescriptor& Value);
+	
+	const FRpVariantBase* GetFact(const FGameplayTag& FactName) const;
 	
 	bool DoesSatisfyRequirements(const TMap<FGameplayTag, FRpRequirementDescriptor>& Requirements) const;
 	bool WillHaveEffects(const TMap<FGameplayTag, FRpStateDescriptor>& Effects);
@@ -94,9 +98,9 @@ public:
 	
 	bool operator==(const URpGOAPState& Other) const;
 
-private:
+protected:
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FGameplayTag, FRpStateDescriptor> Facts;
 
 private:

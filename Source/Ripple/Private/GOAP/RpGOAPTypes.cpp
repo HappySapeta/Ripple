@@ -84,3 +84,30 @@ void FRpVariantBool::Set(const FRpVariantBase* Other)
 {
 	Value = static_cast<const FRpVariantBool*>(Other)->Value;
 }
+
+int FRpVariantVector3::GetAbsDifference(const FRpVariantBase* Other) const
+{
+	const FRpVariantVector3* OtherVector = static_cast<const FRpVariantVector3*>(Other);
+	return FVector3f::Distance(Value, OtherVector->Value);
+}
+
+bool FRpVariantVector3::operator==(const FRpVariantBase* Other) const
+{
+	const FRpVariantVector3* OtherVector = static_cast<const FRpVariantVector3*>(Other);
+	return FVector3f::PointsAreNear(Value, OtherVector->Value, 0.1f);
+}
+
+bool FRpVariantVector3::operator<(const FRpVariantBase* RpVariantBase) const
+{
+	return false;
+}
+
+bool FRpVariantVector3::operator>(const FRpVariantBase* RpVariantBase) const
+{
+	return false;
+}
+
+void FRpVariantVector3::Set(const FRpVariantBase* Other)
+{
+	Value = static_cast<const FRpVariantVector3*>(Other)->Value;
+}

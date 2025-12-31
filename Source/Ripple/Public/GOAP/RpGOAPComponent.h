@@ -29,8 +29,16 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void CreatePlan();
+	
+protected:
+	
+	UPROPERTY(BlueprintReadOnly)
+	URpGOAPPlanner* Planner;
 
 private:
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
+	TSubclassOf<URpGOAPPlanner> PlannerClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
 	TSubclassOf<URpGOAPState> StartingStateClass;
@@ -41,8 +49,4 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
 	TArray<TSubclassOf<URpGOAPAction>> ActionClasses;
 	
-private:
-	
-	UPROPERTY()
-	URpGOAPPlanner* Planner;
 };

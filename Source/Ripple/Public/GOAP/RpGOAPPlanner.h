@@ -35,6 +35,9 @@ public:
 	void AddAction(URpGOAPAction* NewAction);
 	void SetStartingState(URpGOAPState* StartingState);
 	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	URpGOAPGoal* GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass);
+	
 	UFUNCTION(BlueprintCallable)
 	URpGOAPGoal* PickGoal();
 	
@@ -49,18 +52,18 @@ protected:
 	void GetAvailableActionsFor(URpGOAPState* CurrentState, TArray<URpGOAPAction*>& AvailableActions, TArray<URpGOAPAction*>& UnavailableActions);
 	void PerformAStar(URpGOAPGoal* CurrentGoal, TArray<const URpGOAPAction*>& ActionPlan);
 
-private:
+protected:
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<URpGOAPGoal*> Goals;
 	
-	UPROPERTY()
-	TArray<URpGOAPAction*> Actions; 
+	UPROPERTY(BlueprintReadOnly)
+	TArray<URpGOAPAction*> Actions;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	URpGOAPState* StartingState;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	URpGOAPGoal* PrimaryGoal;
 	
 private:

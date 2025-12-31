@@ -20,6 +20,18 @@ void URpGOAPPlanner::SetStartingState(URpGOAPState* State)
 	StartingState = State;
 }
 
+URpGOAPGoal* URpGOAPPlanner::GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass)
+{
+	for (URpGOAPGoal* Goal : Goals)
+	{
+		if (Goal->IsA(GoalSubClass))
+		{
+			return Goal;
+		}
+	}
+	return nullptr;
+}
+
 // O(n) : n = number of goals.
 URpGOAPGoal* URpGOAPPlanner::PickGoal()
 {

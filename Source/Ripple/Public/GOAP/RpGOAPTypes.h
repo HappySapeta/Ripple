@@ -27,7 +27,7 @@ struct FRpVariantBase
 	}
 };
 
-USTRUCT(BlueprintType, DisplayName = "Floating Point")
+USTRUCT(BlueprintType, DisplayName = "RpFloatVariant")
 struct FRpVariantFloat : public FRpVariantBase
 {
 	GENERATED_BODY()
@@ -40,11 +40,11 @@ struct FRpVariantFloat : public FRpVariantBase
 	virtual bool operator>(const FRpVariantBase* Other) const override;
 	virtual void Set(const FRpVariantBase*) override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Value = 0.0f;
 };
 
-USTRUCT(BlueprintType, DisplayName = "Integer")
+USTRUCT(BlueprintType, DisplayName = "RpIntegerVariant")
 struct FRpVariantInteger : public FRpVariantBase
 {
 	GENERATED_BODY()
@@ -57,11 +57,11 @@ struct FRpVariantInteger : public FRpVariantBase
 	virtual bool operator>(const FRpVariantBase*) const override;
 	virtual void Set(const FRpVariantBase*) override;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Value = 0;
 };
 
-USTRUCT(BlueprintType, DisplayName = "Boolean")
+USTRUCT(BlueprintType, DisplayName = "RpBooleanVariant")
 struct FRpVariantBool : public FRpVariantBase
 {
 	GENERATED_BODY()
@@ -74,8 +74,25 @@ struct FRpVariantBool : public FRpVariantBase
 	virtual bool operator>(const FRpVariantBase*) const override;
 	virtual void Set(const FRpVariantBase*) override;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool Value = false;
+};
+
+USTRUCT(BlueprintType, DisplayName = "RpVector3Variant")
+struct FRpVariantVector3 : public FRpVariantBase
+{
+	GENERATED_BODY()
+	
+	virtual ~FRpVariantVector3() = default;
+	
+	virtual int GetAbsDifference(const FRpVariantBase*) const override;
+	virtual bool operator==(const FRpVariantBase*) const override;
+	virtual bool operator<(const FRpVariantBase*) const override;
+	virtual bool operator>(const FRpVariantBase*) const override;
+	virtual void Set(const FRpVariantBase*) override;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector3f Value = {0, 0, 0};
 };
 
 UENUM()
@@ -96,7 +113,7 @@ struct FRpStateDescriptor
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
 	FInstancedStruct Fact;
 };
 
@@ -105,10 +122,10 @@ struct FRpRequirementDescriptor
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
 	FInstancedStruct Fact;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TEnumAsByte<ERpCondition> Condition = ERpCondition::EQUAL;
 };
  

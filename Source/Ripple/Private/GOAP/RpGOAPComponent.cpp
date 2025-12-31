@@ -18,7 +18,7 @@ URpGOAPPlanner* URpGOAPComponent::GetPlanner()
 
 void URpGOAPComponent::InitializePlanner()
 {
-	Planner = NewObject<URpGOAPPlanner>();
+	Planner = NewObject<URpGOAPPlanner>(GetTransientPackage(), PlannerClass);
 	for (const auto& GoalClass : GoalClasses)
 	{
 		Planner->AddGoal(NewObject<URpGOAPGoal>(GetTransientPackage(), GoalClass));
