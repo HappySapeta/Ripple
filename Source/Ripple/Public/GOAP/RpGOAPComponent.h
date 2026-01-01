@@ -15,6 +15,8 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RIPPLE_API URpGOAPComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGoalReachedDelegate, URpGOAPGoal*, Goal);
 
 public:
 
@@ -41,13 +43,15 @@ public:
 
 	virtual void BeginPlay() override;
 	
-	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnGoalReached")
-	void BP_OnGoalReached();
-	
 private:
 	
 	UFUNCTION()
 	void OnActionComplete(URpGOAPState* State);
+	
+public:
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnGoalReachedDelegate OnGoalReached;
 
 protected:
 	

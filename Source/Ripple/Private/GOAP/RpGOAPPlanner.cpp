@@ -5,11 +5,6 @@
 #include "GOAP/RpGOAPAction.h"
 #include "GOAP/RpGOAPGoal.h"
 
-void URpGOAPPlanner::AddGoal(URpGOAPGoal* NewGoal)
-{
-	Goals.Push(NewGoal);
-}
-
 void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
 {
 	Actions.Push(NewAction);
@@ -35,35 +30,8 @@ URpGOAPGoal* URpGOAPPlanner::GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass
 // O(n) : n = number of goals.
 URpGOAPGoal* URpGOAPPlanner::PickGoal()
 {
-	URpGOAPGoal* ChosenGoal = nullptr;
-	for (URpGOAPGoal* PotentialGoal : Goals)
-	{
-		if (!IsValid(ChosenGoal))
-		{
-			ChosenGoal = PotentialGoal;
-			continue;
-		}
-		
-		// Ignore goal if it has currently been achieved.
-		if (StartingState->DoesSatisfyRequirements(PotentialGoal->GetRequirements()))
-		{
-			continue;
-		}
-		
-		if (ChosenGoal->GetPriority() < PotentialGoal->GetPriority())
-		{
-			ChosenGoal = PotentialGoal;			
-		}
-		else if (ChosenGoal->GetPriority() == PotentialGoal->GetPriority())
-		{
-			if (ChosenGoal->GetRequirements().Num() < PotentialGoal->GetRequirements().Num())
-			{
-				ChosenGoal = PotentialGoal;
-			}
-		}
-	}
-	
-	return ChosenGoal;	
+	URpGOAPGoal* ChosenGoal = Goals.Top();
+	return ChosenGoal;
 }
 
 void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan)
@@ -171,6 +139,36 @@ void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction
 			Current = Current->GetAStarNode().GetParent();
 		}
 		Algo::Reverse(ActionPlan);
+	}
+}
+
+URpGOAPGoal* URpGOAPPlanner::AddGoal(TSubclassOf<URpGOAPGoal> GoalSubClass)
+{
+	if (URpGOAPGoal** FoundGoal = Goals.FindByPredicate([GoalSubClass](const URpGOAPGoal* TargetGoal)
+	{
+		return TargetGoal->IsA(GoalSubClass);
+	}))
+	{
+		if (FoundGoal)
+		{
+			return *FoundGoal;
+		}
+	}
+	
+	URpGOAPGoal* NewGoal = NewObject<URpGOAPGoal>(GetTransientPackage(), GoalSubClass);
+	Goals.HeapPush(NewGoal, FMostImportantGoal());
+	return NewGoal;
+}
+
+void URpGOAPPlanner::RemoveGoal(TSubclassOf<URpGOAPGoal> GoalSubClass)
+{
+	for (URpGOAPGoal* Goal : Goals)
+	{
+		if (Goal->IsA(GoalSubClass))
+		{
+			Goals.HeapPop(Goal, FMostImportantGoal());
+			break;
+		}
 	}
 }
 

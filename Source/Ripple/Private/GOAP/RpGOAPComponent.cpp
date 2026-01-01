@@ -18,7 +18,7 @@ void URpGOAPComponent::BeginPlay()
 	Planner = NewObject<URpGOAPPlanner>(GetTransientPackage(), PlannerClass);
 	for (const auto& GoalClass : GoalClasses)
 	{
-		Planner->AddGoal(NewObject<URpGOAPGoal>(GetTransientPackage(), GoalClass));
+		Planner->AddGoal(GoalClass);
 	}
 	for (const auto& ActionClass : ActionClasses)
 	{
@@ -39,7 +39,7 @@ void URpGOAPComponent::OnActionComplete(URpGOAPState* State)
 	{
 		if (State->DoesSatisfyRequirements(CurrentGoal->GetRequirements()))
 		{
-			BP_OnGoalReached();
+			OnGoalReached.Broadcast(CurrentGoal);
 		}
 	}
 }
@@ -47,8 +47,12 @@ void URpGOAPComponent::OnActionComplete(URpGOAPState* State)
 void URpGOAPComponent::CreatePlan()
 {
 	URpGOAPGoal* ChosenGoal = Planner->PickGoal();
-	Planner->CreatePlan(ChosenGoal, ActionPlan);
+	if (!ChosenGoal)
+	{
+		return;
+	}
 	
+	Planner->CreatePlan(ChosenGoal, ActionPlan);
 	for (URpGOAPAction* Action : ActionPlan)
 	{
 		Action->OnActionCompleteEvent.AddUniqueDynamic(this, &URpGOAPComponent::OnActionComplete);

@@ -3,12 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
-#include "GOAP/RpGOAPState.h"
+#include "RpGOAPGoal.h"
+#include "RpGOAPState.h"
 #include "RpGOAPPlanner.generated.h"
 
 class URpGOAPGoal;
 class URpGOAPAction;
+
+struct FMostImportantGoal
+{
+	bool operator()(URpGOAPGoal& A, URpGOAPGoal& B) const
+	{
+		return A.GetPriority() > B.GetPriority();
+	}
+};
 
 struct FMostOptimalState
 {
@@ -31,10 +39,15 @@ class RIPPLE_API URpGOAPPlanner : public UObject
 	
 public:
 	
-	void AddGoal(URpGOAPGoal* NewGoal);
 	void AddAction(URpGOAPAction* NewAction);
 	void SetStartingState(URpGOAPState* StartingState);
 	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	URpGOAPGoal* AddGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
+	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	void RemoveGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
+
 	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
 	URpGOAPGoal* GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass);
 	
@@ -48,10 +61,7 @@ public:
 	URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
 	
 	UFUNCTION(BlueprintCallable)
-	URpGOAPGoal* GetCurrentGoal()
-	{
-		return PrimaryGoal;
-	}
+	URpGOAPGoal* GetCurrentGoal(){ return PrimaryGoal; }
 
 protected:
 
