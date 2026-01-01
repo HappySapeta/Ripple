@@ -66,10 +66,9 @@ URpGOAPGoal* URpGOAPPlanner::PickGoal()
 	return ChosenGoal;	
 }
 
-void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal)
+void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan)
 {
 	PrimaryGoal = ChosenGoal;
-	TArray<const URpGOAPAction*> PrimaryActionPlan;
 	PerformAStar(PrimaryGoal, PrimaryActionPlan);
 	
 	int Index = 0;
@@ -79,7 +78,7 @@ void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal)
 	}
 }
 
-void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<const URpGOAPAction*>& ActionPlan)
+void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction*>& ActionPlan)
 {
 	URpGOAPState* GoalState = nullptr;
 	if(!StartingState || !PrimaryGoal)
@@ -119,7 +118,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<const URpGOAP
 					URpGOAPGoal* IntermediateGoal = NewObject<URpGOAPGoal>(GetTransientPackage());
 					IntermediateGoal->SetRequirements(Action->GetRequirements());
 				
-					TArray<const URpGOAPAction*> IntermediateActions;
+					TArray<URpGOAPAction*> IntermediateActions;
 					PerformAStar(IntermediateGoal, IntermediateActions);
 				
 					if (!IntermediateActions.IsEmpty())
@@ -163,7 +162,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<const URpGOAP
 		URpGOAPState* Current = GoalState;
 		while (Current)
 		{
-			const URpGOAPAction* Action = Current->GetAStarNode().GetLinkingAction();
+			URpGOAPAction* Action = Current->GetAStarNode().GetLinkingAction();
 			if (!Action)
 			{
 				break;

@@ -42,15 +42,21 @@ public:
 	URpGOAPGoal* PickGoal();
 	
 	UFUNCTION(BlueprintCallable)
-	void CreatePlan(URpGOAPGoal* ChosenGoal);
+	void CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan);
 
 	UFUNCTION(BlueprintCallable)
 	URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
 	
+	UFUNCTION(BlueprintCallable)
+	URpGOAPGoal* GetCurrentGoal()
+	{
+		return PrimaryGoal;
+	}
+
 protected:
 
 	void GetAvailableActionsFor(URpGOAPState* CurrentState, TArray<URpGOAPAction*>& AvailableActions, TArray<URpGOAPAction*>& UnavailableActions);
-	void PerformAStar(URpGOAPGoal* CurrentGoal, TArray<const URpGOAPAction*>& ActionPlan);
+	void PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction*>& ActionPlan);
 
 protected:
 	

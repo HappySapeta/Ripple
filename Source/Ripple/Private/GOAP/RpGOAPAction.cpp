@@ -2,10 +2,10 @@
 #include "GOAP/RpGOAPAction.h"
 #include "GOAP/RpGOAPState.h"
 
-void URpGOAPAction::Perform(URpGOAPState* State)
+void URpGOAPAction::Execute(URpGOAPState* State)
 {
-	BP_OnPerformAction();
 	TargetState = State;
+	BP_OnPerformAction();
 }
 
 void URpGOAPAction::OnActionComplete()
@@ -14,4 +14,11 @@ void URpGOAPAction::OnActionComplete()
 	{
 		TargetState->SetFact(FactName, EffectDescriptor);
 	}
+	
+	if (NextActionToRun)
+	{
+		NextActionToRun->Execute(TargetState);
+	}
+	
+	OnActionCompleteEvent.Broadcast(TargetState);	
 }

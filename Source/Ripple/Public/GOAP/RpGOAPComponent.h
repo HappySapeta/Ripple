@@ -22,18 +22,40 @@ public:
 	URpGOAPComponent();
 	
 	UFUNCTION(BlueprintCallable)
-	URpGOAPPlanner* GetPlanner();
-	
-	UFUNCTION(BlueprintCallable)
-	void InitializePlanner();
+	URpGOAPPlanner* GetPlanner()
+	{
+		return Planner;
+	}
 	
 	UFUNCTION(BlueprintCallable)
 	void CreatePlan();
 	
+	UFUNCTION(BlueprintCallable)
+	void ExecutePlan();
+	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
+	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
+	{
+		return StateMachineBlackboard;
+	}
+
+	virtual void BeginPlay() override;
+	
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnGoalReached")
+	void BP_OnGoalReached();
+	
+private:
+	
+	UFUNCTION()
+	void OnActionComplete(URpGOAPState* State);
+
 protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	URpGOAPPlanner* Planner;
+	
+	UPROPERTY(Transient, BlueprintReadOnly)
+	TObjectPtr<URpStateMachineBlackboardBase> StateMachineBlackboard;
 
 private:
 	
@@ -49,4 +71,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
 	TArray<TSubclassOf<URpGOAPAction>> ActionClasses;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
+	TSubclassOf<URpStateMachineBlackboardBase> StatemachineBBClass;
+	
+	UPROPERTY()
+	TArray<URpGOAPAction*> ActionPlan;
+	
+	UPROPERTY()
+	URpGOAPState* StartingState;
 };

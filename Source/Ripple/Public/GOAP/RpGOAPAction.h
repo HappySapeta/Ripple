@@ -18,9 +18,30 @@ class RIPPLE_API URpGOAPAction : public UObject
 {
 	GENERATED_BODY()
 	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionCompleteDelgate, URpGOAPState*, State);
+	
 public:
 	
-	virtual void Perform(URpGOAPState* State);
+	UFUNCTION(BlueprintCallable)
+	void SetContext(URpStateMachineBlackboardBase* NewBlackboard)
+	{
+		Blackboard = NewBlackboard;
+	}
+	
+	// Return State Blackboard as a subtype of IRpStateContext.
+	// For use in blueprints only.
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
+	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass) const
+	{
+		return Blackboard;
+	}
+	
+	void SetNextAction(URpGOAPAction* NextAction = nullptr)
+	{
+		NextActionToRun = NextAction;
+	}
+	
+	virtual void Execute(URpGOAPState* State);
 	
 	float GetCost() const
 	{
@@ -41,6 +62,11 @@ public:
 	{
 		return Effects;
 	}
+	
+public:
+	
+	UPROPERTY(BlueprintReadOnly)
+	FOnActionCompleteDelgate OnActionCompleteEvent;
 	
 protected:
 	
@@ -63,4 +89,13 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	URpGOAPState* TargetState;
+	
+	UPROPERTY()
+	URpGOAPAction* NextActionToRun;
+	
+private:
+	
+	// The Blackboard object of this state that contains all the information that it needs.
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
 };

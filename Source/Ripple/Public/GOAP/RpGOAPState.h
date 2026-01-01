@@ -30,8 +30,8 @@ public:
 	void SetHCost(const int Value){HCost = Value;}
 	float GetHCost() const{return HCost;}
 	
-	void SetLinkingAction(const URpGOAPAction* Action){LinkingAction = Action;}
-	const URpGOAPAction* GetLinkingAction() const{return LinkingAction;}
+	void SetLinkingAction(URpGOAPAction* Action){LinkingAction = Action;}
+	URpGOAPAction* GetLinkingAction() {return LinkingAction;}
 
 	void SetSeen(bool Value)
 	{
@@ -60,7 +60,7 @@ private:
 	bool bSeen = false;
 	
 	UPROPERTY()
-	const URpGOAPAction* LinkingAction = nullptr;
+	URpGOAPAction* LinkingAction = nullptr;
 	
 	UPROPERTY()
 	URpGOAPState* Parent = nullptr;
