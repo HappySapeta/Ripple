@@ -12,15 +12,15 @@ URpGOAPComponent::URpGOAPComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+URpGOAPGoal* URpGOAPComponent::PickGoal()
+{
+	CurrentGoal = Planner->PickGoal();
+	return CurrentGoal;
+}
+
 void URpGOAPComponent::PlanAndExecute()
 {
-	URpGOAPGoal* ChosenGoal = Planner->PickGoal();
-	if (!ChosenGoal)
-	{
-		return;
-	}
-	
-	Planner->CreatePlan(ChosenGoal, ActionPlan);
+	Planner->CreatePlan(CurrentGoal, ActionPlan);
 	for (URpGOAPAction* Action : ActionPlan)
 	{
 		Action->OnActionCompleteEvent.AddUniqueDynamic(this, &URpGOAPComponent::OnActionComplete);
@@ -62,11 +62,8 @@ void URpGOAPComponent::BeginPlay()
 
 void URpGOAPComponent::OnActionComplete(URpGOAPState* State)
 {
-	if (URpGOAPGoal* CurrentGoal = Planner->GetCurrentGoal())
+	if (State->DoesSatisfyRequirements(CurrentGoal->GetRequirements()))
 	{
-		if (State->DoesSatisfyRequirements(CurrentGoal->GetRequirements()))
-		{
-			OnGoalReached.Broadcast(CurrentGoal);
-		}
+		OnGoalReached.Broadcast(CurrentGoal);
 	}
 }

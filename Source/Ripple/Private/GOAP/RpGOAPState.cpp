@@ -113,6 +113,18 @@ bool URpGOAPState::operator==(const URpGOAPState& Other) const
 	return true;
 }
 
+FString URpGOAPState::FactsToString()
+{
+	FString FactsAsString;
+	for (const auto& [FactName, Fact] : Facts)
+	{
+		FactsAsString.Append(Fact.ToString());
+		FactsAsString += "\n";
+	}
+	
+	return FactsAsString;
+}
+
 const UScriptStruct* URpGOAPState::GetScriptStruct(const FGameplayTag& FactName) const
 {
 	if (Facts.Contains(FactName))

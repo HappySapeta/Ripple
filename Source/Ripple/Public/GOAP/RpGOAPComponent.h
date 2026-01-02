@@ -24,6 +24,9 @@ public:
 	URpGOAPComponent();
 	
 	UFUNCTION(BlueprintCallable)
+	URpGOAPGoal* PickGoal();
+
+	UFUNCTION(BlueprintCallable)
 	URpGOAPPlanner* GetPlanner()
 	{
 		return Planner;
@@ -77,4 +80,7 @@ private:
 	
 	UPROPERTY()
 	URpGOAPState* StartingState;
+	
+	UPROPERTY()
+	URpGOAPGoal* CurrentGoal;
 };

@@ -58,14 +58,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan);
-	
-	UFUNCTION(BlueprintCallable)
-	URpGOAPGoal* GetCurrentGoal(){ return PrimaryGoal; }
 
 protected:
 
 	void GetAvailableActionsFor(URpGOAPState* CurrentState, TArray<URpGOAPAction*>& AvailableActions, TArray<URpGOAPAction*>& UnavailableActions);
-	void PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction*>& ActionPlan);
+	void PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& ActionPlan);
 
 public:
 	
@@ -81,13 +78,7 @@ protected:
 	TArray<URpGOAPAction*> Actions;
 	
 	UPROPERTY(BlueprintReadOnly)
-	URpGOAPState* StartingState;
-	
-	UPROPERTY(BlueprintReadOnly)
-	URpGOAPGoal* PrimaryGoal;
-	
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<URpGOAPGoal> InvestigateGoalClass;
+	URpGOAPState* BaseState;
 	
 private:
 	

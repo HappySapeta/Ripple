@@ -12,7 +12,7 @@ void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
 
 void URpGOAPPlanner::SetStartingState(URpGOAPState* State)
 {
-	StartingState = State;
+	BaseState = State;
 }
 
 URpGOAPGoal* URpGOAPPlanner::GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass)
@@ -41,8 +41,9 @@ URpGOAPGoal* URpGOAPPlanner::PickGoal()
 
 void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan)
 {
-	PrimaryGoal = ChosenGoal;
-	PerformAStar(PrimaryGoal, PrimaryActionPlan);
+	UE_LOG(LogTemp, Warning, TEXT("------PERFORMING ASTAR------"));
+	PerformAStar(BaseState, ChosenGoal, PrimaryActionPlan);
+	UE_LOG(LogTemp, Warning, TEXT("------ASTAR COMPLETE--------"));
 	
 	int Index = 0;
 	for (const URpGOAPAction* Action : PrimaryActionPlan)
@@ -51,32 +52,35 @@ void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>&
 	}
 }
 
-void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction*>& ActionPlan)
+void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& ActionPlan)
 {
-	if (CurrentGoal->IsA(InvestigateGoalClass))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Investigation goal encountered."));
-	}
 	URpGOAPState* GoalState = nullptr;
-	if(!StartingState || !PrimaryGoal)
+	if(!StartingState || !Goal)
 	{
 		return;
 	}
 	
 	StartingState->GetAStarNode().SetGCost(0);
-	StartingState->GetAStarNode().SetHCost(StartingState->CalcDistanceFromGoal(PrimaryGoal));
+	StartingState->GetAStarNode().SetHCost(StartingState->CalcDistanceFromGoal(Goal));
 	StartingState->GetAStarNode().SetLinkingAction(nullptr);
 	
 	OpenSet.Push(StartingState);
 	
-	while (OpenSet.Num() > 0)
+	static int COUNT;
+	COUNT = 10;
+	while (OpenSet.Num() > 0 && COUNT-- > 0)
 	{
 		URpGOAPState* Current;
 		OpenSet.HeapPop(Current, FMostOptimalState());
 		Current->GetAStarNode().SetSeen(true);
 		
 		// GOAL HAS BEEN REACHED
-		if (Current->DoesSatisfyRequirements(PrimaryGoal->GetRequirements()))
+		const FString CurrentFactsAsString = *Current->FactsToString();
+		UE_LOG(LogTemp, Log, TEXT("GOAL CHECK : CURRENT FACTS \n %s"), *CurrentFactsAsString);
+		const FString GoalReqsAsString = Goal->RequirementsToString();
+		UE_LOG(LogTemp, Log, TEXT("GOAL CHECK : GOAL FACTS \n %s"), *GoalReqsAsString);
+		
+		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
 		{
 			GoalState = Current;
 			break;
@@ -96,7 +100,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction
 					IntermediateGoal->SetRequirements(Action->GetRequirements());
 				
 					TArray<URpGOAPAction*> IntermediateActions;
-					PerformAStar(IntermediateGoal, IntermediateActions);
+					PerformAStar(Current, IntermediateGoal, IntermediateActions);
 				
 					if (!IntermediateActions.IsEmpty())
 					{
@@ -109,27 +113,30 @@ void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction
 		
 		for (URpGOAPAction* Action : AvailableActions)
 		{
-			URpGOAPState* Neighbor = DuplicateObject(Current, GetOuter());
-			Action->Simulate(Neighbor);
+			URpGOAPState* NewState = DuplicateObject(Current, GetOuter());
+			Action->Simulate(NewState);
 			
-			if (!Neighbor || Neighbor->GetAStarNode().IsSeen())
+			const FString NewStateFacts = NewState->FactsToString();
+			UE_LOG(LogTemp, Log, TEXT("NEWSTATE FACTS \n %s"), *NewStateFacts);
+			
+			if (!NewState || NewState->GetAStarNode().IsSeen())
 			{
 				continue;
 			}
 			
-			const int NewGCost = Current->GetAStarNode().GetGCost() + Current->CalcDistanceFromState(Neighbor) + Action->GetCost();
+			const int NewGCost = Current->GetAStarNode().GetGCost() + Current->CalcDistanceFromState(NewState) + Action->GetCost();
 			
-			const bool bIsInOpen = OpenSet.Contains(Neighbor);
-			if (NewGCost < Neighbor->GetAStarNode().GetGCost() || !bIsInOpen)
+			const bool bIsInOpen = OpenSet.Contains(NewState);
+			if (NewGCost < NewState->GetAStarNode().GetGCost() || !bIsInOpen)
 			{
-				Neighbor->GetAStarNode().SetGCost(NewGCost);
-				Neighbor->GetAStarNode().SetHCost(Neighbor->CalcDistanceFromGoal(PrimaryGoal));
-				Neighbor->GetAStarNode().SetLinkingAction(Action);
-				Neighbor->GetAStarNode().SetParent(Current);
+				NewState->GetAStarNode().SetGCost(NewGCost);
+				NewState->GetAStarNode().SetHCost(NewState->CalcDistanceFromGoal(Goal));
+				NewState->GetAStarNode().SetLinkingAction(Action);
+				NewState->GetAStarNode().SetParent(Current);
 				
 				if (!bIsInOpen)
 				{
-					OpenSet.HeapPush(Neighbor, FMostOptimalState());
+					OpenSet.HeapPush(NewState, FMostOptimalState());
 				}
 			}
 		}

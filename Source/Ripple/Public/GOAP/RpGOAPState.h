@@ -97,6 +97,8 @@ public:
 	}
 	
 	bool operator==(const URpGOAPState& Other) const;
+	
+	FString FactsToString();
 
 protected:
 	
