@@ -30,10 +30,7 @@ public:
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	void CreatePlan();
-	
-	UFUNCTION(BlueprintCallable)
-	void ExecutePlan();
+	void PlanAndExecute();
 	
 	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
 	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
@@ -68,9 +65,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
 	TSubclassOf<URpGOAPState> StartingStateClass;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
-	TArray<TSubclassOf<URpGOAPGoal>> GoalClasses;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
 	TArray<TSubclassOf<URpGOAPAction>> ActionClasses;

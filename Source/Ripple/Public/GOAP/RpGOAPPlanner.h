@@ -14,7 +14,7 @@ struct FMostImportantGoal
 {
 	bool operator()(URpGOAPGoal& A, URpGOAPGoal& B) const
 	{
-		return A.GetPriority() > B.GetPriority();
+		return A.GetPriority() < B.GetPriority();
 	}
 };
 
@@ -37,6 +37,8 @@ class RIPPLE_API URpGOAPPlanner : public UObject
 {
 	GENERATED_BODY()
 	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGoalsUpdatedDelegate);
+	
 public:
 	
 	void AddAction(URpGOAPAction* NewAction);
@@ -56,9 +58,6 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan);
-
-	UFUNCTION(BlueprintCallable)
-	URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
 	
 	UFUNCTION(BlueprintCallable)
 	URpGOAPGoal* GetCurrentGoal(){ return PrimaryGoal; }
@@ -68,6 +67,11 @@ protected:
 	void GetAvailableActionsFor(URpGOAPState* CurrentState, TArray<URpGOAPAction*>& AvailableActions, TArray<URpGOAPAction*>& UnavailableActions);
 	void PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction*>& ActionPlan);
 
+public:
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnGoalsUpdatedDelegate OnGoalsUpdatedEvent;
+	
 protected:
 	
 	UPROPERTY(BlueprintReadOnly)
@@ -81,6 +85,9 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	URpGOAPGoal* PrimaryGoal;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<URpGOAPGoal> InvestigateGoalClass;
 	
 private:
 	

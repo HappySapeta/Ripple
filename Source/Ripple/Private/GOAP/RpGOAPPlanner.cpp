@@ -30,6 +30,11 @@ URpGOAPGoal* URpGOAPPlanner::GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass
 // O(n) : n = number of goals.
 URpGOAPGoal* URpGOAPPlanner::PickGoal()
 {
+	if (Goals.IsEmpty())
+	{
+		return nullptr;
+	}
+	
 	URpGOAPGoal* ChosenGoal = Goals.Top();
 	return ChosenGoal;
 }
@@ -48,6 +53,10 @@ void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>&
 
 void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction*>& ActionPlan)
 {
+	if (CurrentGoal->IsA(InvestigateGoalClass))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Investigation goal encountered."));
+	}
 	URpGOAPState* GoalState = nullptr;
 	if(!StartingState || !PrimaryGoal)
 	{
@@ -83,7 +92,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction
 				// set new goals to fullfill requirements and make actions available.			
 				for (URpGOAPAction* Action : UnavailableActions)
 				{
-					URpGOAPGoal* IntermediateGoal = NewObject<URpGOAPGoal>(GetTransientPackage());
+					URpGOAPGoal* IntermediateGoal = NewObject<URpGOAPGoal>(GetOuter());
 					IntermediateGoal->SetRequirements(Action->GetRequirements());
 				
 					TArray<URpGOAPAction*> IntermediateActions;
@@ -100,7 +109,9 @@ void URpGOAPPlanner::PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction
 		
 		for (URpGOAPAction* Action : AvailableActions)
 		{
-			URpGOAPState* Neighbor = Simulate(Current, Action);
+			URpGOAPState* Neighbor = DuplicateObject(Current, GetOuter());
+			Action->Simulate(Neighbor);
+			
 			if (!Neighbor || Neighbor->GetAStarNode().IsSeen())
 			{
 				continue;
@@ -155,8 +166,10 @@ URpGOAPGoal* URpGOAPPlanner::AddGoal(TSubclassOf<URpGOAPGoal> GoalSubClass)
 		}
 	}
 	
-	URpGOAPGoal* NewGoal = NewObject<URpGOAPGoal>(GetTransientPackage(), GoalSubClass);
+	URpGOAPGoal* NewGoal = NewObject<URpGOAPGoal>(GetOuter(), GoalSubClass);
 	Goals.HeapPush(NewGoal, FMostImportantGoal());
+	
+	OnGoalsUpdatedEvent.Broadcast();
 	return NewGoal;
 }
 
@@ -170,6 +183,8 @@ void URpGOAPPlanner::RemoveGoal(TSubclassOf<URpGOAPGoal> GoalSubClass)
 			break;
 		}
 	}
+	
+	OnGoalsUpdatedEvent.Broadcast();
 }
 
 void URpGOAPPlanner::GetAvailableActionsFor
@@ -191,18 +206,4 @@ void URpGOAPPlanner::GetAvailableActionsFor
 			UnavailableActions.Push(Action);
 		}
 	}
-}
-
-URpGOAPState* URpGOAPPlanner::Simulate(const URpGOAPState* Input, const URpGOAPAction* Action)
-{
-	URpGOAPState* StateCopy = DuplicateObject(Input, GetOuter());
-	for (const auto& [FactName, EffectDescriptor] : Action->GetEffects())
-	{
-		if (!StateCopy->SetFact(FactName, EffectDescriptor))
-		{
-			return nullptr;
-		}
-	}
-	
-	return StateCopy;
 }

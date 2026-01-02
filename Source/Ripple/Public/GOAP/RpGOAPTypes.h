@@ -5,7 +5,6 @@
 #include "StructUtils/InstancedStruct.h"
 #include "RpGOAPTypes.generated.h"
 
-typedef TMap<FGameplayTag, FRpStateDescriptor> FFactsContainer;
 
 USTRUCT(BlueprintType)
 struct FRpVariantBase
@@ -93,6 +92,9 @@ struct FRpVariantVector3 : public FRpVariantBase
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector3f Value = {0, 0, 0};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxComparisonError = 10.0f;
 };
 
 UENUM()

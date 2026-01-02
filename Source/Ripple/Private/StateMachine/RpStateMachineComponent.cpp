@@ -35,11 +35,11 @@ void URpStateMachineComponent::TickComponent(const float DeltaTime, const ELevel
 
 void URpStateMachineComponent::BeginPlay()
 {
-	StateMachineBlackboard = NewObject<URpStateMachineBlackboardBase>(GetTransientPackage(), StatemachineBBClass);
+	StateMachineBlackboard = NewObject<URpStateMachineBlackboardBase>(this, StatemachineBBClass);
 	
 	for (const auto& StateClass : StateClasses)
 	{
-		URpState* NewState = NewObject<URpState>(GetTransientPackage(), StateClass);
+		URpState* NewState = NewObject<URpState>(this, StateClass);
 		StateInstances.Add(NewState);
 		
 		NewState->SetContext(StateMachineBlackboard);
@@ -47,7 +47,7 @@ void URpStateMachineComponent::BeginPlay()
 	
 	for (const auto& RuleClass : TransitionRules)
 	{
-		URpStateTransitionRule* NewRule = NewObject<URpStateTransitionRule>(GetTransientPackage(), RuleClass);
+		URpStateTransitionRule* NewRule = NewObject<URpStateTransitionRule>(this, RuleClass);
 		TransitionRuleInstances.Add(NewRule);
 		
 		NewRule->SetBlackboard(StateMachineBlackboard);

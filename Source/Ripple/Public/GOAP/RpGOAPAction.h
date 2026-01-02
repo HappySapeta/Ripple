@@ -58,11 +58,15 @@ public:
 		return Requirements;
 	}
 	
-	const FFactsContainer& GetEffects() const
+	UFUNCTION(BlueprintCallable)
+	const TMap<FGameplayTag, FRpStateDescriptor>& GetEffects() const
 	{
 		return Effects;
 	}
-	
+
+	UFUNCTION(BlueprintNativeEvent)
+	void Simulate(URpGOAPState* Current);
+
 public:
 	
 	UPROPERTY(BlueprintReadOnly)
@@ -72,6 +76,9 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPerformAction")
 	void BP_OnPerformAction();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void ApplyEffects();
 	
 	UFUNCTION(BlueprintCallable)
 	void OnActionComplete();
@@ -93,9 +100,7 @@ protected:
 	UPROPERTY()
 	URpGOAPAction* NextActionToRun;
 	
-private:
+	UPROPERTY()
+	URpStateMachineBlackboardBase* Blackboard;
 	
-	// The Blackboard object of this state that contains all the information that it needs.
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
 };
