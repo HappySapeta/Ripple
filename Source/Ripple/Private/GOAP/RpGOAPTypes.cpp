@@ -94,7 +94,7 @@ int FRpVariantVector3::GetAbsDifference(const FRpVariantBase* Other) const
 bool FRpVariantVector3::operator==(const FRpVariantBase* Other) const
 {
 	const FRpVariantVector3* OtherVector = static_cast<const FRpVariantVector3*>(Other);
-	return FVector3f::PointsAreNear(Value, OtherVector->Value, 0.1f);
+	return FVector3f::PointsAreNear(Value, OtherVector->Value, 10.0f);
 }
 
 bool FRpVariantVector3::operator<(const FRpVariantBase* RpVariantBase) const

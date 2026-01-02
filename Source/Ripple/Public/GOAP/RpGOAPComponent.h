@@ -15,6 +15,8 @@ UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class RIPPLE_API URpGOAPComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGoalReachedDelegate, URpGOAPGoal*, Goal);
 
 public:
 
@@ -22,16 +24,16 @@ public:
 	URpGOAPComponent();
 	
 	UFUNCTION(BlueprintCallable)
+	URpGOAPGoal* PickGoal();
+
+	UFUNCTION(BlueprintCallable)
 	URpGOAPPlanner* GetPlanner()
 	{
 		return Planner;
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	void CreatePlan();
-	
-	UFUNCTION(BlueprintCallable)
-	void ExecutePlan();
+	void PlanAndExecute();
 	
 	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
 	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
@@ -41,13 +43,15 @@ public:
 
 	virtual void BeginPlay() override;
 	
-	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnGoalReached")
-	void BP_OnGoalReached();
-	
 private:
 	
 	UFUNCTION()
 	void OnActionComplete(URpGOAPState* State);
+	
+public:
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnGoalReachedDelegate OnGoalReached;
 
 protected:
 	
@@ -66,9 +70,6 @@ private:
 	TSubclassOf<URpGOAPState> StartingStateClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
-	TArray<TSubclassOf<URpGOAPGoal>> GoalClasses;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
 	TArray<TSubclassOf<URpGOAPAction>> ActionClasses;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
@@ -79,4 +80,7 @@ private:
 	
 	UPROPERTY()
 	URpGOAPState* StartingState;
+	
+	UPROPERTY()
+	URpGOAPGoal* CurrentGoal;
 };

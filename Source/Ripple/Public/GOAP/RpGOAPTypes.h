@@ -5,7 +5,6 @@
 #include "StructUtils/InstancedStruct.h"
 #include "RpGOAPTypes.generated.h"
 
-typedef TMap<FGameplayTag, FRpStateDescriptor> FFactsContainer;
 
 USTRUCT(BlueprintType)
 struct FRpVariantBase
@@ -14,7 +13,8 @@ struct FRpVariantBase
 	
 	virtual ~FRpVariantBase() = default;
 	
-	virtual void Set(const FRpVariantBase*) PURE_VIRTUAL (FRpVariantBase::Set, );
+	virtual void Set(const FRpVariantBase*) PURE_VIRTUAL (FRpVariantBase::Set, )
+	virtual FString ToString() const { return ""; }
 	
 	virtual int GetAbsDifference(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::GetAbsDifference, return 0; );
 	virtual bool operator==(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator==, return false; );
@@ -91,8 +91,16 @@ struct FRpVariantVector3 : public FRpVariantBase
 	virtual bool operator>(const FRpVariantBase*) const override;
 	virtual void Set(const FRpVariantBase*) override;
 	
+	virtual FString ToString() const override
+	{
+		return FString::Printf(TEXT("Vector3[%s]"), *Value.ToString());
+	}
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector3f Value = {0, 0, 0};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxComparisonError = 10.0f;
 };
 
 UENUM()
@@ -112,7 +120,12 @@ USTRUCT(BlueprintType)
 struct FRpStateDescriptor 
 {
 	GENERATED_BODY()
-	
+
+	FString ToString() const
+	{
+		return Fact.GetPtr<FRpVariantBase>()->ToString();
+	}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
 	FInstancedStruct Fact;
 };
@@ -121,6 +134,11 @@ USTRUCT(BlueprintType)
 struct FRpRequirementDescriptor
 {
 	GENERATED_BODY()
+	
+	FString ToString() const
+	{
+		return Fact.GetPtr<FRpVariantBase>()->ToString();
+	}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
 	FInstancedStruct Fact;

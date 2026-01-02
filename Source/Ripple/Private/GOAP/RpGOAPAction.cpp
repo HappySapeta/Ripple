@@ -8,12 +8,25 @@ void URpGOAPAction::Execute(URpGOAPState* State)
 	BP_OnPerformAction();
 }
 
-void URpGOAPAction::OnActionComplete()
+void URpGOAPAction::Simulate_Implementation(URpGOAPState* StateCopy)
+{
+	for (const auto& [FactName, EffectDescriptor] : GetEffects())
+	{
+		StateCopy->SetFact(FactName, EffectDescriptor);
+	}
+}
+
+void URpGOAPAction::ApplyEffects_Implementation()
 {
 	for (const auto& [FactName, EffectDescriptor] : GetEffects())
 	{
 		TargetState->SetFact(FactName, EffectDescriptor);
 	}
+}
+
+void URpGOAPAction::OnActionComplete()
+{
+	ApplyEffects();
 	
 	if (NextActionToRun)
 	{

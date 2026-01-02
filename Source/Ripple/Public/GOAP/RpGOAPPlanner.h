@@ -3,12 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
-#include "GOAP/RpGOAPState.h"
+#include "RpGOAPGoal.h"
+#include "RpGOAPState.h"
 #include "RpGOAPPlanner.generated.h"
 
 class URpGOAPGoal;
 class URpGOAPAction;
+
+struct FMostImportantGoal
+{
+	bool operator()(URpGOAPGoal& A, URpGOAPGoal& B) const
+	{
+		return A.GetPriority() < B.GetPriority();
+	}
+};
 
 struct FMostOptimalState
 {
@@ -29,12 +37,19 @@ class RIPPLE_API URpGOAPPlanner : public UObject
 {
 	GENERATED_BODY()
 	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGoalsUpdatedDelegate);
+	
 public:
 	
-	void AddGoal(URpGOAPGoal* NewGoal);
 	void AddAction(URpGOAPAction* NewAction);
 	void SetStartingState(URpGOAPState* StartingState);
 	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	URpGOAPGoal* AddGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
+	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	void RemoveGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
+
 	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
 	URpGOAPGoal* GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass);
 	
@@ -44,20 +59,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan);
 
-	UFUNCTION(BlueprintCallable)
-	URpGOAPState* Simulate(const URpGOAPState* Input, const URpGOAPAction* Action);
-	
-	UFUNCTION(BlueprintCallable)
-	URpGOAPGoal* GetCurrentGoal()
-	{
-		return PrimaryGoal;
-	}
-
 protected:
 
 	void GetAvailableActionsFor(URpGOAPState* CurrentState, TArray<URpGOAPAction*>& AvailableActions, TArray<URpGOAPAction*>& UnavailableActions);
-	void PerformAStar(URpGOAPGoal* CurrentGoal, TArray<URpGOAPAction*>& ActionPlan);
+	void PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& ActionPlan);
 
+public:
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnGoalsUpdatedDelegate OnGoalsUpdatedEvent;
+	
 protected:
 	
 	UPROPERTY(BlueprintReadOnly)
@@ -67,10 +78,7 @@ protected:
 	TArray<URpGOAPAction*> Actions;
 	
 	UPROPERTY(BlueprintReadOnly)
-	URpGOAPState* StartingState;
-	
-	UPROPERTY(BlueprintReadOnly)
-	URpGOAPGoal* PrimaryGoal;
+	URpGOAPState* BaseState;
 	
 private:
 	

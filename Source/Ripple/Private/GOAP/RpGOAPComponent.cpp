@@ -12,51 +12,20 @@ URpGOAPComponent::URpGOAPComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void URpGOAPComponent::BeginPlay()
+URpGOAPGoal* URpGOAPComponent::PickGoal()
 {
-	StateMachineBlackboard = NewObject<URpStateMachineBlackboardBase>(GetTransientPackage(), StatemachineBBClass);
-	Planner = NewObject<URpGOAPPlanner>(GetTransientPackage(), PlannerClass);
-	for (const auto& GoalClass : GoalClasses)
-	{
-		Planner->AddGoal(NewObject<URpGOAPGoal>(GetTransientPackage(), GoalClass));
-	}
-	for (const auto& ActionClass : ActionClasses)
-	{
-		URpGOAPAction* NewAction = NewObject<URpGOAPAction>(GetTransientPackage(), ActionClass);
-		NewAction->SetContext(StateMachineBlackboard);
-		Planner->AddAction(NewAction);
-	}
-	
-	StartingState = NewObject<URpGOAPState>(GetTransientPackage(), StartingStateClass);
-	Planner->SetStartingState(StartingState);
-	
-	Super::BeginPlay();
+	CurrentGoal = Planner->PickGoal();
+	return CurrentGoal;
 }
 
-void URpGOAPComponent::OnActionComplete(URpGOAPState* State)
+void URpGOAPComponent::PlanAndExecute()
 {
-	if (URpGOAPGoal* CurrentGoal = Planner->GetCurrentGoal())
-	{
-		if (State->DoesSatisfyRequirements(CurrentGoal->GetRequirements()))
-		{
-			BP_OnGoalReached();
-		}
-	}
-}
-
-void URpGOAPComponent::CreatePlan()
-{
-	URpGOAPGoal* ChosenGoal = Planner->PickGoal();
-	Planner->CreatePlan(ChosenGoal, ActionPlan);
-	
+	Planner->CreatePlan(CurrentGoal, ActionPlan);
 	for (URpGOAPAction* Action : ActionPlan)
 	{
 		Action->OnActionCompleteEvent.AddUniqueDynamic(this, &URpGOAPComponent::OnActionComplete);
 	}
-}
-
-void URpGOAPComponent::ExecutePlan()
-{
+	
 	for (int Index = 0; Index < ActionPlan.Num() - 1; ++Index)
 	{
 		URpGOAPAction* Action = ActionPlan[Index];
@@ -70,5 +39,31 @@ void URpGOAPComponent::ExecutePlan()
 	if (!ActionPlan.IsEmpty())
 	{
 		ActionPlan[0]->Execute(StartingState);
+	}
+}
+
+void URpGOAPComponent::BeginPlay()
+{
+	StateMachineBlackboard = NewObject<URpStateMachineBlackboardBase>(GetOuter(), StatemachineBBClass);
+	Planner = NewObject<URpGOAPPlanner>(this, PlannerClass);
+
+	for (const auto& ActionClass : ActionClasses)
+	{
+		URpGOAPAction* NewAction = NewObject<URpGOAPAction>(this, ActionClass);
+		NewAction->SetContext(StateMachineBlackboard);
+		Planner->AddAction(NewAction);
+	}
+	
+	StartingState = NewObject<URpGOAPState>(this, StartingStateClass);
+	Planner->SetStartingState(StartingState);
+	
+	Super::BeginPlay();
+}
+
+void URpGOAPComponent::OnActionComplete(URpGOAPState* State)
+{
+	if (State->DoesSatisfyRequirements(CurrentGoal->GetRequirements()))
+	{
+		OnGoalReached.Broadcast(CurrentGoal);
 	}
 }
