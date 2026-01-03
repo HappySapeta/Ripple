@@ -55,6 +55,15 @@ public:
 		}
 	}
 
+	void PrintRequirements(const FString& Label)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Label);
+		for (const auto& [FactName, Descriptor] : Requirements)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Rqmt %s : %s"), *FactName.ToString() , *Descriptor.ToString());
+		}
+	}
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

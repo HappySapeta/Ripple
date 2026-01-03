@@ -5,6 +5,8 @@
 #include "GOAP/RpGOAPAction.h"
 #include "GOAP/RpGOAPGoal.h"
 
+constexpr int MAX_ASTAR_TRIALS = 10;
+
 void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
 {
 	Actions.Push(NewAction);
@@ -37,15 +39,23 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 	
 	OpenSet.Push(StartingState);
 	
-	static int COUNT;
-	COUNT = 10;
-	while (OpenSet.Num() > 0 && COUNT-- > 0)
+	int Trials = 0;
+	while (OpenSet.Num() > 0)
 	{
+		if (++Trials > MAX_ASTAR_TRIALS)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to find path to goal."));
+			break;
+		}
+		
 		URpGOAPState* Current;
 		OpenSet.HeapPop(Current, FMostOptimalState());
 		Current->GetAStarNode().SetSeen(true);
 		
 		// Check if goal has been reached.
+		UE_LOG(LogTemp, Warning, TEXT("CHECKING IF GOAL HAS BEEN REACHED"));
+		Current->PrintFacts("Current");
+		Goal->PrintRequirements("Goal");
 		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
 		{
 			GoalState = Current;
@@ -81,6 +91,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 		{
 			URpGOAPState* NewState = DuplicateObject(Current, GetOuter());
 			Action->Simulate(NewState);
+			NewState->PrintFacts("NewState");
 			
 			if (!NewState || NewState->GetAStarNode().IsSeen())
 			{
