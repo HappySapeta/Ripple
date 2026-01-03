@@ -14,14 +14,17 @@ void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
 
 void URpGOAPPlanner::CreatePlan(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& Out_ActionPlan)
 {
-	UE_LOG(LogTemp, Warning, TEXT("------ PERFORMING ASTAR ------"));
 	PerformAStar(StartingState, Goal, Out_ActionPlan);
-	UE_LOG(LogTemp, Warning, TEXT("------ ASTAR COMPLETE --------"));
 	
 	int Index = 0;
 	for (const URpGOAPAction* Action : Out_ActionPlan)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Action %d : %s"), ++Index, *Action->GetName());
+	}
+	
+	if (Out_ActionPlan.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Goal cannot be reached."));
 	}
 }
 
@@ -39,23 +42,13 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 	
 	OpenSet.Push(StartingState);
 	
-	int Trials = 0;
 	while (OpenSet.Num() > 0)
 	{
-		if (++Trials > MAX_ASTAR_TRIALS)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to find path to goal."));
-			break;
-		}
-		
 		URpGOAPState* Current;
 		OpenSet.HeapPop(Current, FMostOptimalState());
 		Current->GetAStarNode().SetSeen(true);
 		
 		// Check if goal has been reached.
-		UE_LOG(LogTemp, Warning, TEXT("CHECKING IF GOAL HAS BEEN REACHED"));
-		Current->PrintFacts("Current");
-		Goal->PrintRequirements("Goal");
 		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
 		{
 			GoalState = Current;
@@ -74,13 +67,17 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 				{
 					URpGOAPGoal* IntermediateGoal = NewObject<URpGOAPGoal>(GetOuter());
 					IntermediateGoal->SetRequirements(Action->GetRequirements());
+					
+					if (*IntermediateGoal == *Goal)
+					{
+						continue;
+					}
 				
 					TArray<URpGOAPAction*> IntermediateActions;
 					PerformAStar(Current, IntermediateGoal, IntermediateActions);
 				
 					if (!IntermediateActions.IsEmpty())
 					{
-						Out_ActionPlan.Append(IntermediateActions);
 						AvailableActions.Push(Action);
 					}
 				}
@@ -91,7 +88,6 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 		{
 			URpGOAPState* NewState = DuplicateObject(Current, GetOuter());
 			Action->Simulate(NewState);
-			NewState->PrintFacts("NewState");
 			
 			if (!NewState || NewState->GetAStarNode().IsSeen())
 			{

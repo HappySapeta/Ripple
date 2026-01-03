@@ -64,6 +64,30 @@ public:
 		}
 	}
 
+	bool operator==(const URpGOAPGoal& Other) const
+	{
+		if (Requirements.Num() != Other.Requirements.Num())
+		{
+			return false;
+		}
+		
+		for (const auto& [FactName, Descriptor] : Requirements)
+		{
+			if (!Other.Requirements.Contains(FactName))
+			{
+				return false;
+			}
+
+			const FRpRequirementDescriptor& OtherDescriptor = Other.Requirements[FactName];
+			if (Descriptor.ToString() != OtherDescriptor.ToString() || Descriptor.Condition != OtherDescriptor.Condition)
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
