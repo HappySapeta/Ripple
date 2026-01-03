@@ -13,15 +13,16 @@ struct FRpVariantBase
 	
 	virtual void Set(const FRpVariantBase*) PURE_VIRTUAL (FRpVariantBase::Set, )
 	
-	virtual int GetAbsDifference(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::GetAbsDifference, return 0; );
+	virtual int GetAbsDifference(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::GetAbsDifference, return 0; )
 	virtual bool operator==(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator==, return false; );
 	virtual bool operator<(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator<, return false; );
 	virtual bool operator>(const FRpVariantBase*) const PURE_VIRTUAL (FRpVariantBase::operator>, return false; );
-	
 	bool operator!=(const FRpVariantBase* Other) const
 	{
 		return !(operator==(Other));
 	}
+	
+	virtual FString ToString() const PURE_VIRTUAL (FRpVariantBase::ToString, return ""; )
 };
 
 USTRUCT(BlueprintType, DisplayName = "RpFloatVariant")
@@ -36,6 +37,7 @@ struct FRpVariantFloat : public FRpVariantBase
 	virtual bool operator<(const FRpVariantBase* Other) const override;
 	virtual bool operator>(const FRpVariantBase* Other) const override;
 	virtual void Set(const FRpVariantBase*) override;
+	virtual FString ToString() const override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Value = 0.0f;
@@ -53,7 +55,8 @@ struct FRpVariantInteger : public FRpVariantBase
 	virtual bool operator<(const FRpVariantBase*) const override;
 	virtual bool operator>(const FRpVariantBase*) const override;
 	virtual void Set(const FRpVariantBase*) override;
-	
+	virtual FString ToString() const override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Value = 0;
 };
@@ -70,7 +73,8 @@ struct FRpVariantBool : public FRpVariantBase
 	virtual bool operator<(const FRpVariantBase*) const override;
 	virtual bool operator>(const FRpVariantBase*) const override;
 	virtual void Set(const FRpVariantBase*) override;
-	
+	virtual FString ToString() const override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool Value = false;
 };
@@ -87,7 +91,8 @@ struct FRpVariantVector3 : public FRpVariantBase
 	virtual bool operator<(const FRpVariantBase*) const override;
 	virtual bool operator>(const FRpVariantBase*) const override;
 	virtual void Set(const FRpVariantBase*) override;
-	
+	virtual FString ToString() const override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector3f Value = {0, 0, 0};
 	
@@ -112,6 +117,11 @@ USTRUCT(BlueprintType)
 struct FRpStateDescriptor 
 {
 	GENERATED_BODY()
+	
+	FString ToString() const
+	{
+		return Fact.GetPtr<FRpVariantBase>()->ToString();		
+	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
 	FInstancedStruct Fact;
@@ -121,6 +131,11 @@ USTRUCT(BlueprintType)
 struct FRpRequirementDescriptor
 {
 	GENERATED_BODY()
+	
+	FString ToString() const
+	{
+		return Fact.GetPtr<FRpVariantBase>()->ToString();		
+	}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BaseStruct = "/script/Ripple.RpVariantBase"))
 	FInstancedStruct Fact;

@@ -5,6 +5,8 @@
 #include "GOAP/RpGOAPAction.h"
 #include "GOAP/RpGOAPGoal.h"
 
+constexpr int MAX_ASTAR_TRIALS = 10;
+
 void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
 {
 	Actions.Push(NewAction);
@@ -12,14 +14,17 @@ void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
 
 void URpGOAPPlanner::CreatePlan(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& Out_ActionPlan)
 {
-	UE_LOG(LogTemp, Warning, TEXT("------ PERFORMING ASTAR ------"));
 	PerformAStar(StartingState, Goal, Out_ActionPlan);
-	UE_LOG(LogTemp, Warning, TEXT("------ ASTAR COMPLETE --------"));
 	
 	int Index = 0;
 	for (const URpGOAPAction* Action : Out_ActionPlan)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Action %d : %s"), ++Index, *Action->GetName());
+	}
+	
+	if (Out_ActionPlan.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Goal cannot be reached."));
 	}
 }
 
@@ -37,9 +42,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 	
 	OpenSet.Push(StartingState);
 	
-	static int COUNT;
-	COUNT = 10;
-	while (OpenSet.Num() > 0 && COUNT-- > 0)
+	while (OpenSet.Num() > 0)
 	{
 		URpGOAPState* Current;
 		OpenSet.HeapPop(Current, FMostOptimalState());
@@ -64,13 +67,17 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 				{
 					URpGOAPGoal* IntermediateGoal = NewObject<URpGOAPGoal>(GetOuter());
 					IntermediateGoal->SetRequirements(Action->GetRequirements());
+					
+					if (*IntermediateGoal == *Goal)
+					{
+						continue;
+					}
 				
 					TArray<URpGOAPAction*> IntermediateActions;
 					PerformAStar(Current, IntermediateGoal, IntermediateActions);
 				
 					if (!IntermediateActions.IsEmpty())
 					{
-						Out_ActionPlan.Append(IntermediateActions);
 						AvailableActions.Push(Action);
 					}
 				}

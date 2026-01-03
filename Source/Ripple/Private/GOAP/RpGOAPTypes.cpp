@@ -29,6 +29,11 @@ void FRpVariantFloat::Set(const FRpVariantBase* Other)
 	Value = static_cast<const FRpVariantFloat*>(Other)->Value;
 }
 
+FString FRpVariantFloat::ToString() const
+{
+	return FString::SanitizeFloat(Value, 3);
+}
+
 int FRpVariantInteger::GetAbsDifference(const FRpVariantBase* Other) const
 {
 	const FRpVariantInteger* OtherInt = static_cast<const FRpVariantInteger*>(Other);
@@ -58,6 +63,11 @@ void FRpVariantInteger::Set(const FRpVariantBase* Other)
 	Value = static_cast<const FRpVariantInteger*>(Other)->Value;
 }
 
+FString FRpVariantInteger::ToString() const
+{
+	return FString::FromInt(Value);
+}
+
 int FRpVariantBool::GetAbsDifference(const FRpVariantBase* Other) const
 {
 	const FRpVariantBool* OtherBool = static_cast<const FRpVariantBool*>(Other);
@@ -85,6 +95,11 @@ void FRpVariantBool::Set(const FRpVariantBase* Other)
 	Value = static_cast<const FRpVariantBool*>(Other)->Value;
 }
 
+FString FRpVariantBool::ToString() const
+{
+	return Value ? "True" : "False";
+}
+
 int FRpVariantVector3::GetAbsDifference(const FRpVariantBase* Other) const
 {
 	const FRpVariantVector3* OtherVector = static_cast<const FRpVariantVector3*>(Other);
@@ -110,4 +125,9 @@ bool FRpVariantVector3::operator>(const FRpVariantBase* RpVariantBase) const
 void FRpVariantVector3::Set(const FRpVariantBase* Other)
 {
 	Value = static_cast<const FRpVariantVector3*>(Other)->Value;
+}
+
+FString FRpVariantVector3::ToString() const
+{
+	return Value.ToString();
 }

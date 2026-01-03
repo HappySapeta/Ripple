@@ -98,7 +98,14 @@ public:
 	
 	bool operator==(const URpGOAPState& Other) const;
 	
-	FString FactsToString();
+	void PrintFacts(const FString& Label)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Label);
+		for (const auto& [FactName, Descriptor] : Facts)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Fact %s : %s"), *FactName.ToString() , *Descriptor.ToString());
+		}
+	}
 
 protected:
 	

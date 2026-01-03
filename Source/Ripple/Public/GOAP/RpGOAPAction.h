@@ -63,6 +63,15 @@ public:
 	{
 		return Effects;
 	}
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	void GetEffect(const FGameplayTag& EffectTag, FInstancedStruct& Out_InstancedStruct) const
+	{
+		if (Effects.Contains(EffectTag))
+		{
+			Out_InstancedStruct = Effects[EffectTag].Fact;
+		}
+	}
 
 	UFUNCTION(BlueprintNativeEvent)
 	void Simulate(URpGOAPState* Current);
