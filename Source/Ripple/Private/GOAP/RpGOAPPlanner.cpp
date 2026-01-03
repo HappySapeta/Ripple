@@ -42,11 +42,15 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 	
 	OpenSet.Push(StartingState);
 	
-	while (OpenSet.Num() > 0)
+	static int Trials;
+	Trials = 0;
+	while (OpenSet.Num() > 0 && ++Trials <= 10)
 	{
 		URpGOAPState* Current;
 		OpenSet.HeapPop(Current, FMostOptimalState());
 		Current->GetAStarNode().SetSeen(true);
+		Current->PrintFacts(TEXT("CURRENT STATE"));
+		Goal->PrintRequirements(TEXT("GOAL STATE"));
 		
 		// Check if goal has been reached.
 		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
@@ -67,7 +71,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 				{
 					URpGOAPGoal* IntermediateGoal = NewObject<URpGOAPGoal>(GetOuter());
 					IntermediateGoal->SetRequirements(Action->GetRequirements());
-					
+					IntermediateGoal->PrintRequirements(TEXT("INTERMEDIATE REQUIREMENTS"));
 					if (*IntermediateGoal == *Goal)
 					{
 						continue;
@@ -88,6 +92,8 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 		{
 			URpGOAPState* NewState = DuplicateObject(Current, GetOuter());
 			Action->Simulate(NewState);
+			
+			NewState->PrintFacts(TEXT("NEW STATE"));
 			
 			if (!NewState || NewState->GetAStarNode().IsSeen())
 			{
