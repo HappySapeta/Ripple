@@ -55,18 +55,6 @@ public:
 		}
 	}
 
-	FString RequirementsToString()
-	{
-		FString ReqsAsString;
-		for (const auto& [FactName, Descriptor] : Requirements)
-		{
-			ReqsAsString.Append(Descriptor.ToString());
-			ReqsAsString += "\n";
-		}
-		
-		return ReqsAsString;
-	}
-
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
