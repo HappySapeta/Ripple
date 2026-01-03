@@ -23,25 +23,38 @@ public:
 	// Sets default values for this component's properties
 	URpGOAPComponent();
 	
+	virtual void BeginPlay() override;
+	
+public:
+
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
+	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
+	{
+		return GOAPBlackboard;
+	}
+	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	URpGOAPGoal* GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass);
+	
 	UFUNCTION(BlueprintCallable)
-	URpGOAPGoal* PickGoal();
+	URpGOAPState* GetBaseState()
+	{
+		return BaseState;
+	}
+	
+public:
 
 	UFUNCTION(BlueprintCallable)
-	URpGOAPPlanner* GetPlanner()
-	{
-		return Planner;
-	}
+	URpGOAPGoal* PickGoal();
 	
 	UFUNCTION(BlueprintCallable)
 	void PlanAndExecute();
 	
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
-	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
-	{
-		return StateMachineBlackboard;
-	}
-
-	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	URpGOAPGoal* AddGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
+	
+	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
+	void RemoveGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
 	
 private:
 	
@@ -53,34 +66,32 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnGoalReachedDelegate OnGoalReached;
 
-protected:
-	
-	UPROPERTY(BlueprintReadOnly)
-	URpGOAPPlanner* Planner;
-	
-	UPROPERTY(Transient, BlueprintReadOnly)
-	TObjectPtr<URpStateMachineBlackboardBase> StateMachineBlackboard;
-
 private:
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<URpGOAPPlanner> PlannerClass;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<URpGOAPState> StartingStateClass;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
+	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<URpGOAPAction>> ActionClasses;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Ripple GOAP")
-	TSubclassOf<URpStateMachineBlackboardBase> StatemachineBBClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<URpStateMachineBlackboardBase> StatemachineBlackboardClass;
 	
 	UPROPERTY()
-	TArray<URpGOAPAction*> ActionPlan;
+    URpGOAPPlanner* Planner;
+    
+    UPROPERTY()
+    TObjectPtr<URpStateMachineBlackboardBase> GOAPBlackboard;
 	
 	UPROPERTY()
-	URpGOAPState* StartingState;
+	URpGOAPState* BaseState;
 	
 	UPROPERTY()
 	URpGOAPGoal* CurrentGoal;
+	
+	UPROPERTY()
+	TArray<URpGOAPGoal*> Goals;
 };

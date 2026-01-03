@@ -29,58 +29,29 @@ struct FMostOptimalState
 	}
 };
 
-/** 
- * 
- */
 UCLASS(Blueprintable, Category = "Ripple GOAP")
 class RIPPLE_API URpGOAPPlanner : public UObject
 {
 	GENERATED_BODY()
-	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGoalsUpdatedDelegate);
 	
 public:
 	
 	void AddAction(URpGOAPAction* NewAction);
-	void SetStartingState(URpGOAPState* StartingState);
-	
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
-	URpGOAPGoal* AddGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
-	
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
-	void RemoveGoal(TSubclassOf<URpGOAPGoal> GoalSubClass);
-
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "GoalSubClass"))
-	URpGOAPGoal* GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass);
 	
 	UFUNCTION(BlueprintCallable)
-	URpGOAPGoal* PickGoal();
-	
-	UFUNCTION(BlueprintCallable)
-	void CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan);
+	void CreatePlan(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& Out_ActionPlan);
 
-protected:
-
-	void GetAvailableActionsFor(URpGOAPState* CurrentState, TArray<URpGOAPAction*>& AvailableActions, TArray<URpGOAPAction*>& UnavailableActions);
-	void PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& ActionPlan);
-
-public:
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnGoalsUpdatedDelegate OnGoalsUpdatedEvent;
-	
-protected:
-	
-	UPROPERTY(BlueprintReadOnly)
-	TArray<URpGOAPGoal*> Goals;
-	
-	UPROPERTY(BlueprintReadOnly)
-	TArray<URpGOAPAction*> Actions;
-	
-	UPROPERTY(BlueprintReadOnly)
-	URpGOAPState* BaseState;
-	
 private:
+
+	void GetActions(URpGOAPState* ForState, TArray<URpGOAPAction*>& Out_Available, TArray<URpGOAPAction*>& Out_Unavailable);
+	void PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& Out_ActionPlan);
+	void GeneratePath(URpGOAPState* GoalState, TArray<URpGOAPAction*>& Out_ActionPlan);
+
+private:
+	
+	UPROPERTY()
+	TArray<URpGOAPAction*> Actions;
 	
 	UPROPERTY()
 	TArray<URpGOAPState*> OpenSet;

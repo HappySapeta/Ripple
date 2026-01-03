@@ -10,49 +10,20 @@ void URpGOAPPlanner::AddAction(URpGOAPAction* NewAction)
 	Actions.Push(NewAction);
 }
 
-void URpGOAPPlanner::SetStartingState(URpGOAPState* State)
+void URpGOAPPlanner::CreatePlan(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& Out_ActionPlan)
 {
-	BaseState = State;
-}
-
-URpGOAPGoal* URpGOAPPlanner::GetGoalOfType(TSubclassOf<URpGOAPGoal> GoalSubClass)
-{
-	for (URpGOAPGoal* Goal : Goals)
-	{
-		if (Goal->IsA(GoalSubClass))
-		{
-			return Goal;
-		}
-	}
-	return nullptr;
-}
-
-// O(n) : n = number of goals.
-URpGOAPGoal* URpGOAPPlanner::PickGoal()
-{
-	if (Goals.IsEmpty())
-	{
-		return nullptr;
-	}
-	
-	URpGOAPGoal* ChosenGoal = Goals.Top();
-	return ChosenGoal;
-}
-
-void URpGOAPPlanner::CreatePlan(URpGOAPGoal* ChosenGoal, TArray<URpGOAPAction*>& PrimaryActionPlan)
-{
-	UE_LOG(LogTemp, Warning, TEXT("------PERFORMING ASTAR------"));
-	PerformAStar(BaseState, ChosenGoal, PrimaryActionPlan);
-	UE_LOG(LogTemp, Warning, TEXT("------ASTAR COMPLETE--------"));
+	UE_LOG(LogTemp, Warning, TEXT("------ PERFORMING ASTAR ------"));
+	PerformAStar(StartingState, Goal, Out_ActionPlan);
+	UE_LOG(LogTemp, Warning, TEXT("------ ASTAR COMPLETE --------"));
 	
 	int Index = 0;
-	for (const URpGOAPAction* Action : PrimaryActionPlan)
+	for (const URpGOAPAction* Action : Out_ActionPlan)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Action %d : %s"), ++Index, *Action->GetName());
 	}
 }
 
-void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& ActionPlan)
+void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal, TArray<URpGOAPAction*>& Out_ActionPlan)
 {
 	URpGOAPState* GoalState = nullptr;
 	if(!StartingState || !Goal)
@@ -74,12 +45,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 		OpenSet.HeapPop(Current, FMostOptimalState());
 		Current->GetAStarNode().SetSeen(true);
 		
-		// GOAL HAS BEEN REACHED
-		const FString CurrentFactsAsString = *Current->FactsToString();
-		UE_LOG(LogTemp, Log, TEXT("GOAL CHECK : CURRENT FACTS \n %s"), *CurrentFactsAsString);
-		const FString GoalReqsAsString = Goal->RequirementsToString();
-		UE_LOG(LogTemp, Log, TEXT("GOAL CHECK : GOAL FACTS \n %s"), *GoalReqsAsString);
-		
+		// Check if goal has been reached.
 		if (Current->DoesSatisfyRequirements(Goal->GetRequirements()))
 		{
 			GoalState = Current;
@@ -89,7 +55,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 		TArray<URpGOAPAction*> AvailableActions;
 		{
 			TArray<URpGOAPAction*> UnavailableActions;
-			GetAvailableActionsFor(Current, AvailableActions, UnavailableActions);
+			GetActions(Current, AvailableActions, UnavailableActions);
 		
 			if (AvailableActions.IsEmpty() && !UnavailableActions.IsEmpty())
 			{
@@ -104,7 +70,7 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 				
 					if (!IntermediateActions.IsEmpty())
 					{
-						ActionPlan.Append(IntermediateActions);
+						Out_ActionPlan.Append(IntermediateActions);
 						AvailableActions.Push(Action);
 					}
 				}
@@ -115,9 +81,6 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 		{
 			URpGOAPState* NewState = DuplicateObject(Current, GetOuter());
 			Action->Simulate(NewState);
-			
-			const FString NewStateFacts = NewState->FactsToString();
-			UE_LOG(LogTemp, Log, TEXT("NEWSTATE FACTS \n %s"), *NewStateFacts);
 			
 			if (!NewState || NewState->GetAStarNode().IsSeen())
 			{
@@ -142,75 +105,43 @@ void URpGOAPPlanner::PerformAStar(URpGOAPState* StartingState, URpGOAPGoal* Goal
 		}
 	}
 	
-	// Prepare path
-	{
-		ActionPlan.Reset();
-		URpGOAPState* Current = GoalState;
-		while (Current)
-		{
-			URpGOAPAction* Action = Current->GetAStarNode().GetLinkingAction();
-			if (!Action)
-			{
-				break;
-			}
-			ActionPlan.Push(Action);
-			Current = Current->GetAStarNode().GetParent();
-		}
-		Algo::Reverse(ActionPlan);
-	}
+	GeneratePath(GoalState, Out_ActionPlan);
 }
 
-URpGOAPGoal* URpGOAPPlanner::AddGoal(TSubclassOf<URpGOAPGoal> GoalSubClass)
+void URpGOAPPlanner::GeneratePath(URpGOAPState* GoalState, TArray<URpGOAPAction*>& Out_ActionPlan)
 {
-	if (URpGOAPGoal** FoundGoal = Goals.FindByPredicate([GoalSubClass](const URpGOAPGoal* TargetGoal)
+	Out_ActionPlan.Reset();
+	URpGOAPState* Current = GoalState;
+	while (Current)
 	{
-		return TargetGoal->IsA(GoalSubClass);
-	}))
-	{
-		if (FoundGoal)
+		URpGOAPAction* Action = Current->GetAStarNode().GetLinkingAction();
+		if (!Action)
 		{
-			return *FoundGoal;
-		}
-	}
-	
-	URpGOAPGoal* NewGoal = NewObject<URpGOAPGoal>(GetOuter(), GoalSubClass);
-	Goals.HeapPush(NewGoal, FMostImportantGoal());
-	
-	OnGoalsUpdatedEvent.Broadcast();
-	return NewGoal;
-}
-
-void URpGOAPPlanner::RemoveGoal(TSubclassOf<URpGOAPGoal> GoalSubClass)
-{
-	for (URpGOAPGoal* Goal : Goals)
-	{
-		if (Goal->IsA(GoalSubClass))
-		{
-			Goals.HeapPop(Goal, FMostImportantGoal());
 			break;
 		}
+		Out_ActionPlan.Push(Action);
+		Current = Current->GetAStarNode().GetParent();
 	}
-	
-	OnGoalsUpdatedEvent.Broadcast();
+	Algo::Reverse(Out_ActionPlan);
 }
 
-void URpGOAPPlanner::GetAvailableActionsFor
+void URpGOAPPlanner::GetActions
 (
-	URpGOAPState* CurrentState, 
-	TArray<URpGOAPAction*>& AvailableActions, 
-	TArray<URpGOAPAction*>& UnavailableActions
+	URpGOAPState* ForState, 
+	TArray<URpGOAPAction*>& Out_Available, 
+	TArray<URpGOAPAction*>& Out_Unavailable
 )
 {
 	for (const auto& Action : Actions)
 	{
-		if (CurrentState->DoesSatisfyRequirements(Action->GetRequirements()) && 
-			CurrentState->WillHaveEffects(Action->GetEffects()))
+		if (ForState->DoesSatisfyRequirements(Action->GetRequirements()) && 
+			ForState->WillHaveEffects(Action->GetEffects()))
 		{
-			AvailableActions.Push(Action);
+			Out_Available.Push(Action);
 		}
 		else
 		{
-			UnavailableActions.Push(Action);
+			Out_Unavailable.Push(Action);
 		}
 	}
 }
