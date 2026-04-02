@@ -22,19 +22,19 @@ class RIPPLE_API URpStateMachineBlackboardBase : public UObject
 	
 public:
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetValuesAsFloat(const FGameplayTag& Key);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetValuesAsBool(const FGameplayTag& Key);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetValuesAsInt(const FGameplayTag& Key);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FVector3f GetValuesAsVector3(const FGameplayTag& Key);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UObject* GetValuesAsObject(const FGameplayTag& Key);
 	
 	UFUNCTION(BlueprintCallable)
