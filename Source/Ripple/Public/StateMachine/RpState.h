@@ -29,7 +29,7 @@ public:
 	virtual void StateUpdate_Implementation(const float DeltaTime) {}
 	
 	UFUNCTION(BlueprintCallable)
-	void SetContext(URpStateMachineBlackboardBase* NewBlackboard)
+	void SetBlackboard(URpStateMachineBlackboardBase* NewBlackboard)
 	{
 		Blackboard = NewBlackboard;
 	}
@@ -45,8 +45,8 @@ protected:
 
 	// Return State Blackboard as a subtype of IRpStateContext.
 	// For use in blueprints only.
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
-	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass) const
+	UFUNCTION(BlueprintCallable)
+	URpStateMachineBlackboardBase* GetBlackboard() const
 	{
 		return Blackboard;
 	}
@@ -54,7 +54,7 @@ protected:
 	// Return State Blackboard as a subtype of IRpStateContext.
 	// For use in Native code only. 
 	template <class ContextSubClass>
-	FORCEINLINE ContextSubClass* GetContext() const
+	FORCEINLINE ContextSubClass* GetBlackboard() const
 	{
 		static_assert(std::is_base_of_v<URpStateMachineBlackboardBase, ContextSubClass>, "ContextSubClass is not derived from URPStateMachineBlackboardBase.");
 		return Cast<ContextSubClass>(Blackboard);

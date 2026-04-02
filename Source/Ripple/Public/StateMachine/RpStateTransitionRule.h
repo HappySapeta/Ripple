@@ -43,8 +43,8 @@ protected:
 
 	// Return State Blackboard as a subtype of IRpStateContext.
 	// For use in blueprints only.
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
-	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass) const
+	UFUNCTION(BlueprintCallable)
+	URpStateMachineBlackboardBase* GetBlackboard() const
 	{
 		return Blackboard;
 	}
@@ -52,7 +52,7 @@ protected:
 	// Return State Blackboard as a subtype of IRpStateContext.
 	// For use in Native code only. 
 	template <class BlackboardSubClass>
-	FORCEINLINE BlackboardSubClass* GetContext() const
+	FORCEINLINE BlackboardSubClass* GetBlackboard() const
 	{
 		static_assert(std::is_base_of_v<URpStateMachineBlackboardBase, BlackboardSubClass>, "ContextSubClass is not derived from URPStateMachineBlackboardBase.");
 		return Cast<BlackboardSubClass>(Blackboard);

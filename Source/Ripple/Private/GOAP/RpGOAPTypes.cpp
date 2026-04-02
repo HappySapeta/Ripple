@@ -131,3 +131,18 @@ FString FRpVariantVector3::ToString() const
 {
 	return Value.ToString();
 }
+
+bool FRpVariantObject::operator==(const FRpVariantBase* Other) const
+{
+	return static_cast<const FRpVariantObject*>(Other)->Value == Value;
+}
+
+void FRpVariantObject::Set(const FRpVariantBase* Other)
+{
+	FRpVariantBase::Set(Other);
+}
+
+FString FRpVariantObject::ToString() const
+{
+	return FRpVariantBase::ToString();
+}

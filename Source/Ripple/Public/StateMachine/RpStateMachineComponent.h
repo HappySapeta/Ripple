@@ -23,7 +23,7 @@ class RIPPLE_API URpStateMachineComponent : public UActorComponent
 public:
 
 	URpStateMachineComponent();
-	virtual void BeginPlay() override;
+	virtual void Initialize();
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void ProcessRules();
@@ -31,10 +31,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Start();
 
-	UFUNCTION(BlueprintCallable, meta = (DeterminesOutputType = "ContextSubClass"))
-	URpStateMachineBlackboardBase* GetContext(TSubclassOf<URpStateMachineBlackboardBase> ContextSubClass)
+	UFUNCTION(BlueprintCallable)
+	URpStateMachineBlackboardBase* GetBlackboard()
 	{
-		return StateMachineBlackboard;
+		return Blackboard;
 	}
 	
 protected: 
@@ -62,7 +62,7 @@ protected:
 	TSubclassOf<URpStateMachineBlackboardBase> StatemachineBBClass;
 	
 	UPROPERTY(Transient, BlueprintReadOnly)
-	TObjectPtr<URpStateMachineBlackboardBase> StateMachineBlackboard;
+	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
 
 private:
 	

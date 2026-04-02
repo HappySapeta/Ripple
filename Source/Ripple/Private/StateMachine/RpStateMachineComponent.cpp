@@ -22,27 +22,16 @@ void URpStateMachineComponent::Start()
 	}
 }
 
-void URpStateMachineComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void URpStateMachineComponent::Initialize()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (IsValid(CurrentState))
-	{
-		CurrentState->StateUpdate(DeltaTime);
-		ProcessRules();
-	}
-}
-
-void URpStateMachineComponent::BeginPlay()
-{
-	StateMachineBlackboard = NewObject<URpStateMachineBlackboardBase>(this, StatemachineBBClass);
+	Blackboard = NewObject<URpStateMachineBlackboardBase>(this, StatemachineBBClass);
 	
 	for (const auto& StateClass : StateClasses)
 	{
 		URpState* NewState = NewObject<URpState>(this, StateClass);
 		StateInstances.Add(NewState);
 		
-		NewState->SetContext(StateMachineBlackboard);
+		NewState->SetBlackboard(Blackboard);
 	}
 	
 	for (const auto& RuleClass : TransitionRules)
@@ -50,10 +39,8 @@ void URpStateMachineComponent::BeginPlay()
 		URpStateTransitionRule* NewRule = NewObject<URpStateTransitionRule>(this, RuleClass);
 		TransitionRuleInstances.Add(NewRule);
 		
-		NewRule->SetBlackboard(StateMachineBlackboard);
+		NewRule->SetBlackboard(Blackboard);
 	}
-	
-	Super::BeginPlay();
 }
 
 void URpStateMachineComponent::ProcessRules()
@@ -85,5 +72,16 @@ void URpStateMachineComponent::ProcessRules()
 		CurrentState = NextState;
 		CurrentState->Activate();
 		OnStateChanged.Broadcast(CurrentState->GetStateName());
+	}
+}
+
+void URpStateMachineComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (IsValid(CurrentState))
+	{
+		CurrentState->StateUpdate(DeltaTime);
+		ProcessRules();
 	}
 }

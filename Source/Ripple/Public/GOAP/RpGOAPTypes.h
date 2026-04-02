@@ -100,6 +100,21 @@ struct FRpVariantVector3 : public FRpVariantBase
 	float MaxComparisonError = 10.0f;
 };
 
+USTRUCT(BlueprintType, DisplayName = "RpObjectVariant")
+struct FRpVariantObject : public FRpVariantBase
+{
+	GENERATED_BODY()
+	
+	virtual ~FRpVariantObject() = default;
+	
+	virtual bool operator==(const FRpVariantBase*) const override;
+	virtual void Set(const FRpVariantBase*) override;
+	virtual FString ToString() const override;
+
+	UPROPERTY(BlueprintReadWrite)
+	UObject* Value = nullptr;
+};
+
 UENUM()
 enum ERpCondition : uint8
 {
