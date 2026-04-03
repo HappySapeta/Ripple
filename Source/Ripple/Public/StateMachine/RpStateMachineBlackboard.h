@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "GameplayTags.h"
 #include "GOAP/RpGOAPTypes.h"
+#include "BehaviorTree/BlackboardData.h"
 #include "RpStateMachineBlackboard.generated.h"
 
 /**
@@ -19,7 +20,7 @@ UCLASS(Blueprintable, BlueprintType)
 class RIPPLE_API URpStateMachineBlackboardBase : public UObject
 {
 	GENERATED_BODY()
-	
+
 public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -56,7 +57,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FGameplayTag, FRpStateDescriptor> Facts;
-	
 };
 
 inline float URpStateMachineBlackboardBase::GetValuesAsFloat(const FGameplayTag& Key)

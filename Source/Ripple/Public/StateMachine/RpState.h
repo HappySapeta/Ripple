@@ -34,11 +34,32 @@ public:
 		Blackboard = NewBlackboard;
 	}
 	
-	void Activate();
-	void DeActivate();
+	void Activate()
+	{
+		OnActivate();
+	}
+	
+	void DeActivate()
+	{
+		OnDeactivate();
+	}
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FString GetStateName() const
 	{
 		return StateName;
+	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool HasFinshed() const
+	{
+		return bHasFinished;
+	}
+	
+	UFUNCTION(BlueprintCallable)
+	void SetFinished(const bool bValue)
+	{
+		bHasFinished = bValue;
 	}
 
 protected:
@@ -60,13 +81,8 @@ protected:
 		return Cast<ContextSubClass>(Blackboard);
 	}
 	
-	UFUNCTION(BlueprintNativeEvent)
-	void OnActivate();
-	virtual void OnActivate_Implementation() {}
-
-	UFUNCTION(BlueprintNativeEvent)
-	void OnDeactivate();
-	virtual void OnDeactivate_Implementation() {}
+	virtual void OnActivate() {};
+	virtual void OnDeactivate() {};
 
 private:
 	
@@ -76,4 +92,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	FString StateName;
+	
+	bool bHasFinished = false;
 };

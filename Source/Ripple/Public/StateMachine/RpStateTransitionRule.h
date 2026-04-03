@@ -38,6 +38,12 @@ public:
 	{
 		return ExitState;
 	}
+	
+	UFUNCTION(BlueprintCallable)
+	bool AllowInterruption() const
+	{
+		return bAllowInterruption;
+	}
 
 protected:
 
@@ -65,6 +71,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<URpState> EntryState;
+	
+	UPROPERTY(EditDefaultsOnly)
+	bool bAllowInterruption = false;
 
 	// The state context object of this state that contains all the information that it needs.
 	UPROPERTY(Transient)

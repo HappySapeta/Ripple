@@ -43,31 +43,51 @@ void URpStateMachineComponent::Initialize()
 	}
 }
 
+URpState* URpStateMachineComponent::FindStateToTransition(const URpStateTransitionRule* Rule)
+{
+	for (URpState* State : StateInstances)
+	{
+		if (State->GetClass() == Rule->GetNextState())
+		{
+			return State;
+		}
+	}
+	
+	return nullptr;
+}
+
 void URpStateMachineComponent::ProcessRules()
 {
 	URpState* NextState = nullptr;
 	for (const URpStateTransitionRule* Rule : TransitionRuleInstances)
 	{
+		// Check if entry and exit states match.
 		if (Rule->GetRequiredState() != CurrentState->GetClass())
 		{
 			continue;
 		}
-			
-		if (Rule->CanTransition())
+		
+		// Check if rule is allowed to transition.
+		if (!Rule->CanTransition())
 		{
-			for (URpState* State : StateInstances)
-			{
-				if (State->GetClass() == Rule->GetNextState())
-				{
-					NextState = State;
-					break;
-				}
-			}
+			continue;
 		}
+		
+		// Check if rule is allowed to interrupt current state. 
+		if (!CurrentState->HasFinshed() && !Rule->AllowInterruption())
+		{
+			continue;
+		}
+		
+		NextState = FindStateToTransition(Rule);
 	}
 
 	if (NextState)
 	{
+		UE_LOG(LogTemp, Warning,
+			   TEXT("[URpStateMachineComponent::ProcessRules] State Change : %s -> %s"),
+			   *CurrentState->GetStateName(), *NextState->GetStateName());
+		
 		CurrentState->DeActivate();
 		CurrentState = NextState;
 		CurrentState->Activate();

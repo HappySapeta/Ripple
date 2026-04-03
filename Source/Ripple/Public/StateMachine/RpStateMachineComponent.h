@@ -24,6 +24,7 @@ public:
 
 	URpStateMachineComponent();
 	virtual void Initialize();
+	URpState* FindStateToTransition(const URpStateTransitionRule* Rule);
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void ProcessRules();
