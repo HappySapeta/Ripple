@@ -71,7 +71,7 @@ protected:
 private:
 	
 	// The state context object of this state that contains all the information that it needs.
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
 	
 	UPROPERTY(EditDefaultsOnly)
