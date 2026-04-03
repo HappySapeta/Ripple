@@ -61,67 +61,57 @@ private:
 
 inline float URpStateMachineBlackboardBase::GetValuesAsFloat(const FGameplayTag& Key)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		const float Value = Facts[Key].Fact.GetPtr<FRpVariantFloat>()->Value;
 		return Value;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 	return 0.0f;
 }
 
 inline bool URpStateMachineBlackboardBase::GetValuesAsBool(const FGameplayTag& Key)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		const bool Value = Facts[Key].Fact.GetPtr<FRpVariantBool>()->Value;
 		return Value;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 	return false;
 }
 
 inline int URpStateMachineBlackboardBase::GetValuesAsInt(const FGameplayTag& Key)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		const int Value = Facts[Key].Fact.GetPtr<FRpVariantInteger>()->Value;
 		return Value;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 	return 0;
 }
 
 inline FVector3f URpStateMachineBlackboardBase::GetValuesAsVector3(const FGameplayTag& Key)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		const FVector3f Value = Facts[Key].Fact.GetPtr<FRpVariantVector3>()->Value;
 		return Value;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 	return {0,0,0};
 }
 
 inline UObject* URpStateMachineBlackboardBase::GetValuesAsObject(const FGameplayTag& Key)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		UObject* Value = Facts[Key].Fact.GetPtr<FRpVariantObject>()->Value;
 		return Value;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 	return nullptr;
 }
 
 inline void URpStateMachineBlackboardBase::SetValuesAsFloat(const FGameplayTag& Key, float Value)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		auto& Fact = Facts[Key].Fact;
 		if (Fact.IsValid())
@@ -132,15 +122,12 @@ inline void URpStateMachineBlackboardBase::SetValuesAsFloat(const FGameplayTag& 
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Fact data is invalid."))
 		}
-		return;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 }
 
 inline void URpStateMachineBlackboardBase::SetValuesAsBool(const FGameplayTag& Key, bool Value)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		auto& Fact = Facts[Key].Fact;
 		if (Fact.IsValid())
@@ -151,15 +138,12 @@ inline void URpStateMachineBlackboardBase::SetValuesAsBool(const FGameplayTag& K
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Fact data is invalid."))
 		}
-		return;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 }
 
 inline void URpStateMachineBlackboardBase::SetValuesAsInt(const FGameplayTag& Key, int Value)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		auto& Fact = Facts[Key].Fact;
 		if (Fact.IsValid())
@@ -170,15 +154,12 @@ inline void URpStateMachineBlackboardBase::SetValuesAsInt(const FGameplayTag& Ke
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Fact data is invalid."))
 		}
-		return;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 }
 
 inline void URpStateMachineBlackboardBase::SetValuesAsVector3(const FGameplayTag& Key, FVector3f Value)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		auto& Fact = Facts[Key].Fact;
 		if (Fact.IsValid())
@@ -189,15 +170,12 @@ inline void URpStateMachineBlackboardBase::SetValuesAsVector3(const FGameplayTag
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Fact data is invalid."))
 		}
-		return;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 }
 
 inline void URpStateMachineBlackboardBase::SetValuesAsObject(const FGameplayTag& Key, UObject* Value)
 {
-	if (Facts.Contains(Key))
+	if (ensureAlwaysMsgf(Facts.Contains(Key), TEXT("Fact table doesn't contain key %s"), *Key.ToString()))
 	{
 		auto& Fact = Facts[Key].Fact;
 		if (Fact.IsValid())
@@ -208,8 +186,5 @@ inline void URpStateMachineBlackboardBase::SetValuesAsObject(const FGameplayTag&
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Fact data is invalid."))
 		}
-		return;
 	}
-	
-	UE_LOG(LogTemp, Error, TEXT("Fact table doesn't contain key %s"), *Key.ToString());
 }
