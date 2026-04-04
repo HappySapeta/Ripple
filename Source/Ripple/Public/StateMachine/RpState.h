@@ -83,6 +83,10 @@ protected:
 	
 	virtual void OnActivate() {};
 	virtual void OnDeactivate() {};
+	
+protected:
+	
+	bool bHasFinished = false;
 
 private:
 	
@@ -92,6 +96,4 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	FString StateName;
-	
-	bool bHasFinished = false;
 };

@@ -80,6 +80,10 @@ void URpStateMachineComponent::ProcessRules()
 		}
 		
 		NextState = FindStateToTransition(Rule);
+		if (NextState)
+		{
+			break;
+		}
 	}
 
 	if (NextState)
