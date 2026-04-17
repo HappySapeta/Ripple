@@ -88,11 +88,11 @@ protected:
 	
 	bool bHasFinished = false;
 
-private:
-	
 	// The state context object of this state that contains all the information that it needs.
 	UPROPERTY()
 	TObjectPtr<URpStateMachineBlackboardBase> Blackboard;
+	
+private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	FString StateName;
