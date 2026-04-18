@@ -20,8 +20,9 @@ UCLASS(Blueprintable, BlueprintType)
 class RIPPLE_API URpStateMachineBlackboardBase : public UObject
 {
 	GENERATED_BODY()
-
-	DECLARE_EVENT_OneParam(URpStateMachineBlackboardBase, FOnValueChangedDelegate, const FGameplayTag&);
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnValueChangedDelegate, const FGameplayTag&, Key);
+	DECLARE_DYNAMIC_DELEGATE_OneParam(FOnValueChangedDelegate_BP, const FGameplayTag&, Key);
 	
 public:
 	
@@ -55,7 +56,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetValuesAsObject(const FGameplayTag& Key, UObject* Value);
 	
-	FOnValueChangedDelegate& OnValueChanged(const FGameplayTag& Key);
+	FOnValueChangedDelegate& GetValueChangeCallback(const FGameplayTag& Key);
+	
+	UFUNCTION(BlueprintCallable)
+	void BindOnValueChanged(FOnValueChangedDelegate_BP Callback, const FGameplayTag& Key)
+	{
+		ValueChangeCallbacks.FindOrAdd(Key).Add(Callback);
+	}
+
 private:
 	
 	UPROPERTY(EditDefaultsOnly)
@@ -214,7 +222,7 @@ inline void URpStateMachineBlackboardBase::SetValuesAsObject(const FGameplayTag&
 	}
 }
 
-inline URpStateMachineBlackboardBase::FOnValueChangedDelegate& URpStateMachineBlackboardBase::OnValueChanged(const FGameplayTag& Key)
+inline URpStateMachineBlackboardBase::FOnValueChangedDelegate& URpStateMachineBlackboardBase::GetValueChangeCallback(const FGameplayTag& Key)
 {
 	return ValueChangeCallbacks[Key];
 }
