@@ -224,5 +224,10 @@ inline void URpStateMachineBlackboardBase::SetValuesAsObject(const FGameplayTag&
 
 inline URpStateMachineBlackboardBase::FOnValueChangedDelegate& URpStateMachineBlackboardBase::GetValueChangeCallback(const FGameplayTag& Key)
 {
-	return ValueChangeCallbacks[Key];
+	if (FOnValueChangedDelegate* Delegate = ValueChangeCallbacks.Find(Key))
+	{
+		return *Delegate;
+	}
+	
+	return ValueChangeCallbacks.Add(Key);
 }
