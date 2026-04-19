@@ -57,9 +57,15 @@ public:
 	}
 	
 	UFUNCTION(BlueprintCallable)
-	void SetFinished(const bool bValue)
+	void StartState()
 	{
-		bHasFinished = bValue;
+		bHasFinished = false;
+	}
+	
+	UFUNCTION(BlueprintCallable)
+	void EndState()
+	{
+		bHasFinished = true;
 	}
 
 protected:
@@ -81,8 +87,22 @@ protected:
 		return Cast<ContextSubClass>(Blackboard);
 	}
 	
-	virtual void OnActivate() {};
-	virtual void OnDeactivate() {};
+	virtual void OnActivate()
+	{
+		StartState();
+		BP_OnActivate();
+	};
+	
+	virtual void OnDeactivate()
+	{
+		BP_OnDeactivate();
+	};
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnActivate();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnDeactivate();
 	
 protected:
 	
