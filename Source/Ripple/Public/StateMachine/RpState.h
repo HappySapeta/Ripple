@@ -90,12 +90,12 @@ protected:
 	virtual void OnActivate()
 	{
 		StartState();
-		BP_OnActivate();
+		//BP_OnActivate();
 	};
 	
 	virtual void OnDeactivate()
 	{
-		BP_OnDeactivate();
+		//BP_OnDeactivate();
 	};
 	
 	UFUNCTION(BlueprintImplementableEvent)
