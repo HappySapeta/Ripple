@@ -20,7 +20,10 @@ UCLASS(Blueprintable, BlueprintType)
 class RIPPLE_API URpStateMachineBlackboardBase : public UObject
 {
 	GENERATED_BODY()
-
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnValueChangedDelegate, const FGameplayTag&, Key);
+	DECLARE_DYNAMIC_DELEGATE_OneParam(FOnValueChangedDelegate_BP, const FGameplayTag&, Key);
+	
 public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -53,10 +56,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetValuesAsObject(const FGameplayTag& Key, UObject* Value);
 	
-private: 
+	FOnValueChangedDelegate& GetValueChangeCallback(const FGameplayTag& Key);
+	
+	UFUNCTION(BlueprintCallable)
+	void BindOnValueChanged(FOnValueChangedDelegate_BP Callback, const FGameplayTag& Key)
+	{
+		ValueChangeCallbacks.FindOrAdd(Key).Add(Callback);
+	}
+
+private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FGameplayTag, FRpStateDescriptor> Facts;
+	
+	TMap<FGameplayTag, FOnValueChangedDelegate> ValueChangeCallbacks;
 };
 
 inline float URpStateMachineBlackboardBase::GetValuesAsFloat(const FGameplayTag& Key)
@@ -117,6 +130,10 @@ inline void URpStateMachineBlackboardBase::SetValuesAsFloat(const FGameplayTag& 
 		if (Fact.IsValid())
 		{
 			Fact.GetMutable<FRpVariantFloat>().Value = Value;
+			if(ValueChangeCallbacks.Contains(Key))
+			{
+				ValueChangeCallbacks[Key].Broadcast(Key);
+			}
 		}
 		else
 		{
@@ -133,6 +150,10 @@ inline void URpStateMachineBlackboardBase::SetValuesAsBool(const FGameplayTag& K
 		if (Fact.IsValid())
 		{
 			Fact.GetMutable<FRpVariantBool>().Value = Value;
+			if(ValueChangeCallbacks.Contains(Key))
+			{
+				ValueChangeCallbacks[Key].Broadcast(Key);
+			}
 		}
 		else
 		{
@@ -149,6 +170,10 @@ inline void URpStateMachineBlackboardBase::SetValuesAsInt(const FGameplayTag& Ke
 		if (Fact.IsValid())
 		{
 			Fact.GetMutable<FRpVariantInteger>().Value = Value;
+			if(ValueChangeCallbacks.Contains(Key))
+			{
+				ValueChangeCallbacks[Key].Broadcast(Key);
+			}
 		}
 		else
 		{
@@ -165,6 +190,10 @@ inline void URpStateMachineBlackboardBase::SetValuesAsVector3(const FGameplayTag
 		if (Fact.IsValid())
 		{
 			Fact.GetMutable<FRpVariantVector3>().Value = Value;
+			if(ValueChangeCallbacks.Contains(Key))
+			{
+				ValueChangeCallbacks[Key].Broadcast(Key);
+			}
 		}
 		else
 		{
@@ -181,10 +210,24 @@ inline void URpStateMachineBlackboardBase::SetValuesAsObject(const FGameplayTag&
 		if (Fact.IsValid())
 		{
 			Fact.GetMutable<FRpVariantObject>().Value = Value;
+			if(ValueChangeCallbacks.Contains(Key))
+			{
+				ValueChangeCallbacks[Key].Broadcast(Key);
+			}
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Fact data is invalid."))
 		}
 	}
+}
+
+inline URpStateMachineBlackboardBase::FOnValueChangedDelegate& URpStateMachineBlackboardBase::GetValueChangeCallback(const FGameplayTag& Key)
+{
+	if (FOnValueChangedDelegate* Delegate = ValueChangeCallbacks.Find(Key))
+	{
+		return *Delegate;
+	}
+	
+	return ValueChangeCallbacks.Add(Key);
 }
