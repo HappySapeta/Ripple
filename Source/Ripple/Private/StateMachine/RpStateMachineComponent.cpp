@@ -12,6 +12,7 @@ URpStateMachineComponent::URpStateMachineComponent()
 
 void URpStateMachineComponent::Start()
 {
+	bStopRequested = false;
 	for (URpState* State : StateInstances)
 	{
 		if (State->GetClass() == StartingState)
@@ -20,6 +21,11 @@ void URpStateMachineComponent::Start()
 			CurrentState->Activate();
 		}
 	}
+}
+
+void URpStateMachineComponent::Stop()
+{
+	bStopRequested = true;
 }
 
 void URpStateMachineComponent::Initialize()
@@ -102,6 +108,11 @@ void URpStateMachineComponent::ProcessRules()
 void URpStateMachineComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	if (bStopRequested)
+	{
+		return;
+	}
 
 	if (IsValid(CurrentState))
 	{

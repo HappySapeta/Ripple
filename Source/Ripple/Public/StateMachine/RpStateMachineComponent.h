@@ -31,6 +31,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void Start();
+	
+	UFUNCTION(BlueprintCallable)
+	void Stop();
 
 	UFUNCTION(BlueprintCallable)
 	URpStateMachineBlackboardBase* GetBlackboard()
@@ -75,4 +78,6 @@ private:
 	
 	UPROPERTY(Transient)
 	TArray<URpStateTransitionRule*> TransitionRuleInstances;
+	
+	bool bStopRequested = false;
 };
