@@ -1,0 +1,121 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+
+/**
+ * 
+ */
+template <typename DataType>
+class FRpSpatialData
+{
+public:
+	
+	FRpSpatialData(const int Resolution, const float WorldSpan, DataType Default = {})
+	{
+		Initialize(Resolution, WorldSpan, Default);
+	}
+
+	void Initialize(const int Resolution, const float WorldSpan, DataType Default = {})
+	{
+		check(Resolution > 0);
+
+		GridSize = Resolution;
+		WorldSize = WorldSpan;
+		Data.Init(Default, GridSize * GridSize);
+	}
+
+	[[nodiscard]] DataType* GetDataAt(const FVector2f& Coordinates, const FVector2f& Offset = {0, 0})
+	{
+		const int RowIndex = static_cast<int>(FMath::Floor(Coordinates.X + Offset.X));
+		const int ColumnIndex = static_cast<int>(FMath::Floor(Coordinates.Y + Offset.Y));
+
+		if (!IsValidGridCoordinate({static_cast<float>(RowIndex), static_cast<float>(ColumnIndex)}))
+		{
+			return nullptr;
+		}
+
+		return &Data[RowIndex * GridSize + ColumnIndex];
+	}
+
+	[[nodiscard]] const DataType* GetDataAt(const FVector2f& Coordinates, const FVector2f& Offset = {0, 0}) const
+	{
+		return const_cast<FRpSpatialData*>(this)->GetDataAt(Coordinates, Offset);
+	}
+
+	float GetCellSize() const
+	{
+		return WorldSize / static_cast<float>(GridSize);
+	}
+
+	float GetResolution() const
+	{
+		return static_cast<float>(GridSize);
+	}
+
+	float GetWorldSpan() const
+	{
+		return WorldSize;
+	}
+
+	bool IsValidGridCoordinate(const FVector2f& Coordinate) const
+	{
+		return Coordinate.X >= 0 && Coordinate.X < GridSize && Coordinate.Y >= 0 && Coordinate.Y < GridSize;
+	}
+
+	bool IsValidWorldPosition(const FVector2f& Position) const
+	{
+		return Position.X >= 0 && Position.X <= WorldSize && Position.Y >= 0 && Position.Y <= WorldSize;
+	}
+
+	[[nodiscard]] FVector2f GridToWorld(const FVector2f& Coordinate) const
+	{
+		const float NormXCoordinate = Coordinate.X / static_cast<float>(GridSize);
+		const float NormYCoordinate = Coordinate.Y / static_cast<float>(GridSize);
+
+		return {NormXCoordinate * WorldSize, NormYCoordinate * WorldSize};
+	}
+
+	[[nodiscard]] FVector2f WorldToGridSnapped(const FVector2f& Position) const
+	{
+		const FVector2f PreciseCoords = WorldToGridPrecise(Position);
+		return {FMath::Floor(PreciseCoords.X), FMath::Floor(PreciseCoords.Y)};
+	}
+
+	[[nodiscard]] FVector2f WorldToGridPrecise(const FVector2f& Position) const
+	{
+		const float CellSize = WorldSize / GridSize;
+
+		float X = FMath::Clamp(Position.X / CellSize, 0, GridSize - 1.0f);
+		float Y = FMath::Clamp(Position.Y / CellSize, 0, GridSize - 1.0f);
+
+		return {X, Y};
+	}
+
+	void ForEachCellPerform(TFunction<void(DataType * Cell, const FVector2f & Coords)> Operation)
+	{
+		for (int Row = 0; Row < GridSize; ++Row)
+		{
+			for (int Column = 0; Column < GridSize; ++Column)
+			{
+				Operation
+				(
+					GetDataAt({static_cast<float>(Row), static_cast<float>(Column)}), 
+					FVector2f{static_cast<float>(Row), static_cast<float>(Column)}
+				);
+			}
+		}
+	}
+
+	uint32_t GetNum() const
+	{
+		return Data.Num();
+	}
+
+private:
+
+	float WorldSize;
+	int GridSize;
+	TArray<DataType> Data;
+};
