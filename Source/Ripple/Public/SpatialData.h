@@ -69,6 +69,14 @@ public:
 		return Position.X >= 0 && Position.X <= WorldSize && Position.Y >= 0 && Position.Y <= WorldSize;
 	}
 
+	FVector2f GetCoordsOf(const int Index)
+	{
+		uint32 Row = Index / GetNum();
+		uint32 Column = Index % GetNum();
+		
+		return {static_cast<float>(Row), static_cast<float>(Column)};
+	}
+	
 	[[nodiscard]] FVector2f GridToWorld(const FVector2f& Coordinate) const
 	{
 		const float NormXCoordinate = Coordinate.X / static_cast<float>(GridSize);
@@ -108,7 +116,7 @@ public:
 		}
 	}
 
-	uint32_t GetNum() const
+	uint32 GetNum() const
 	{
 		return Data.Num();
 	}
