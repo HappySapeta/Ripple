@@ -115,6 +115,21 @@ public:
 			}
 		}
 	}
+	
+	void ForEachCellPerform(TFunction<void(const DataType * Cell, const FVector2f & Coords)> Operation) const
+	{
+		for (int Row = 0; Row < GridSize; ++Row)
+		{
+			for (int Column = 0; Column < GridSize; ++Column)
+			{
+				Operation
+				(
+					GetDataAt({static_cast<float>(Row), static_cast<float>(Column)}), 
+					FVector2f{static_cast<float>(Row), static_cast<float>(Column)}
+				);
+			}
+		}
+	}
 
 	uint32 GetNum() const
 	{
