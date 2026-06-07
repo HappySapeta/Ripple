@@ -49,9 +49,9 @@ public:
 		return WorldSize / static_cast<float>(GridSize);
 	}
 
-	float GetResolution() const
+	int GetResolution() const
 	{
-		return static_cast<float>(GridSize);
+		return GridSize;
 	}
 
 	float GetWorldSpan() const
