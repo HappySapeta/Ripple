@@ -85,13 +85,13 @@ public:
 		return {NormXCoordinate * WorldSize, NormYCoordinate * WorldSize};
 	}
 
-	[[nodiscard]] FVector2f WorldToGridSnapped(const FVector2f& Position) const
+	[[nodiscard]] FVector2f WorldToGrid(const FVector2f& Position) const
 	{
-		const FVector2f PreciseCoords = WorldToGridPrecise(Position);
+		const FVector2f PreciseCoords = WorldToGridCentered(Position);
 		return {FMath::Floor(PreciseCoords.X), FMath::Floor(PreciseCoords.Y)};
 	}
 
-	[[nodiscard]] FVector2f WorldToGridPrecise(const FVector2f& Position) const
+	[[nodiscard]] FVector2f WorldToGridCentered(const FVector2f& Position) const
 	{
 		const float CellSize = WorldSize / GridSize;
 
