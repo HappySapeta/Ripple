@@ -12,9 +12,9 @@ class FRpSpatialData
 {
 public:
 	
-	FRpSpatialData(const int Resolution, const float WorldSpan, DataType Default = {})
+	FRpSpatialData()
 	{
-		Initialize(Resolution, WorldSpan, Default);
+		Initialize(2, 10, {});
 	}
 
 	void Initialize(const int Resolution, const float WorldSpan, DataType Default = {})
