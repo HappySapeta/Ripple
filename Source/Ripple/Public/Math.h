@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Math/Vector2D.h"
+
 struct FRpMath
 {
 	[[nodiscard]] static UE_FORCEINLINE_HINT float GetSignedAngleDegrees(FVector2f V, FVector2f W)
