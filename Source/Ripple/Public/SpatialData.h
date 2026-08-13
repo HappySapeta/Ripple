@@ -85,20 +85,25 @@ public:
 		return {NormXCoordinate * WorldSize, NormYCoordinate * WorldSize};
 	}
 
-	[[nodiscard]] FVector2f WorldToGrid(const FVector2f& Position) const
+	[[nodiscard]] FVector2f WorldToGridIndices(const FVector2f& Position) const
 	{
-		const FVector2f PreciseCoords = WorldToGridCentered(Position);
-		return {FMath::Floor(PreciseCoords.X), FMath::Floor(PreciseCoords.Y)};
+		const FVector2f GridLocation = WorldToGridLocation(Position);
+		return 
+		{
+			static_cast<float>(FMath::Clamp(FMath::FloorToInt(GridLocation.X), 0, GridSize - 1)), 
+			static_cast<float>(FMath::Clamp(FMath::FloorToInt(GridLocation.Y), 0, GridSize - 1))
+		};
 	}
 
-	[[nodiscard]] FVector2f WorldToGridCentered(const FVector2f& Position) const
+	[[nodiscard]] FVector2f WorldToGridLocation(const FVector2f& Position) const
 	{
-		const float CellSize = WorldSize / GridSize;
+		const float CellSize = GetCellSize();
 
-		float X = FMath::Clamp(Position.X / CellSize, 0, GridSize - 1.0f);
-		float Y = FMath::Clamp(Position.Y / CellSize, 0, GridSize - 1.0f);
-
-		return {X, Y};
+		return
+		{
+			FMath::Clamp(Position.X / CellSize, 0.0f, static_cast<float>(GridSize)),
+			FMath::Clamp(Position.Y / CellSize, 0.0f, static_cast<float>(GridSize))
+		};
 	}
 
 	void ForEachCellPerform(TFunction<void(DataType * Cell, const FVector2f & Coords)> Operation)
