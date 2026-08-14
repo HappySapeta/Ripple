@@ -11,9 +11,9 @@ constexpr int8 GIndexBufferSize = std::numeric_limits<RpIndexBuffer>::digits;
 
 /**
 * Number of IndexBuffers in a Block.
-* With GIndexBufferLength of 64, and GIndexBlockSize of 20, each cell in the grid can address upto 1280 objects.
+* With GIndexBufferLength of 64, and GIndexBlockSize of 100, each cell in the grid can address upto 6400 objects.
 */
-constexpr int8 GIndexBlockSize = 20;
+constexpr int8 GIndexBlockSize = 100;
 
 // Block of IndexBuffers
 struct FRpIndexBlock
