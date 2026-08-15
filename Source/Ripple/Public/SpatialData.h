@@ -24,7 +24,7 @@ public:
 		GridSize = Resolution;
 		WorldSize = WorldSpan;
 		Data.Init(Default, GridSize * GridSize);
-	}
+	} 
 
 	[[nodiscard]] DataType* GetDataAt(const FVector2f& Coordinates, const FVector2f& Offset = {0, 0})
 	{
@@ -139,6 +139,11 @@ public:
 	uint32 GetNum() const
 	{
 		return Data.Num();
+	}
+	
+	size_t GetSizeOfData() const
+	{
+		return Data.GetAllocatedSize() + sizeof(Data);
 	}
 
 private:
